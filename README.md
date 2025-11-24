@@ -8,14 +8,19 @@ This repository holds the code to a **stochastic, individual-based outbreak simu
 
 ## To Setup and Run the Model
 
-
+1. Download all the files in this repository.
+2. Use `setup.py`.
 
 ## Background
  
  The model uses a set population of individuals (default is `100 000` individuals) with a global age distribution (based on UK values). This age distribution is separated into groups of every 5 years (0-4 years old, 5-9 years old, etc), in addition to 75+ years old. Each individual's immune status is tracked, which is conferred by infection and/or a booster vaccination. We assume each individual in the population has previously been vaccinated against and/or infected by a previous SARS-CoV-2 varient at least once over a two-year period before the start of the simulation. Additionally, we assume `2000` booster doses per day are administered, such that the entire population is vaccinated within 40 days, with a maximum vaccine uptake level of 80%.
+
+ As this is a stochastic individual-based model, the simulation is repeated `100` times, and the mean of these simulations is presented. Each simulation represents the dynamics over a given period such that one wave of the outbreak occurs.
+
+ We consider the effect on the number of deaths and the years of life lost (YLL) due to premature mortality, given the level of protection of the variant-adapted vaccine against infection and hospitalisation, for a period of one year following variant emergence.
  
 
- ### Infectiousness of the Variant
+ ### Modelling the Infectiousness of the Variant
 
  At the start of the model, `100` random indiviuals are infected with the novel variant. 
 
@@ -33,7 +38,8 @@ where:
 - $\beta^{(a)}$ is the infection rate parameter, reflecting the susceptibility of individuals in age group $a$
 - $M_{ab}$ is the mean daily number of contacts that an individual in age group $b$ has with an individual age group $a$
 
-### Transmitting the Variant to Individuals
+
+### Modelling the Transmission of the Variant
 
 The probability that an individual is infected by the new variant is dependent on the force of infection and relative susceptibility, given by:
 ```math
@@ -63,14 +69,36 @@ and
 - $k$ is the shape parameter
 - $n_{50_m}$ is the immunity level at which 50% protection is conferred, where $m={1,2}$ and represents infection and hospitalisation/death, respectively
 
-The immunity levels, $n_x$, from each source of immunity are tracked individually and are modelled using a biphasic exponentaion decay function:
+The immunity levels, $n_x$, from each source of immunity are tracked individually and are modelled using a biphasic exponentaion decay function, to model the waning immunity seen in individuals given previous infection and vaccination:
 ```math
-n_x(t) = n^0_x frac{ \exp(\pi_1\tau_x(t) + \pi_2t_s) + \exp(\pi_2\tau_x(t) + \pi_1t_s) }{ \exp(\pi_1\t_s) + \exp(\pi_2\t_s) }
+n_x(t) = n^0_x \frac{ \exp(\pi_1\tau_x(t) + \pi_2t_s) + \exp(\pi_2\tau_x(t) + \pi_1t_s) }{ \exp(\pi_1t_s) + \exp(\pi_2t_s) }
 ```
 where
 - $t_s$ is the period of switching between the fast and slow decays (days)
 - $\pi_1$ and $\pi_2$ rates for the initial period of fast or slow antibody decay, respectively (1/day)
 - $n^0_x$ is the initial immunity level
   - $n^0_{v_1}$ is max immune recognition following vaccination with an existing vaccine
-  - $n^0_{v_2}$ is max immune recognition following vaccination with an variant-adapted vaccine, which varies with vaccine efficacy ($\text{VE} = \frac{n^0_{v_2}}{n^0_{v_1}}$)
+  - $n^0_{v_2}$ is max immune recognition following vaccination with an variant-adapted vaccine, which varies with vaccine efficacy 
+  - $\text{VE} = \frac{n^0_{v_2}}{n^0_{v_1}}$
   - $n^0_{i}$ is max immune recognition following infection
+
+
+### Modelling Patient Behaviour Once Exposed
+
+Once an individual is exposed:
+- the latent period, or the time between when a person is infected and when they become infectious, $t^*_L$ is drawn from a gamma distribution
+  - $ L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du $
+  - with $k$ days following exposure, chosen such that $k=1$ gives a valid distribution for $L_1$
+  - the mean latent period is given as $1/\alpha$ 
+- after the latent period is finished, a sample is taken to determine whether the patient is either symptomatic or asymptomatic infectious
+  - given as age-dependent probability $d^{(a)}$
+
+If a patient is symptomatic infectious:
+- their infectious period is given by a gamma distribution $ L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du $
+  - the mean infectious period is given by $1/\gamma$
+- a sample is taken to determine if they are hospitalised, $P_{IH}(t)$
+  - a time is sampled $t^*_H$ from a Weibull distribution which determines the time they were hospitalised
+- a further sample is then taken to determine if they die as a result $P_{HD}(t)$
+-  a time is sampled $t^*_D$ from a gamma distribution which determines the time they died after hospitalisation
+
+Individuals who remain asymptomatic throughout infection and those who have an infectious period will only recover and transition to being susceptible after their infectious period. Individuals who die are removed from the population after time of death.
