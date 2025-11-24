@@ -1,4 +1,4 @@
-# seir_sim.py
+# SEIR IBM model - skeleton for Covid-19 vaccine booster model
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
