@@ -15,7 +15,7 @@ setup(name='vaccbopti',
       url='https://github.com/abbie-evans/vaccine-booster-optimisation',
       packages=['vaccbopti'],
       install_requires=[
-          # Dependencies go here!
+          # Dependencies go here
           'numpy',
           'matplotlib',
           'pandas',
