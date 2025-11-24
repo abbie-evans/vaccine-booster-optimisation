@@ -87,14 +87,14 @@ where
 
 Once an individual is exposed:
 - the latent period, or the time between when a person is infected and when they become infectious, $t^*_L$ is drawn from a gamma distribution
-  - $ L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du $
+  - $L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du$
   - with $k$ days following exposure, chosen such that $k=1$ gives a valid distribution for $L_1$
   - the mean latent period is given as $1/\alpha$ 
 - after the latent period is finished, a sample is taken to determine whether the patient is either symptomatic or asymptomatic infectious
   - given as age-dependent probability $d^{(a)}$
 
 If a patient is symptomatic infectious:
-- their infectious period is given by a gamma distribution $ L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du $
+- their infectious period is given by a gamma distribution $L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du$
   - the mean infectious period is given by $1/\gamma$
 - a sample is taken to determine if they are hospitalised, $P_{IH}(t)$
   - a time is sampled $t^*_H$ from a Weibull distribution which determines the time they were hospitalised
@@ -102,3 +102,9 @@ If a patient is symptomatic infectious:
 -  a time is sampled $t^*_D$ from a gamma distribution which determines the time they died after hospitalisation
 
 Individuals who remain asymptomatic throughout infection and those who have an infectious period will only recover and transition to being susceptible after their infectious period. Individuals who die are removed from the population after time of death.
+
+
+### Summary of Parameters
+| Parameter | Definition | Value |
+| --------- | ---------- | ----- |
+| $d^{(a)}$ | z | z | 
