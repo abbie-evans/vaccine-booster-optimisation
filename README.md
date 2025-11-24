@@ -22,19 +22,18 @@ This repository holds the code to a **stochastic, individual-based outbreak simu
 The variant has an effective reproduction number $R_e$, or the transmissibility of the novel variant at the beginning of each simulation, accounting for the immunity and susceptibility of the host population at the time, $\beta$. The simulation period is then adapted given a value of $R_e$, such that for `t = 1 year`, $R_e=1.5$, and for `t = 185 days`, $R_e=3$.
 
 $R_e$ is calculated by finding the largest eigenvalue from the next-generation matrix with entries $R_{ab}$.
-$$
+```math
 R_{ab} = ( d^{(a)} + p(1-d^{(a)}) ) ( \frac{1}{\gamma}\overline{v}(t)\beta^{(a)}M_{ab} )
-$$
-
+```
 
 ### Transmitting the Variant to Individuals
 
 The probability that an individual is infected by the new variant is given by:
-$$
+```math
 P(i_\text{infected}) = 1 - \exp^{-v_i(t)\Delta^{(a)}}
-$$
+```
 
 The force of infection $\Delta$ in an age group, $a$, $\Delta^{(a)}$ is given by:
-$$
+```math
 \Delta^{(a)} = \beta^{(a)} \sum_{b=1}^{16} \frac{M_{ab}}{N_{(a)}} (I^{(b)} + pA^{(b)})
-$$
+```
