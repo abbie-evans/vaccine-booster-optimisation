@@ -91,12 +91,11 @@ Once an individual is exposed:
   - with $k$ days following exposure, chosen such that $k=1$ gives a valid distribution for $L_1$
   - the mean latent period is given as $1/\alpha$ 
 - after the latent period is finished, a sample is taken to determine how long the patient is infectious
-  - this is dram from a gamma distribution, with the mean infectious period is given as $1/\gamma$ 
+  - this is drawm from a gamma distribution, $L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du$ with
+  - the mean infectious period is given as $1/\gamma$ 
   - the patient is also determined as either symptomatic or asymptomatic infectious, given as age-dependent probability $d^{(a)}$
 
 If a patient is symptomatic infectious:
-- their infectious period is given by a gamma distribution $L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du$
-  - the mean infectious period is given by $1/\gamma$
 - a sample is taken to determine if they are hospitalised, $P_{IH}(t)$
   - a time is sampled $t^*_H$ from a Weibull distribution which determines the time they were hospitalised
 - a further sample is then taken to determine if they die as a result $P_{HD}(t)$
