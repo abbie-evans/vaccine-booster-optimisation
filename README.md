@@ -86,12 +86,13 @@ where
 ### Modelling Patient Behaviour Once Exposed
 
 Once an individual is exposed:
-- the latent period, or the time between when a person is infected and when they become infectious, $t^*_L$ is drawn from a gamma distribution
+- the latent period, or the time between when a person is exposed and when they become infectious, $t^*_L$ is drawn from a gamma distribution
   - $L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du$
   - with $k$ days following exposure, chosen such that $k=1$ gives a valid distribution for $L_1$
   - the mean latent period is given as $1/\alpha$ 
-- after the latent period is finished, a sample is taken to determine whether the patient is either symptomatic or asymptomatic infectious
-  - given as age-dependent probability $d^{(a)}$
+- after the latent period is finished, a sample is taken to determine how long the patient is infectious
+  - this is dram from a gamma distribution, with the mean infectious period is given as $1/\gamma$ 
+  - the patient is also determined as either symptomatic or asymptomatic infectious, given as age-dependent probability $d^{(a)}$
 
 If a patient is symptomatic infectious:
 - their infectious period is given by a gamma distribution $L_k = \int_{k-1}^{k+1} (1 - |u-k|)g(u) du$
