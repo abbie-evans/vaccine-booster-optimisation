@@ -3,7 +3,7 @@
 As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update
 existing vaccines.
 
-This repository holds the code to a **stochastic, individual-based outbreak simulation model** that can be used to project numbers of cases and deaths during an outbreaks of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay).
+This repository holds the code to a **stochastic, individual-based outbreak simulation model** that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay).
 
 
 ## To Setup and Run the Model
@@ -22,7 +22,7 @@ This repository holds the code to a **stochastic, individual-based outbreak simu
 
  ### Modelling the Infectiousness of the Variant
 
- At the start of the model, `100` random indiviuals are infected with the novel variant. 
+ At the start of the model, `100` random individuals are infected with the novel variant. 
 
 The variant has an effective reproduction number $R_e$, or the transmissibility of the novel variant at the beginning of each simulation, accounting for the immunity and susceptibility of the host population at the time, $\beta$. The simulation period is then adapted given a value of $R_e$, such that for `t = 1 year`, $R_e=1.5$, and for `t = 185 days`, $R_e=3$.
 
@@ -31,7 +31,7 @@ $R_e$ is calculated by finding the largest eigenvalue from the next-generation m
 R_{ab} = \left( d^{(a)} + p(1-d^{(a)}) \right) \left( \frac{1}{\gamma}\overline{\nu}(t)\beta^{(a)}M_{ab} \right)
 ```
 where:
-- $d^{(a)}$ is the probability that a vaccinated infected indivudal in age group $a$ develops symptoms
+- $d^{(a)}$ is the probability that an unvaccinated infected individual in age group $a$ develops symptoms
 - $p$ is the infectiousness of an asymptomatic infected individual, relative to a symptomatic infected individual
 - $1/\gamma$ is the mean infectious period
 - $\overline{\nu}(t)$ is the average susceptibility of the whole population to the new variant at the start of the simulation
@@ -55,7 +55,7 @@ where
 - $N_{(a)}$ is the number of individuals in age group $a$
 - $I^{(b)}$ and $A^{(b)}$ are the numbers of individuals in group $b$ that are infectious symptomatic and asymptomatic, relatively
 
-A 'susceptible' individual refers to individuals who are partially susceptibile, where the level of susceptibility is determined by their immune status. The relative susceptibility of an individual is given by:
+A 'susceptible' individual refers to individuals who are partially susceptible, where the level of susceptibility is determined by their immune status. The relative susceptibility of an individual is given by:
 ```math
 \nu_i(t) = 1 - \text{max} \left[ f_1(\tau_1(t)), f_2(\tau_2(t)), f_3(\tau_3(t)) \right]
 ```
@@ -69,7 +69,7 @@ and
 - $k$ is the shape parameter
 - $n_{50_m}$ is the immunity level at which 50% protection is conferred, where $m={1,2}$ and represents infection and hospitalisation/death, respectively
 
-The immunity levels, $n_x$, from each source of immunity are tracked individually and are modelled using a biphasic exponentaion decay function, to model the waning immunity seen in individuals given previous infection and vaccination:
+The immunity levels, $n_x$, from each source of immunity are tracked individually and are modelled using a biphasic exponential decay function, to model the waning immunity seen in individuals given previous infection and vaccination:
 ```math
 n_x(t) = n^0_x \frac{ \exp(\pi_1\tau_x(t) + \pi_2t_s) + \exp(\pi_2\tau_x(t) + \pi_1t_s) }{ \exp(\pi_1t_s) + \exp(\pi_2t_s) }
 ```
@@ -78,7 +78,7 @@ where
 - $\pi_1$ and $\pi_2$ rates for the initial period of fast or slow antibody decay, respectively (1/day)
 - $n^0_x$ is the initial immunity level
   - $n^0_{\nu_1}$ is max immune recognition following vaccination with an existing vaccine
-  - $n^0_{\nu_2}$ is max immune recognition following vaccination with an variant-adapted vaccine, which varies with vaccine efficacy, VE
+  - $n^0_{\nu_2}$ is max immune recognition following vaccination with a variant-adapted vaccine, which varies with vaccine efficacy, VE
   - $\text{VE} = \frac{n^0_{v_2}}{n^0_{v_1}}$
   - $n^0_{i}$ is max immune recognition following infection
 
@@ -107,7 +107,7 @@ Individuals who remain asymptomatic throughout infection and those who have an i
 ### Summary of Parameters
 | Parameter | Code Name | Definition | Value |
 | --------- | --------- | ---------- | ----- |
-| $d^{(a)}$ | `p_v_symp_a` | probability that a vaccinated infected individual in age group $a$ develops symptoms | [0.068, 0.015, 0.021, 0.026, 0.067, 0.098, 0.104, 0.094, 0.101, 0.125, 0.193, 0.261, 0.293, 0.539, 0.633, 0.678] | 
+| $d^{(a)}$ | `p_v_symp_a` | probability that an unvaccinated infected individual in age group $a$ develops symptoms | [0.068, 0.015, 0.021, 0.026, 0.067, 0.098, 0.104, 0.094, 0.101, 0.125, 0.193, 0.261, 0.293, 0.539, 0.633, 0.678] | 
 | $p$ | `infec_asymp` | infectiousness of an asymptomatic infected individual, relative to a symptomatic infected individual | 0.255 | 
 | $1/\gamma$ | `mean_infec` | mean infectious period (days) | 9 | 
 | $\overline{\nu}(t)$ | `susceptibility` | average susceptibility of the whole population to the new variant at the start of the simulation | calculated at the start of the simulation | 
