@@ -28,13 +28,13 @@ The variant has an effective reproduction number $R_e$, or the transmissibility 
 
 $R_e$ is calculated by finding the largest eigenvalue from the next-generation matrix with entries $R_{ab}$.
 ```math
-R_{ab} = \left( d^{(a)} + p(1-d^{(a)}) \right) \left( \frac{1}{\gamma}\overline{v}(t)\beta^{(a)}M_{ab} \right)
+R_{ab} = \left( d^{(a)} + p(1-d^{(a)}) \right) \left( \frac{1}{\gamma}\overline{\nu}(t)\beta^{(a)}M_{ab} \right)
 ```
 where:
 - $d^{(a)}$ is the probability that a vaccinated infected indivudal in age group $a$ develops symptoms
 - $p$ is the infectiousness of an asymptomatic infected individual, relative to a symptomatic infected individual
 - $1/\gamma$ is the mean infectious period
-- $\overline{v}(t)$ is the average susceptibility of the whole population to the new variant at the start of the simulation
+- $\overline{\nu}(t)$ is the average susceptibility of the whole population to the new variant at the start of the simulation
 - $\beta^{(a)}$ is the infection rate parameter, reflecting the susceptibility of individuals in age group $a$
 - $M_{ab}$ is the mean daily number of contacts that an individual in age group $b$ has with an individual age group $a$
 
@@ -43,7 +43,7 @@ where:
 
 The probability that an individual is infected by the new variant is dependent on the force of infection and relative susceptibility, given by:
 ```math
-P(i_\text{infected}) = 1 - \exp^{-v_i(t)\Delta^{(a)}}
+P(i_\text{infected}) = 1 - \exp^{-\nu_i(t)\Delta^{(a)}}
 ```
 
 The force of infection $\Delta$ in an age group, $a$, $\Delta^{(a)}$ is given by:
@@ -57,7 +57,7 @@ where
 
 A 'susceptible' individual refers to individuals who are partially susceptibile, where the level of susceptibility is determined by their immune status. The relative susceptibility of an individual is given by:
 ```math
-v_i(t) = 1 - \text{max} \left[ f_1(\tau_1(t)), f_2(\tau_2(t)), f_3(\tau_3(t)) \right]
+\nu_i(t) = 1 - \text{max} \left[ f_1(\tau_1(t)), f_2(\tau_2(t)), f_3(\tau_3(t)) \right]
 ```
 where each function $f_x(\tau_x(t))$ is a possible source of immunity for each individual, and $\tau_x(t)$ is the time since receiving this source of immunity, and where $x={1,2,3}$, represents vaccination with an existing vaccine, vaccination with a variant-adapted vaccine, and infection with the novel variant, respectively. 
 
@@ -77,8 +77,8 @@ where
 - $t_s$ is the period of switching between the fast and slow decays (days)
 - $\pi_1$ and $\pi_2$ rates for the initial period of fast or slow antibody decay, respectively (1/day)
 - $n^0_x$ is the initial immunity level
-  - $n^0_{v_1}$ is max immune recognition following vaccination with an existing vaccine
-  - $n^0_{v_2}$ is max immune recognition following vaccination with an variant-adapted vaccine, which varies with vaccine efficacy, VE
+  - $n^0_{\nu_1}$ is max immune recognition following vaccination with an existing vaccine
+  - $n^0_{\nu_2}$ is max immune recognition following vaccination with an variant-adapted vaccine, which varies with vaccine efficacy, VE
   - $\text{VE} = \frac{n^0_{v_2}}{n^0_{v_1}}$
   - $n^0_{i}$ is max immune recognition following infection
 
