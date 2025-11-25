@@ -124,7 +124,7 @@ Individuals who remain asymptomatic throughout infection and those who have an i
 | $\pi_2$ | `decay_slow` | rates for the initial period of slow antibody decay (1/day) | $-\frac{log(2)}{1000}$ |
 | $n^0_{v_1}$ | `n0_exvacc` | max immune recognition following vaccination with an existing vaccine | 0.22 |
 | $n^0_{v_2}$ | `n0_newvacc` | max immune recognition following vaccination with an variant-adapted vaccine | 0.44 |
-| $n^0_{i}$ | `n0_newvacc` | max immune recognition following infection | 0.66 |
+| $n^0_{i}$ | `n0_infec` | max immune recognition following infection | 0.66 |
 | $1/\alpha$ | `mean_latent` | the mean latent period (days) | 5 |
 | $P_{IH}(t)$ | `p_nv_IH` | probability that an unvaccinated symptomatic infected individual in age group $a$ is hospitalised | [0.011, 0.011, 0.006, 0.005, 0.004, 0.003, 0.004, 0.006, 0.008, 0.011, 0.011, 0.01, 0.014, 0.016, 0.016, 0.017] |
 | $P_{HD}(t)$ | `p_nv_HD` | probability that an unvaccinated hospitalised individual in age group $a$ dies | [0.001, 0.001, 0.014, 0.008, 0.009, 0.019, 0.017, 0.019, 0.028, 0.031, 0.047, 0.085, 0.146, 0.137, 0.246, 0.445] | 
