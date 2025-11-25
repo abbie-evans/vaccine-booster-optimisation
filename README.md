@@ -118,7 +118,7 @@ Individuals who remain asymptomatic throughout infection and those who have an i
 | $A^{(b)}$ | numbers of individuals in group $b$ that are infectious asymptomatic | calculated at the start of the simulation |
 | $k$ | shape parameter linking immunity level and protection against infection/hospitality | 0.25 |
 | $n_{50_1}$ | immunity level at which 50% protection is conferred against infection | 0.091 |
-| $n_{50_2}$ | immunity level at which 50% protection is conferred against hospitalisation and death | 0.021 |
+| $n_{50_2}$ | immunity level at which 50% protection is conferred against hospitalisation and death | 0.021, determined by $\text{VE}\times n_{50_1}$ |
 | $t_s$ | period of switching between the fast and slow decays (days) | 75 |
 | $\pi_1$ | rates for the initial period of fast antibody decay (1/day) | $-\frac{log(2)}{35}$ |
 | $\pi_2$ | rates for the initial period of slow antibody decay (1/day) | $-\frac{log(2)}{1000}$ |
