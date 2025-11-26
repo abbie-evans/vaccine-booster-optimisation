@@ -31,7 +31,7 @@ $R_e$ is calculated by finding the largest eigenvalue from the next-generation m
 R_{ab} = \left( d^{(a)} + p(1-d^{(a)}) \right) \left( \frac{1}{\gamma}\overline{\nu}(t)\beta^{(a)}M_{ab} \right)
 ```
 where:
-- $d^{(a)}$ is the probability that an unvaccinated infected individual in age group $a$ develops symptoms
+- $d^{(a)}$ is the probability that an infected individual in age group $a$ develops symptoms
 - $p$ is the infectiousness of an asymptomatic infected individual, relative to a symptomatic infected individual
 - $1/\gamma$ is the mean infectious period
 - $\overline{\nu}(t)$ is the average susceptibility of the whole population to the new variant at the start of the simulation
@@ -43,16 +43,16 @@ where:
 
 The probability that an individual is infected by the new variant is dependent on the force of infection and relative susceptibility, given by:
 ```math
-P(i_\text{infected}) = 1 - \exp^{-\nu_i(t)\Lambda^{(a)}}
+P(i_\text{infected}) = 1 - \exp^{-\nu_i(t)\Lambda^{(a)}(t)}
 ```
 
 The force of infection $\Lambda$ in an age group, $a$, $\Lambda^{(a)}$ is given by:
 ```math
-\Lambda^{(a)} = \beta^{(a)} \sum_{b=1}^{16} \frac{M_{ab}}{N_{(a)}} \left(I^{(b)} + pA^{(b)} \right)
+\Lambda^{(a)}(t) = \beta^{(a)} \sum_{b=1}^{16} \frac{M_{ab}}{N^{(a)}} \left(I^{(b)} + pA^{(b)} \right)
 ```
 where
 - $\beta^{(a)}$, $M_{ab}$, and $p$ are defined as above
-- $N_{(a)}$ is the number of individuals in age group $a$
+- $N^{(a)}$ is the number of individuals in age group $a$
 - $I^{(b)}$ and $A^{(b)}$ are the numbers of individuals in group $b$ that are infectious symptomatic and asymptomatic, relatively
 
 A 'susceptible' individual refers to individuals who are partially susceptible, where the level of susceptibility is determined by their immune status. The relative susceptibility of an individual is given by:
@@ -86,20 +86,20 @@ where
 ### Modelling Patient Behaviour Once Exposed
 
 Once an individual is exposed:
-- the latent period, or the time between when a person is exposed and when they become infectious, $t^*_L$ is drawn from a gamma distribution
-  - $L_l = \int_{l-1}^{l+1} (1 - |l-d|)g(u) du$
-  - with $l$ days following exposure, chosen such that $k=1$ gives a valid distribution for $L_1$
+- the latent period, or the time between when a person is exposed and when they become infectious, $t^*_L$ is drawn from a discretised gamma distribution
+  - $L_l = \int_{l-1}^{l+1} (1 - |u-l|)g(u) du$
+  - with $l$ days following exposure, chosen such that $l=1$ gives a valid distribution for $L_1$
   - the mean latent period is given as $1/\alpha$ 
-- after the latent period is finished, a sample is taken to determine how long the patient is infectious
-  - this is drawm from a gamma distribution, $I_l = \int_{l-1}^{l+1} (1 - |u-l|)g(u) du$ with
+- after the latent period is finished, a sample is taken to determine how long the patient is infectious. The infectious period, $t^*_I$, is drawn from a discretised gamma distribution
+  - $I_l = \int_{l-1}^{l+1} (1 - |u-l|)g(u) du$ with
   - the mean infectious period is given as $1/\gamma$ 
   - the patient is also determined as either symptomatic or asymptomatic infectious, given as age-dependent probability $d^{(a)}$
 
 If a patient is symptomatic infectious:
-- a sample is taken to determine if they are hospitalised, $P_{IH}(t)$
-  - a time is sampled $t^*_H$ from a Weibull distribution which determines the time they were hospitalised
-- a further sample is then taken to determine if they die as a result $P_{HD}(t)$
--  a time is sampled $t^*_D$ from a gamma distribution which determines the time they died after hospitalisation
+- a sample is taken to determine if they are hospitalised, $p_{IH}(t)$
+  - a time is sampled $t^*_H$ from a discretised Weibull distribution which determines the time they were hospitalised
+- a further sample is then taken to determine if they die as a result $p_{HD}(t)$
+  -  if so, a time is sampled $t^*_D$ from a discretised gamma distribution which determines the time they died following hospitalisation
 
 Individuals who remain asymptomatic throughout infection and those who have an infectious period will only recover and transition to being susceptible after their infectious period. Individuals who die are removed from the population after time of death.
 
@@ -107,18 +107,18 @@ Individuals who remain asymptomatic throughout infection and those who have an i
 ### Summary of Parameters
 | Parameter | Code Name | Definition | Value |
 | --------- | --------- | ---------- | ----- |
-| $d^{(a)}$ | `p_v_symp_a` | probability that an unvaccinated infected individual in age group $a$ develops symptoms | [0.068, 0.015, 0.021, 0.026, 0.067, 0.098, 0.104, 0.094, 0.101, 0.125, 0.193, 0.261, 0.293, 0.539, 0.633, 0.678] | 
+| $d^{(a)}$ | `p_v_symp_a` | probability that an infected individual in age group $a$ develops symptoms | [0.068, 0.015, 0.021, 0.026, 0.067, 0.098, 0.104, 0.094, 0.101, 0.125, 0.193, 0.261, 0.293, 0.539, 0.633, 0.678] | 
 | $p$ | `infec_asymp` | infectiousness of an asymptomatic infected individual, relative to a symptomatic infected individual | 0.255 | 
 | $1/\gamma$ | `mean_infec` | mean infectious period (days) | 9 | 
 | $\overline{\nu}(t)$ | `susceptibility` | average susceptibility of the whole population to the new variant at the start of the simulation | calculated at the start of the simulation | 
 | $\beta^{(a)}$ | `infec_rate_param` | infection rate parameter, reflecting the susceptibility of individuals in age group $a$ (per day) | [0.186, 0.108, 0.122, 0.131, 0.185, 0.213,  0.217, 0.210, 0.215, 0.233, 0.272, 0.305, 0.318, 0.397, 0.422, 0.430] |
 | $M_{ab}$ | `contactmatrix` | mean daily number of contacts that an individual in age group $b$ has with an individual age group $a$ | contact matrix for UK |
-| $N_{(a)}$ | `n_indivs_a` | the number of individuals in age group $a$ | [5758, 6112, 5849, 5413, 6011, 6698, 6828, 6691, 6424, 6311, 6889, 6696, 5769, 5015, 5021, 8515] |
-| $I^{(b)}$ | `n_infec_sympt` | numbers of individuals in group $b$ that are infectious symptomatic | cacluated at the start of the simulation |
+| $N^{(a)}$ | `n_indivs_a` | the number of individuals in age group $a$ | [5758, 6112, 5849, 5413, 6011, 6698, 6828, 6691, 6424, 6311, 6889, 6696, 5769, 5015, 5021, 8515] |
+| $I^{(b)}$ | `n_infec_sympt` | numbers of individuals in group $b$ that are infectious symptomatic | calculated at the start of the simulation |
 | $A^{(b)}$ | `n_infec_asympt` | numbers of individuals in group $b$ that are infectious asymptomatic | calculated at the start of the simulation |
 | $k$ | `shape_param` | shape parameter linking immunity level and protection against infection/hospitality | 0.25 |
 | $n_{50_1}$ | `n50_ag_infec` | immunity level at which 50% protection is conferred against infection | 0.091 |
-| $n_{50_2}$ | `n50_ag_hd` | immunity level at which 50% protection is conferred against hospitalisation and death | 0.021, determined by $\text{VE}\times n_{50_1}$ |
+| $n_{50_2}$ | `n50_ag_hd` | immunity level at which 50% protection is conferred against hospitalisation and death | 0.021 |
 | $t_s$ | `decay_switch` | period of switching between the fast and slow decays (days) | 75 |
 | $\pi_1$ | `decay_fast` | rates for the initial period of fast antibody decay (1/day) | $-\frac{log(2)}{35}$ |
 | $\pi_2$ | `decay_slow` | rates for the initial period of slow antibody decay (1/day) | $-\frac{log(2)}{1000}$ |
@@ -126,5 +126,5 @@ Individuals who remain asymptomatic throughout infection and those who have an i
 | $n^0_{v_2}$ | `n0_newvacc` | max immune recognition following vaccination with an variant-adapted vaccine | 0.44 |
 | $n^0_{i}$ | `n0_infec` | max immune recognition following infection | 0.66 |
 | $1/\alpha$ | `mean_latent` | the mean latent period (days) | 5 |
-| $P_{IH}(t)$ | `p_nv_IH` | probability that an unvaccinated symptomatic infected individual in age group $a$ is hospitalised | [0.011, 0.011, 0.006, 0.005, 0.004, 0.003, 0.004, 0.006, 0.008, 0.011, 0.011, 0.01, 0.014, 0.016, 0.016, 0.017] |
-| $P_{HD}(t)$ | `p_nv_HD` | probability that an unvaccinated hospitalised individual in age group $a$ dies | [0.001, 0.001, 0.014, 0.008, 0.009, 0.019, 0.017, 0.019, 0.028, 0.031, 0.047, 0.085, 0.146, 0.137, 0.246, 0.445] | 
+| $p_{IH}^{(a)}$ | `p_nv_IH` | probability that an unvaccinated symptomatic infected individual in age group $a$ is hospitalised | [0.011, 0.011, 0.006, 0.005, 0.004, 0.003, 0.004, 0.006, 0.008, 0.011, 0.011, 0.01, 0.014, 0.016, 0.016, 0.017] |
+| $p_{HD}^{(a)}$ | `p_nv_HD` | probability that an unvaccinated hospitalised individual in age group $a$ dies | [0.001, 0.001, 0.014, 0.008, 0.009, 0.019, 0.017, 0.019, 0.028, 0.031, 0.047, 0.085, 0.146, 0.137, 0.246, 0.445] | 
