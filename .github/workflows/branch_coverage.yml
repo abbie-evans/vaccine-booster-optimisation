@@ -1,0 +1,40 @@
+# This workflow will check the code coverage across branches
+# For more information see: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning?versionId=free-pro-team%40latest&productId=actions&restPage=how-tos%2Cwrite-workflows%2Cchoose-what-workflows-do
+
+name: Branch Code Coverage
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+jobs:
+  basic-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install .[dev]
+          
+      - name: Run coverage
+        run: |
+          pytest --cov-config=.coveragerc --cov=./ci_course --cov-branch --cov-report=xml
+          cat coverage.xml
+          
+      - name: Upload coverage reprots to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          files: coverage.xml
