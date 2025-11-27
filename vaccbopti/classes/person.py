@@ -6,6 +6,7 @@ from params import Params
 from infectionforce import InfectionForce
 from infectioncount import InfectionCount
 
+
 # Define Person class
 class Person:
     """A class representing an individual in the simulation."""

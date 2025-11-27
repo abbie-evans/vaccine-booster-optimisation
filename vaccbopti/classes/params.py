@@ -78,6 +78,28 @@ class Params:
         scale_dist_death_t = (sd_death ** 2) / mean_death
         death_t = float(np.random.gamma(shape_dist_death_t, scale_dist_death_t))
 
+        @staticmethod
+        def calc_fx(cls, n0_x, n50_m):
+            exp_val = ( - cls.shape_param * 
+                       np.log10(cls.calc_nx(n0_x)) - 
+                       np.log10(n50_m) ) ### susceptibility M=1 or hospitalisation M=2
+            f_x = 1/ (1 + np.exp(exp_val))
+            return f_x
+
+        @classmethod
+        def calc_nx(cls, n0_x):
+            tau_x = np.linspace(0,365*2,365*2+1)
+            exp1 = cls.decay_fast*(tau_x) + cls.decay_slow*cls.decay_switch
+            exp2 = cls.decay_slow*(tau_x) + cls.decay_fast*cls.decay_switch
+            numerator = np.exp( exp1 ) + np.exp( exp2 )
+            denominator = np.exp( cls.decay_fast*cls.decay_switch ) + np.exp( cls.decay_slow*cls.decay_switch )
+            n_x = n0_x * (numerator/denominator)
+            return n_x
+
+        f_exvacc = calc_fx(n0_exvacc, n50_ag_infec)
+        f_newvacc = calc_fx(n0_newvacc, n50_ag_infec)
+        f_infec = calc_fx(n0_infec, n50_ag_infec)
+
     _instance = __Params
 
     def __init__(self):
