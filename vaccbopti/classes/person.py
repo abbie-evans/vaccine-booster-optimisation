@@ -4,8 +4,7 @@
 # Import useful modules
 import numpy as np
 from params import Params
-from infection_force import InfectionForce
-
+from infectionforce import InfectionForce
 
 # Define Person class
 class Person:
@@ -68,7 +67,7 @@ class Person:
             immunity_infec = Params.instance().f_infec[self.immunity_time_infec]
         susceptibility = 1 - max(immunity_exvacc,
                                  immunity_newvacc,
-                                 immunity_infec) 
+                                 immunity_infec)
         return susceptibility
 
     def change_status(self):
@@ -82,15 +81,19 @@ class Person:
         if self.status == 'exposed':
             self.latent_t_i -= 1
             if self.latent_t_i == -1:  # if latent period is finished, determine type of infection
-                self.determine_status_change(["symptomatic", "asymptomatic"], Params.instance().p_v_symp_a)  # (a)symptomatic or not
-                #self.infect_t_i = self.pick_distr_prob(self, Params.instance().infec_period)  # determine infectious period time                   
+                self.determine_status_change(["symptomatic", "asymptomatic"],   # (a)symptomatic or not
+                                             Params.instance().p_v_symp_a)
+                self.infect_t_i = self.pick_distr_prob(self,  # determine infectious period time
+                                                       Params.instance().infec_period)                   
                 if self.status == 'symptomatic':  # if symptomatic
-                    self.determine_status_change(['symptomatic', 'hospitalised'], Params.instance().p_nv_IH)  # check if hospitalised
+                    self.determine_status_change(['symptomatic', 'hospitalised'],  # check if hospitalised
+                                                 Params.instance().p_nv_IH)
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
-                        #self.hosp_t_i = self.pick_distr_prob(Params.instance().hosp_time)
-                        self.determine_status_change(['hospitalised', 'dead'], Params.instance().p_nv_HD)  # check if they die
+                        self.hosp_t_i = self.pick_distr_prob(Params.instance().hosp_time)
+                        self.determine_status_change(['hospitalised', 'dead'],  # check if they die
+                                                     Params.instance().p_nv_HD)
                         if self.status == 'dead':  # if they die, calculate how long it takes
-                            return#self.death_t_i = self.hosp_t_i + self.pick_distr_prob(Params.instance().death_period)
+                            self.death_t_i = self.hosp_t_i + self.pick_distr_prob(Params.instance().death_period)
         # If a person is susceptible, see if they become exposed
         if self.status == 'susceptible':
             self.determine_status_change(['susceptible', 'exposed'], self.prob_exposed)
