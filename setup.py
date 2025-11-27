@@ -35,5 +35,5 @@ setup(
         'flake8>=3',
         'pytest',
         'pytest-cov',
-    ],}, 
+    ], }, 
     license='GPLv3')
