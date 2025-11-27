@@ -14,5 +14,5 @@ python:
 
 sphinx:
   builder: html
-  configuration: vaccbopti/docs/conf.py
+  configuration: vaccbopti/docs/source/conf.py
   fail_on_warning: true
