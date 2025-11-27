@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import os
 
-class Params:
 
+class Params:
 
     class __Params:
         """Class containing all the general information."""
