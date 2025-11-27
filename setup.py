@@ -1,11 +1,13 @@
 from setuptools import setup, find_packages
 
+
 def get_readme():
     """
     Load README.md text for use as description.
     """
     with open('README.md') as f:
         return f.read()
+
 
 setup(
     name='vaccbopti',
