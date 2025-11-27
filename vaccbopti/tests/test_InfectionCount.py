@@ -10,7 +10,7 @@ from vaccbopti.classes.params import Params
 class TestInfectionCount(TestCase):
     def setUp(self):
         self.testTable = InfectionCount().count_df
-        self.ageNbs = Params().age_groups
+        self.ageNbs = Params.instance().age_groups
 
     def test_df_len(self):
         len_df = len(self.testTable)

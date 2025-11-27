@@ -11,13 +11,13 @@ class InfectionForce:
     '''
     def __init__(self):
         self.lambda_list = []
-        self.infect_rate_param = Params.infect_rate_param
-        self.age_groups = Params.age_groups
-        self.contactmatrix = Params.contactmatrix
-        self.n_indivs_a = Params.n_indivs_a
+        self.infect_rate_param = Params.instance().infect_rate_param
+        self.age_groups = Params.instance().age_groups
+        self.contactmatrix = Params.instance().contactmatrix
+        self.n_indivs_a = Params.instance().n_indivs_a
         self.count_df = InfectionCount.count_df
         # this is a good structure bc it makes sure it's always up to date
-        self.infect_asymp = Params.infect_asymp
+        self.infect_asymp = Params.instance().infect_asymp
 
     def calc_z(self, a, b):
         '''
