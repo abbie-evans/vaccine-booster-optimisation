@@ -6,12 +6,12 @@ import numpy.testing as npt
 import unittest
 from unittest import TestCase
 from vaccbopti.classes.infectioncount import InfectionCount
-from vaccbopti.classes.params import params
+from vaccbopti.classes.params import Params
 
 class TestInfectionCount(TestCase):
     def setUp(self):
         self.testTable = InfectionCount().count_df
-        self.ageNbs = params().age_groups
+        self.ageNbs = Params().age_groups
 
     def test_df_len(self):
         len_df = len(self.testTable)
