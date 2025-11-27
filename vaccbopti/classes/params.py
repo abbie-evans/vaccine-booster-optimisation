@@ -2,12 +2,15 @@
 # Initiate distribution of parameters
 import numpy as np
 import pandas as pd
+import os
 
 class Params:
 
+
     class __Params:
         """Class containing all the general information."""
-
+        file_root = os.path.dirname(os.path.dirname(__file__))
+        contactmatrix = pd.read_csv(f'{file_root}/classes/UK_Contacts_1.csv', header=None)
         age_groups = ['0-4', '5-9', '10-14', '15-19',
                       '20-24', '25-29', '30-34', '35-39',
                       '40-44', '45-49', '50-54', '55-59',
@@ -20,7 +23,6 @@ class Params:
                       0.067, 0.098, 0.104, 0.094,
                       0.101, 0.125, 0.193, 0.261,
                       0.293, 0.539, 0.633, 0.678]
-        contactmatrix = pd.read_csv('UK_Contacts_1.csv')
         infec_asymp = 0.255
         mean_infec = 9
         mean_latent = 5
