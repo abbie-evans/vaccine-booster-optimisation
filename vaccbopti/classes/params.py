@@ -5,6 +5,7 @@ import pandas as pd
 
 class Params:
 
+
     class __Params:
 
         """Class containing all the general information."""
