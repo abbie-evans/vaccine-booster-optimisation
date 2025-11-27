@@ -1,11 +1,12 @@
 # File for parameters
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
 
 class Params:
     """Class containing all the general information."""
-    def __init__ (self):
+
+
+    def __init__(self):
         self.age_groups = ['0-4', '5-9', '10-14', '15-19',
                            '20-24', '25-29', '30-34', '35-39',
                            '40-44', '45-49', '50-54', '55-59',
@@ -41,8 +42,8 @@ class Params:
         self.n50_ag_infec = 0.091
         self.n50_ag_hd = 0.021
         self.decay_switch = 75
-        self.decay_fast = -np.log(2)/35
-        self.decay_slow = -np.log(2)/1000
+        self.decay_fast = -np.log(2) / 35
+        self.decay_slow = -np.log(2) / 1000
         self.n0_exvacc = 0.22
         self.n0_newvacc = 0.44
         self.n0_infec = 0.66
@@ -96,5 +97,4 @@ if __name__ == "__main__":
     print("latent_t sample:", params.initial_distribution("latent_t"))
     print("infec_t sample:", params.initial_distribution("infec_t"))
     print("death_t sample:", params.initial_distribution("death_t"))
-    print("hosp_t  sample:", params.initial_distribution("hosp_t"))
-    
+    print("hosp_t sample:", params.initial_distribution("hosp_t"))
