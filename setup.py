@@ -16,7 +16,6 @@ setup(
     long_description=get_readme(),
     author='AnMei Daniels, Monica Dewi, Kristijonas Raibuzis, Bente Vissel',
     url='https://github.com/abbie-evans/vaccine-booster-optimisation',
-    
     # Packages to include
     packages=find_packages(include=('vaccbopti')),
     install_requires=[
