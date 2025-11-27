@@ -10,8 +10,4 @@ class InfectionCount:
 
     def __init__(self):
         df_status = ['symptomatic','asymptomatic']
-        self.count_df = pd.DataFrame(0, index=np.arange(16),columns=df_status)
-
-
-test_table = InfectionCount()
-print(test_table.count_df)
+        self.count_df = pd.DataFrame(0, index=np.arange(16),columns=df_status)        
