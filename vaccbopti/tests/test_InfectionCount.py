@@ -1,8 +1,7 @@
 # possibility for tests:
 # does it make the dataframe? can assert if len == 16?
-# does it add no one on day 1?
+# To be added: does it add no one on day 1?
 
-import numpy.testing as npt
 import unittest
 from unittest import TestCase
 from vaccbopti.classes.infectioncount import InfectionCount
@@ -16,7 +15,7 @@ class TestInfectionCount(TestCase):
     def test_df_len(self):
         len_df = len(self.testTable)
         len_age_groups = len(self.ageNbs)
-        npt.assert_equal(len_df, len_age_groups)
+        self.assert_equal(len_df, len_age_groups)
 
 if __name__ == '__main__':
     unittest.main()
