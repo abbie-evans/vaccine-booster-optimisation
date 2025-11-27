@@ -6,9 +6,7 @@ import os
 
 class Params:
 
-
     class __Params:
-
         """Class containing all the general information."""
         file_root = os.path.dirname(os.path.dirname(__file__))
         contactmatrix = pd.read_csv(f'{file_root}/classes/UK_Contacts_1.csv', header=None)

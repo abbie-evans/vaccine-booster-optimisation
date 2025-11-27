@@ -1,1 +1,0 @@
-# File for force of infection class
