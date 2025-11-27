@@ -32,11 +32,12 @@ setup(
             'sphinx>=1.5, !=1.7.3',
             # Nice theme for docs
             'sphinx_rtd_theme',
-            ],
+        ],
         'dev': [
             # Flake8 for code style checking
             'flake8>=3',
             'pytest',
             'pytest-cov',
-        ],}, 
+        ],
+    },
     license='GPLv3')
