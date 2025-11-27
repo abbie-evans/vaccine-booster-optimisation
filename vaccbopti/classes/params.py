@@ -6,7 +6,7 @@ import os
 
 class Params:
 
-    
+
     class __Params:
         """Class containing all the general information."""
         file_root = os.path.dirname(os.path.dirname(__file__))
