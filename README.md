@@ -1,3 +1,5 @@
+[![Documentation Status](https://vaccine-booster-optimisation.readthedocs.io/en/latest/)](https://vaccine-booster-optimisation.readthedocs.io/en/latest/?badge=latest)
+
 # Vaccine Booster Optimisation
 
 As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update
