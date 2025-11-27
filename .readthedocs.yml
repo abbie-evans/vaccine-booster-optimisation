@@ -11,8 +11,8 @@ python:
         path: .
         extra_requirements:
             - docs
+            - requirements.txt
 
 sphinx:
   builder: html
   configuration: vaccbopti/docs/source/conf.py
-  fail_on_warning: true
