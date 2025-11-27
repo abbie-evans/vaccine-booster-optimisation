@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 
 class Params:
-    """Class containing all the general information."""
 
+    """Class containing all the general information."""
 
     def __init__(self):
         self.age_groups = ['0-4', '5-9', '10-14', '15-19',
