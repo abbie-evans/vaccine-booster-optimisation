@@ -6,8 +6,11 @@ from infectioncount import InfectionCount
 
 class InfectionForce:
     '''
-
-
+    This class defines the function to compute the force of infection on
+    each susceptible individual in age group a given by the function:
+    Lambda_a = infect_rate_param_a * sum over age groups 1-16 (contactmatrix_ab/number of indivs in a)
+    * nb of infected individuals in group b + probability of being asymptomatically infected * Asymptomatic in group b
+    
     '''
     def __init__(self):
         self.lambda_list = []
