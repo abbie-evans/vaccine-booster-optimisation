@@ -5,9 +5,7 @@ import pandas as pd
 
 class Params:
 
-
     class __Params:
-
         """Class containing all the general information."""
 
         age_groups = ['0-4', '5-9', '10-14', '15-19',
