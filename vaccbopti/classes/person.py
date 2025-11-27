@@ -1,6 +1,5 @@
 # FILE CONTAINING ALL THE RELEVANT INFORMATION AND FUNCTIONS FOR A PERSON IN THE SIMULATION.
 
-
 # Import useful modules
 import numpy as np
 from params import Params
