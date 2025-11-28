@@ -79,20 +79,23 @@ class Params:
         death_t = float(np.random.gamma(shape_dist_death_t, scale_dist_death_t))
 
         @staticmethod
-        def calc_fx(cls, n0_x, n50_m):
-            exp_val = ( - cls.shape_param * 
-                       np.log10(cls.calc_nx(n0_x)) - 
-                       np.log10(n50_m) ) ### susceptibility M=1 or hospitalisation M=2
+        def calc_fx(n0_x, n50_m):
+            exp_val = ( -Params.instance().shape_param * 
+                       np.log10(Params.instance().calc_nx(n0_x)) - 
+                       np.log10(n50_m)) ### susceptibility M=1 or hospitalisation M=2
             f_x = 1/ (1 + np.exp(exp_val))
             return f_x
 
-        @classmethod
-        def calc_nx(cls, n0_x):
+        @staticmethod
+        def calc_nx(n0_x):
+            params = Params.instance()
             tau_x = np.linspace(0,365*2,365*2+1)
-            exp1 = cls.decay_fast*(tau_x) + cls.decay_slow*cls.decay_switch
-            exp2 = cls.decay_slow*(tau_x) + cls.decay_fast*cls.decay_switch
-            numerator = np.exp( exp1 ) + np.exp( exp2 )
-            denominator = np.exp( cls.decay_fast*cls.decay_switch ) + np.exp( cls.decay_slow*cls.decay_switch )
+            num_exp1 = params.decay_fast*(tau_x) + params.decay_slow*params.decay_switch
+            num_exp2 = params.decay_slow*(tau_x) + params.decay_fast*params.decay_switch
+            numerator = np.exp(num_exp1) + np.exp(num_exp2)
+            dem_exp1 = np.exp(params.decay_fast * params.decay_switch)
+            dem_exp2 = np.exp(params.decay_slow * params.decay_switch)
+            denominator = dem_exp1 + dem_exp2
             n_x = n0_x * (numerator/denominator)
             return n_x
 
