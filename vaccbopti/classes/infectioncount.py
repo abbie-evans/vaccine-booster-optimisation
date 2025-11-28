@@ -8,7 +8,7 @@ class InfectionCount:
     that are asymptomatic and symptomatic infected
     '''
     class __InfectionCount:
-    #create a dictionary which holds the statuses and the corresponding age groups (index of 16)
+        # create a dictionary which holds the statuses and the corresponding age groups (index of 16)
 
         df_status = ['symptomatic',
                      'asymptomatic']
