@@ -30,7 +30,7 @@ class InfectionForce:
         and calculates what we define as z, the part of the lambda
         function to be summed ultimately.
         INPUT a = fixed age group for which lambda will be calculated (integer)
-        b = other age group to which contact is compared. 
+        b = other age group to which contact is compared.
         '''
         # first just calculate (I(b) + p*A(b))
         # input: age group a (fixed as we are calculating lambda for group a)
