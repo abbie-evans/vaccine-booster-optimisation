@@ -15,11 +15,12 @@ class test_person(TestCase):
     def setUp(self):
         """Create a test Person object."""
         self.testPerson = Person()
-    
+
     def test_get_age_group(self):
         self.assertEqual(self.testPerson.age_group, None)
         self.testPerson.get_age_group(0)
         self.assertEqual(self.testPerson.age_group, '0-4')
+
 
 if __name__ == "__main__":
     unittest.main()

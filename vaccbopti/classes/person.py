@@ -5,9 +5,9 @@ import numpy as np
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.infectioncount import InfectionCount
-
 params = Params.instance()
 infectioncount = InfectionCount.instance()
+
 
 # Define Person class
 class Person:
