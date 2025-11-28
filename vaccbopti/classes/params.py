@@ -117,9 +117,8 @@ class Params:
     _instance = __Params
 
     def __init__(self):
-        """Virutal private constructor to enforce singleton pattern."""
-        if Params._instance is not None:
-            raise RuntimeError("This class is a singleton!")
+        """Virtual private constructor to enforce singleton pattern."""
+        raise RuntimeError("This class is a singleton!")
 
     @staticmethod
     def instance():
