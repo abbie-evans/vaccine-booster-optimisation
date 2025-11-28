@@ -2,10 +2,12 @@
 
 # Import useful modules
 import numpy as np
-from params import Params
-from infectionforce import InfectionForce
-from infectioncount import InfectionCount
+from vaccbopti.classes.params import Params
+from vaccbopti.classes.infectionforce import InfectionForce
+from vaccbopti.classes.infectioncount import InfectionCount
 
+params = Params.instance()
+infectioncount = InfectionCount.instance()
 
 # Define Person class
 class Person:
@@ -42,11 +44,12 @@ class Person:
         Params:
             n (int): index for a specific age group from array of age groups
         """
-        self.age_group = str(Params.instance().age_groups[n])
+        self.age_group = str(params.age_groups[n])
 
     def calc_prob_exposed(self):
         """Calculates the probability a person's status changes from susceptible to exposed."""
-        exp_val = np.exp(-self.calc_susceptibility() * InfectionForce.instance().infection_force)
+        index = np.where(params.age_groups == self.age_group)[0][0]
+        exp_val = np.exp(-self.calc_susceptibility() * InfectionForce.lambda_list[index])
         self.prob_exposed = 1 - exp_val
 
     def calc_susceptibility(self):
@@ -54,7 +57,6 @@ class Person:
         Returns:
             susceptibility (float): level of susceptibility is determined by their immune status
         """
-        params = Params.instance()
         if self.immunity_time_exvacc < 0:
             immunity_exvacc = 0
         else:
@@ -75,18 +77,17 @@ class Person:
     def change_status(self):
         """Decision tree to determine a person's status at each time step."""
         # If infected in any condition, then count down until recovered and back to susceptible population
-        params = Params.instance()
         if self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised':
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
                 if self.status == 'symptomatic':
                     index = np.where(params.age_groups == self.age_group)[0][0]
-                    InfectionCount.instance().count_df['symptomatic'].iloc[index] = (
-                        InfectionCount.instance().count_df['symptomatic'].iloc[index] - 1)
+                    infectioncount.count_df['symptomatic'].iloc[index] = (
+                        infectioncount.count_df['symptomatic'].iloc[index] - 1)
                 if self.status == 'asymptomatic':
                     index = np.where(params.age_groups == self.age_group)[0][0]
-                    InfectionCount.instance().count_df["asymptomatic"].iloc[index] = (
-                        InfectionCount.instance().count_df["asymptomatic"].iloc[index] - 1)
+                    infectioncount.count_df["asymptomatic"].iloc[index] = (
+                        infectioncount.count_df["asymptomatic"].iloc[index] - 1)
                 self.status = 'susceptible'
         # If exposed, count down until latent period is finished and then determine response to infection
         if self.status == 'exposed':
@@ -94,20 +95,20 @@ class Person:
             if self.latent_t_i == -1:  # if latent period is finished, determine type of infection
                 self.determine_status_change(["symptomatic", "asymptomatic"],   # (a)symptomatic or not
                                              params.p_v_symp_a)
-                self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time                               
+                self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time
                 if self.status == 'asymptomatic':
                     index = np.where(params.age_groups == self.age_group)[0][0]
-                    InfectionCount.instance().count_df['asymptomatic'].iloc[index] = (
-                        InfectionCount.instance().count_df['asymptomatic'].iloc[index] + 1)
+                    infectioncount.count_df['asymptomatic'].iloc[index] = (
+                        infectioncount.count_df['asymptomatic'].iloc[index] + 1)
                 if self.status == 'symptomatic':  # if symptomatic
                     index = np.where(params.age_groups == self.age_group)[0][0]
-                    InfectionCount.instance().count_df['symptomatic'].iloc[index] = (
-                        InfectionCount.instance().count_df['symptomatic'].iloc[index] + 1)
+                    infectioncount.count_df['symptomatic'].iloc[index] = (
+                        infectioncount.count_df['symptomatic'].iloc[index] + 1)
                     self.determine_status_change(['symptomatic', 'hospitalised'],  # check if hospitalised
                                                  params.p_nv_IH)
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
-                        InfectionCount.instance().count_df['symptomatic'].iloc[index] = (
-                            InfectionCount.instance().count_df['symptomatic'].iloc[index] - 1)
+                        infectioncount.count_df['symptomatic'].iloc[index] = (
+                            infectioncount.count_df['symptomatic'].iloc[index] - 1)
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)
                         self.determine_status_change(['hospitalised', 'dead'],  # check if they die
                                                      params.p_nv_HD)
@@ -126,7 +127,7 @@ class Person:
             probability (float or list): a float of probability or list of probabilities per age group
         """
         if type(probability) is list:
-            index = np.where(Params.instance().age_groups == self.age_group)[0][0]
+            index = np.where(params.age_groups == self.age_group)[0][0]
             status = np.random.choice(statuses, size=1, p=[probability[index], 1 - probability[index]])
         else:
             status = np.random.choice(statuses, size=1, p=[probability, 1 - probability])

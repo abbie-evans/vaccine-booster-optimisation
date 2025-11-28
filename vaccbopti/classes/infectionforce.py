@@ -1,8 +1,7 @@
 # File for force of infection class
 
-from person import Person
-from params import Params
-from infectioncount import InfectionCount
+from vaccbopti.classes.params import Params
+from vaccbopti.classes.infectioncount import InfectionCount
 
 class InfectionForce:
     '''
@@ -10,17 +9,18 @@ class InfectionForce:
     each susceptible individual in age group a given by the function:
     Lambda_a = infect_rate_param_a * sum over age groups 1-16 (contactmatrix_ab/number of indivs in a)
     * nb of infected individuals in group b + probability of being asymptomatically infected * Asymptomatic in group b
-    
+
     '''
     def __init__(self):
+        params = Params.instance()
         self.lambda_list = []
-        self.infect_rate_param = Params.instance().infect_rate_param
-        self.age_groups = Params.instance().age_groups
-        self.contactmatrix = Params.instance().contactmatrix
-        self.n_indivs_a = Params.instance().n_indivs_a
-        self.count_df = InfectionCount.count_df
+        self.infec_rate_param = params.infec_rate_param
+        self.age_groups = params.age_groups
+        self.contactmatrix = params.contactmatrix
+        self.n_indivs_a = params.n_indivs_a
+        self.count_df = InfectionCount.instance().count_df
         # this is a good structure bc it makes sure it's always up to date
-        self.infect_asymp = Params.instance().infect_asymp
+        self.infec_asymp = params.infec_asymp
 
     def calc_z(self, a, b):
         '''
@@ -33,9 +33,9 @@ class InfectionForce:
         # first just calculate (I(b) + p*A(b))
         # input: age group a (fixed as we are calculating lambda for group a)
         # and age group b (will loop over)
-        I_b = self.count_df['symptomatic'][b]
-        p = self.infect_asymp
-        A_b = self.count_df['asymptomatic'][b]
+        I_b = self.count_df.loc[b,'symptomatic']
+        p = self.infec_asymp
+        A_b = self.count_df.loc[b,'asymptomatic']
         M_ab = self.contactmatrix[a][b]
         N_a = self.n_indivs_a[a]
         z = M_ab/N_a * (I_b + p*A_b)
@@ -50,7 +50,7 @@ class InfectionForce:
         for b in range(len(self.age_groups)):
             sub_z = self.calc_z(a,b=b)
             sum_z = sum_z + sub_z
-        lambda_a = self.infect_rate_param * sum_z
+        lambda_a = self.infec_rate_param * sum_z
         return lambda_a
     
     def all_lambda(self):
