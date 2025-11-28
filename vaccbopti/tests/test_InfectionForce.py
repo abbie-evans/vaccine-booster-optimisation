@@ -38,17 +38,21 @@ class TestInfectionForce(TestCase):
         test_A_b=2
         test_p=0.255
         test_M_12 = 3.81832
-        test_N_a= 5758
+        test_N_a= 6112
         test_manual = test_M_12/test_N_a * (test_I_b + test_p * test_A_b)
         #execute the function in the class InfectionForce
         test_function = self.testInfectionForce.calc_z(1,2)
         print(self.testInfectionForce.contactmatrix[1][2])
+        print(self.testInfectionForce.n_indivs_a[1])
         self.assertEqual(test_function, test_manual)
         #set df back to all zeros
         self.testInfectionForce.count_df = self.testInfectionForce.count_df.replace(2,0)
-        self.assertEqual(self.testInfectionForce.count_df[:,:],0) 
+        # if the function replaces one value correctly, it should replace all of them
+        self.assertEqual(list(self.testInfectionForce.count_df.iloc[1, :]),[0, 0])
 
-        #at the end of the test, reset df to zeros
+        # for col in self.testInfectionForce.count_df:
+        #     self.assertEqual(self.testInfectionForce.count_df[col], 0)
+
 
 
     
