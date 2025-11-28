@@ -29,7 +29,7 @@ class TestInfectionForce(TestCase):
         Test that the formula to calculate z calculates z correctly
         '''
         
-        # replace df values with 2s for the test
+        # replace df values with 2s for the testing
         self.testInfectionForce.count_df = self.testInfectionForce.count_df.replace(0, 2) #add values
         print(self.testInfectionForce.count_df)
 
