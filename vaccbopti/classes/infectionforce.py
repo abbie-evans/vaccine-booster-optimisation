@@ -4,6 +4,7 @@ from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
 
 class InfectionForce:
+
     '''
     This class defines the function to compute the force of infection on
     each susceptible individual in age group a given by the function:
@@ -28,19 +29,19 @@ class InfectionForce:
         and calculates what we define as z, the part of the lambda
         function to be summed ultimately.
         INPUT a = fixed age group for which lambda will be calculated (integer)
-        b = other age group to which contact is compared 
+        b = other age group to which contact is compared. 
         '''
         # first just calculate (I(b) + p*A(b))
         # input: age group a (fixed as we are calculating lambda for group a)
         # and age group b (will loop over)
-        I_b = self.count_df.loc[b,'symptomatic']
+        I_b = self.count_df.loc[b, 'symptomatic']
         p = self.infec_asymp
-        A_b = self.count_df.loc[b,'asymptomatic']
+        A_b = self.count_df.loc[b, 'asymptomatic']
         M_ab = self.contactmatrix[a][b]
         N_a = self.n_indivs_a[a]
-        z = M_ab/N_a * (I_b + p*A_b)
+        z = M_ab / N_a * (I_b + p * A_b)
         return z
-    
+
     def calc_lambda(self, a):
         '''
         This function calculates lambda from the obtained value of calc_z().
@@ -57,7 +58,5 @@ class InfectionForce:
         for a in self.age_groups:
             lambda_a = self.calc_lambda(a)
             self.lambda_list.append(lambda_a)
-        
-
 
 
