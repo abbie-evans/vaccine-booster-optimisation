@@ -27,9 +27,9 @@ class TestInfectionForce(TestCase):
     def test_calc_z(self):
         '''
         Test that the formula to calculate z calculates z correctly
+        by replacing the values by 2 and resetting them afterwards.
         '''
         
-        # replace df values with 2s for the testing
         self.testInfectionForce.count_df = self.testInfectionForce.count_df.replace(0, 2) #add values
         print(self.testInfectionForce.count_df)
 
