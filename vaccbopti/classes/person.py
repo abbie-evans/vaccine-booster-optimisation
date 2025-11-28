@@ -3,10 +3,11 @@
 # Import useful modules
 import numpy as np
 from params import Params
-#from infectionforce import InfectionForce
+from infectionforce import InfectionForce
 from infectioncount import InfectionCount
 params = Params.instance()
 infectioncount = InfectionCount.instance()
+
 
 # Define Person class
 class Person:
