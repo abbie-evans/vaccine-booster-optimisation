@@ -29,8 +29,8 @@ class TestInfectionForce(TestCase):
         Test that the formula to calculate z calculates z correctly
         by replacing the values by 2 and resetting them afterwards.
         '''
-        
-        self.testInfectionForce.count_df = self.testInfectionForce.count_df.replace(0, 2) #add values
+
+        self.testInfectionForce.count_df = self.testInfectionForce.count_df.replace(0, 2)
         print(self.testInfectionForce.count_df)
 
         # define the test values and compute manually
