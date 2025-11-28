@@ -49,12 +49,11 @@ class TestInfectionForce(TestCase):
         #set df back to all zeros
         self.testInfectionForce.count_df = self.testInfectionForce.count_df.replace(2, 0)
         # if the function replaces one value correctly, it should replace all of them
-        self.assertEqual(list(self.testInfectionForce.count_df.iloc[1, :]),[0, 0])
+        self.assertEqual(list(self.testInfectionForce.count_df.iloc[1, :]), [0, 0])
 
         # for col in self.testInfectionForce.count_df:
         #     self.assertEqual(self.testInfectionForce.count_df[col], 0)
 
-    
     if __name__ == '__main__':
         unittest.main()
 
