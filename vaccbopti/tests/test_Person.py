@@ -1,8 +1,8 @@
 # FILE FOR TESTING THE PERSON CLASS
 
 # Import useful modules
-import sys
-sys.path.insert(0, "C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
+# import sys
+# sys.path.insert(0, "C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
 import numpy as np
 import unittest
 from unittest import TestCase
@@ -26,17 +26,18 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.age_group, "20-24")
         index = np.where(params.age_groups == self.testPerson.age_group)[0][0]
         self.assertEqual(index, 4)
-    
+
     def test_calc_susceptibility(self):
         """Test that susceptibility calculations are correct."""
         self.assertEqual(self.testPerson.calc_susceptibility(), 1)
         self.testPerson.immunity_time_exvacc = 5
         self.assertAlmostEqual(self.testPerson.calc_susceptibility(), 1 - 0.22898922)
-    
+
     def test_determine_status_change(self):
+        """Test that the status change with probabilities are correct."""
         self.testPerson.get_age_group(4)
         self.testPerson.determine_status_change(['symptomatic', 'asymptomatic'], 1)
-        probs = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+        probs = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
         self.testPerson.determine_status_change(["symptomatic", "asymptomatic"], probs)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
 
