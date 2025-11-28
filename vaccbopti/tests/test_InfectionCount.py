@@ -7,6 +7,7 @@ from unittest import TestCase
 from vaccbopti.classes.infectioncount import InfectionCount
 from vaccbopti.classes.params import Params
 
+
 class TestInfectionCount(TestCase):
     def setUp(self):
         self.testTable = InfectionCount.instance().count_df
@@ -16,6 +17,7 @@ class TestInfectionCount(TestCase):
         len_df = len(self.testTable)
         len_age_groups = len(self.ageNbs)
         self.assertEqual(len_df, len_age_groups)
+
 
 if __name__ == '__main__':
     unittest.main()

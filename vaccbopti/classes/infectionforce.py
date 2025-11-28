@@ -3,6 +3,7 @@
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
 
+
 class InfectionForce:
 
     '''
@@ -49,14 +50,12 @@ class InfectionForce:
         #a loop, for b in range(len(age_groups))
         sum_z = 0
         for b in range(len(self.age_groups)):
-            sub_z = self.calc_z(a,b=b)
+            sub_z = self.calc_z(a, b=b)
             sum_z = sum_z + sub_z
         lambda_a = self.infec_rate_param * sum_z
         return lambda_a
-    
+
     def all_lambda(self):
         for a in self.age_groups:
             lambda_a = self.calc_lambda(a)
             self.lambda_list.append(lambda_a)
-
-

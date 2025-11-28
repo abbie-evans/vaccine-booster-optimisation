@@ -8,6 +8,7 @@ from unittest import TestCase
 from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.params import Params
 
+
 class TestInfectionForce(TestCase):
 
     def setUp(self):
