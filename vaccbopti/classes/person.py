@@ -3,7 +3,6 @@
 # Import useful modules
 import numpy as np
 from vaccbopti.classes.params import Params
-from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
 infectioncount = InfectionCount.instance()
@@ -46,10 +45,9 @@ class Person:
         """
         self.age_group = str(params.age_groups[n])
 
-    def calc_prob_exposed(self):
+    def calc_prob_exposed(self, force_infection):
         """Calculates the probability a person's status changes from susceptible to exposed."""
-        index = np.where(params.age_groups == self.age_group)[0][0]
-        exp_val = np.exp(-self.calc_susceptibility() * InfectionForce.lambda_list[index])
+        exp_val = np.exp(-self.calc_susceptibility() * force_infection)
         self.prob_exposed = 1 - exp_val
 
     def calc_susceptibility(self):
