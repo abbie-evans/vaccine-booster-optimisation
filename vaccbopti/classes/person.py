@@ -2,9 +2,9 @@
 
 # Import useful modules
 import numpy as np
-from params import Params
-from infectionforce import InfectionForce
-from infectioncount import InfectionCount
+from vaccbopti.classes.params import Params
+from vaccbopti.classes.infectionforce import InfectionForce
+from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
 infectioncount = InfectionCount.instance()
 
