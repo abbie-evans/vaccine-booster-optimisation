@@ -4,7 +4,7 @@
 from unittest import TestCase
 from vaccbopti.classes.params import Params
 
-# check if the RuntimeError is raised when the Params._instance contains an object
+# Check if the RuntimeError is raised when the Params._instance contains an object
 
 
 class TestParams(TestCase):
