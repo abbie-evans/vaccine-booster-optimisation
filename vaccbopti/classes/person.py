@@ -53,11 +53,6 @@ class Person:
         """
         self.age_group = str(params.age_groups[n])
 
-    def calc_prob_exposed(self, force_infection):
-        """Calculates the probability a person's status changes from susceptible to exposed."""
-        exp_val = np.exp(-self.calc_susceptibility() * force_infection)
-        self.prob_exposed = 1 - exp_val
-
     def calc_susceptibility(self):
         """Calculates the relative susceptibility, v(t), of an individual.
         Returns:
@@ -80,6 +75,34 @@ class Person:
                                  immunity_infec)
         return susceptibility
 
+    def calc_prob_exposed(self, force_infection):
+        """Calculates the probability a person's status changes from susceptible to exposed."""
+        exp_val = np.exp(-self.calc_susceptibility() * force_infection)
+        self.prob_exposed = 1 - exp_val
+
+    def pick_distr_prob(self, distribution):
+        """Determines the number of days a person is in a status, dependent on the probabiltiy distribution.
+        Params:
+            distribution (array): the probability distribution for different days
+        Returns:
+            days (int): the number of days a person is in a specific status
+        """
+        days = int(round(np.random.choice(distribution)))
+        return int(days)
+
+    def determine_status_change(self, statuses, probability):
+        """Determines if the person's status, based on probability.
+        Params:
+            statuses (list): a list of the two possible statuses
+            probability (float or list): a float of probability or list of probabilities per age group
+        """
+        if type(probability) is list:
+            index = np.where(params.age_groups == self.age_group)[0][0]
+            status = np.random.choice(statuses, size=1, p=[probability[index], 1 - probability[index]])
+        else:
+            status = np.random.choice(statuses, size=1, p=[probability, 1 - probability])
+        self.status = str(status[0])
+
     def initialise_infection(self):
         """Initialises people with infected status for the start of the simulation."""
         self.status = 'exposed'
@@ -95,7 +118,6 @@ class Person:
         if self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised' or self.status == 'dead':
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
-                print(params.p_v_symp_a)
                 index = np.where(params.age_groups == self.age_group)[0][0]
                 if self.status == 'dead':
                     infectioncount.count_df.loc[index, 'symptomatic'] = (
@@ -140,26 +162,3 @@ class Person:
                 self.immunity_time_infec = 0 # give immunity time
                 self.latent_t_i = self.pick_distr_prob(params.latent_t)
             return
-
-    def determine_status_change(self, statuses, probability):
-        """Determines if the person's status, based on probability.
-        Params:
-            statuses (list): a list of the two possible statuses
-            probability (float or list): a float of probability or list of probabilities per age group
-        """
-        if type(probability) is list:
-            index = np.where(params.age_groups == self.age_group)[0][0]
-            status = np.random.choice(statuses, size=1, p=[probability[index], 1 - probability[index]])
-        else:
-            status = np.random.choice(statuses, size=1, p=[probability, 1 - probability])
-        self.status = str(status[0])
-
-    def pick_distr_prob(self, distribution):
-        """Determines the number of days a person is in a status, dependent on the probabiltiy distribution.
-        Params:
-            distribution (array): the probability distribution for different days
-        Returns:
-            days (int): the number of days a person is in a specific status
-        """
-        days = int(round(np.random.choice(distribution)))
-        return int(days)

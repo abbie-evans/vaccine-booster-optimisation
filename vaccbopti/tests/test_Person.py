@@ -7,6 +7,7 @@ import numpy as np
 import unittest
 from unittest import TestCase
 from unittest.mock import patch
+import vaccbopti.classes.person as person
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
@@ -22,9 +23,13 @@ class test_person(TestCase):
         """Create a test Person object."""
         self.testPerson = Person()
 
+    def test_defaults(self):
+        self.assertEqual(self.testPerson.age_group, None)
+        self.assertEqual(self.testPerson.status, 'susceptible')
+        self.assertEqual(self.testPerson.latent_t_i, -1)
+
     def test_get_age_group(self):
         """Test that the ages are called correctly and can be reindexed correctly."""
-        self.assertEqual(self.testPerson.age_group, None)
         self.testPerson.get_age_group(4)
         self.assertEqual(self.testPerson.age_group, "20-24")
         index = np.where(params.age_groups == self.testPerson.age_group)[0][0]
@@ -35,6 +40,17 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.calc_susceptibility(), 1)
         self.testPerson.immunity_time_exvacc = 5
         self.assertAlmostEqual(self.testPerson.calc_susceptibility(), 1 - 0.22898922)
+    
+    def test_calc_prob_exposed(self):
+        self.testPerson.immunity_time_exvacc = 5
+        self.testPerson.calc_prob_exposed(1)
+        self.assertAlmostEqual(self.testPerson.prob_exposed, 0.5374546996)
+
+    def test_pick_distr_prob(self):
+        """Test that a number is correctly picked from a probability distribution."""
+        self.testPerson.latent_t_i = self.testPerson.pick_distr_prob(params.latent_t)
+        self.assertIsNot(self.testPerson.latent_t_i, 1)
+        self.testPerson.latent_t_i = -1
 
     def test_determine_status_change(self):
         """Test that the status change with probabilities are correct."""
@@ -45,13 +61,14 @@ class test_person(TestCase):
         self.testPerson.determine_status_change(['symptomatic', 'asymptomatic'], probs)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
 
-    def test_pick_distr_prob(self):
-        """Test that a number is correctly picked from a probability distribution."""
-        self.testPerson.latent_t_i = self.testPerson.pick_distr_prob(params.latent_t)
-        self.assertIsNot(self.testPerson.latent_t_i, 1)
-        self.testPerson.latent_t_i = -1
-    
-    @patch.object(params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    def test_initialise_infec(self):
+        self.testPerson.immunity_time_infec = 5
+        self.testPerson.initialise_infection()
+        self.assertEqual(self.testPerson.status, 'exposed')
+        self.assertNotEqual(self.testPerson.latent_t_i, -1)
+        self.assertEqual(self.testPerson.immunity_time_infec, 0)
+
+    @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     def test_change_status_asymptomatic(self):
         """Test that the status change decision tree works correctly on the asymptomatic branch."""
         self.testPerson.get_age_group(4)
@@ -66,7 +83,6 @@ class test_person(TestCase):
         self.assertIsNot(self.testPerson.latent_t_i, -1)
         self.testPerson.latent_t_i = 0
         # Checking the switch from exposed to asymptomatic.
-        print(params.p_v_symp_a) ### SHOULD 100% go to asymptomatic with new values
         self.testPerson.change_status()
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
@@ -82,21 +98,81 @@ class test_person(TestCase):
         self.assertEqual(infectioncount.count_df.loc[4, 'asymptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
-    @patch.object(params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-    def test_change_status_symptomatic(self):
-        """Test that the status change decision tree works correctly on the symptomatic branch."""
+    @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    @patch.object(person.params, 'p_nv_HD', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    def test_change_status_symptomatic_fine(self):
+        """Test that the status change decision tree works correctly on the symptomatic/unhospitalised branch."""
         self.testPerson.get_age_group(4)
         # Checking the switch from exposed to symptomatic (not hospitalised or dead).
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0
-        print(params.p_v_symp_a) ### SHOULD 100% go to symptomatic with new values
         self.testPerson.change_status()
+        self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'symptomatic')
-        #self.assertEqual(self.testPerson.latent_t_i, -1)
-        #self.assertNotEqual(self.testPerson.infect_t_i, -1)
-        #self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 1)
-        #self.testPerson.infect_t_i = 1
+        self.assertNotEqual(self.testPerson.infect_t_i, -1)
+        self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 1)
+        self.testPerson.infect_t_i = 1
+        # Checking the switch back from asymptomatic to susceptible.
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.infect_t_i, 0)
+        self.assertEqual(self.testPerson.status, 'symptomatic')
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.infect_t_i, -1)
+        self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 0)
+        self.assertEqual(self.testPerson.status, 'susceptible')
+    
+    @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    @patch.object(person.params, 'p_nv_IH', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    @patch.object(person.params, 'p_nv_HD', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    def test_change_status_symptomatic_hospitalised(self):
+        """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
+        self.testPerson.get_age_group(4)
+        # Checking the switch from exposed to symptomatic/hospitalised (not dead).
+        self.testPerson.status = 'exposed'
+        self.testPerson.latent_t_i = 0
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.latent_t_i, -1)
+        self.assertEqual(self.testPerson.status, 'hospitalised')
+        self.assertNotEqual(self.testPerson.infect_t_i, -1)
+        self.assertNotEqual(self.testPerson.hosp_t_i, -1)
+        self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 1)
+        self.testPerson.infect_t_i = 1
+        # Checking the switch back from asymptomatic to susceptible.
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.infect_t_i, 0)
+        self.assertEqual(self.testPerson.status, 'hospitalised')
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.infect_t_i, -1)
+        self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 0)
+        self.assertEqual(self.testPerson.status, 'susceptible')
 
+    @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    @patch.object(person.params, 'p_nv_IH', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    @patch.object(person.params, 'p_nv_HD', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    def test_change_status_symptomatic_dead(self):
+        """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
+        self.testPerson.get_age_group(4)
+        # Checking the switch from exposed to symptomatic/dead.
+        self.testPerson.status = 'exposed'
+        self.testPerson.latent_t_i = 0
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.latent_t_i, -1)
+        self.assertEqual(self.testPerson.status, 'dead')
+        self.assertNotEqual(self.testPerson.infect_t_i, -1)
+        self.assertNotEqual(self.testPerson.hosp_t_i, -1)
+        self.assertNotEqual(self.testPerson.death_t_i, -1)
+        self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 1)
+        self.testPerson.infect_t_i = 1
+        # Checking the person stays dead after the infectious period is over.
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.infect_t_i, 0)
+        self.assertEqual(self.testPerson.status, 'dead')
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.infect_t_i, -1)
+        self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 0)
+        self.assertEqual(self.testPerson.status, 'dead')
+        self.testPerson.change_status()
+        self.assertEqual(self.testPerson.status, 'dead')
 
 if __name__ == "__main__":
     unittest.main()
