@@ -1,4 +1,11 @@
 # FILE CONTAINING ALL THE RELEVANT INFORMATION AND FUNCTIONS FOR A PERSON IN THE SIMULATION.
+# - contains parameters that need to be individually defined per person
+# - function: to assign the age group of the person
+# - function: calculates the probability a person's status changes from susceptible to exposed
+# - function: valculates the relative susceptibility, v(t), of an individual
+# - function: decision tree to determine a person's status at each time step
+# - function: determines if the person's status, based on probability
+# - function: determines the number of days a person is in a status, dependent on the probabiltiy distribution
 
 # Import useful modules
 import numpy as np
@@ -138,5 +145,5 @@ class Person:
         Returns:
             days (int): the number of days a person is in a specific status
         """
-        days = np.random.choice(distribution)
+        days = int(round(np.random.choice(distribution)))
         return int(days)

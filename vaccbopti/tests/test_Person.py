@@ -1,8 +1,8 @@
 # FILE FOR TESTING THE PERSON CLASS
 
 # Import useful modules
-# import sys
-# sys.path.insert(0, "C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
+import sys
+sys.path.insert(0, "C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
 import numpy as np
 import unittest
 from unittest import TestCase
@@ -41,6 +41,10 @@ class test_person(TestCase):
         self.testPerson.determine_status_change(["symptomatic", "asymptomatic"], probs)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
 
+    def test_pick_distr_prob(self):
+        """Test that a number is correctly picked from a probability distribution."""
+        self.testPerson.latent_t_i = self.testPerson.pick_distr_prob(params.latent_t)
+        self.assertFalse(self.testPerson.latent_t_i, 1)
 
 if __name__ == "__main__":
     unittest.main()
