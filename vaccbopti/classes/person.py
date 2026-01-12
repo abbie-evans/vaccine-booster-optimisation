@@ -25,7 +25,7 @@ class Person:
             age_group (str): the age group the person belongs to (16 different classes, seen in parameter file)
             status (str): person's status relative to the infection
                           susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
-            prob_infected (float): probability an individual will become infected
+            prob_exposed (float): probability an individual will become infected
             latent_t_i (int): time left in the latent period once exposed
             infect_t_i (int): time left in infectious period once infectious (symptomatic or asymptomatic)
             hosp_t_i (int): time spent in hospital
@@ -81,49 +81,57 @@ class Person:
 
     def change_status(self):
         """Decision tree to determine a person's status at each time step."""
-        # If infected in any condition, then count down until recovered and back to susceptible population
-        if self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised':
+        # If dead - removed from the population
+        if self.status == 'dead' and self.infect_t_i == -1:
+            return
+        # If infected in any condition, then count down until recovered and back to susceptible population or removed
+        if self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised' or self.status == 'dead':
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
-                if self.status == 'symptomatic':
-                    index = np.where(params.age_groups == self.age_group)[0][0]
-                    infectioncount.count_df['symptomatic'].iloc[index] = (
-                        infectioncount.count_df['symptomatic'].iloc[index] - 1)
+                index = np.where(params.age_groups == self.age_group)[0][0]
+                if self.status == 'dead':
+                    infectioncount.count_df.loc[index, 'symptomatic'] = (
+                            infectioncount.count_df.loc[index, 'symptomatic'] - 1)
+                    return
+                if self.status == 'symptomatic' or self.status == 'hospitalised':
+                    infectioncount.count_df.loc[index, 'symptomatic'] = (
+                        infectioncount.count_df.loc[index, 'symptomatic'] - 1)
                 if self.status == 'asymptomatic':
-                    index = np.where(params.age_groups == self.age_group)[0][0]
-                    infectioncount.count_df["asymptomatic"].iloc[index] = (
-                        infectioncount.count_df["asymptomatic"].iloc[index] - 1)
+                    infectioncount.count_df.loc[index, "asymptomatic"] = (
+                        infectioncount.count_df.loc[index, "asymptomatic"] - 1)
                 self.status = 'susceptible'
+            return
         # If exposed, count down until latent period is finished and then determine response to infection
         if self.status == 'exposed':
             self.latent_t_i -= 1
             if self.latent_t_i == -1:  # if latent period is finished, determine type of infection
-                self.determine_status_change(["symptomatic", "asymptomatic"],   # (a)symptomatic or not
+                self.determine_status_change(['symptomatic', 'asymptomatic'],   # (a)symptomatic or not
                                              params.p_v_symp_a)
                 self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time
                 if self.status == 'asymptomatic':
                     index = np.where(params.age_groups == self.age_group)[0][0]
-                    infectioncount.count_df['asymptomatic'].iloc[index] = (
-                        infectioncount.count_df['asymptomatic'].iloc[index] + 1)
+                    infectioncount.count_df.loc[index, 'asymptomatic'] = (
+                        infectioncount.count_df.loc[index, 'asymptomatic'] + 1)
                 if self.status == 'symptomatic':  # if symptomatic
                     index = np.where(params.age_groups == self.age_group)[0][0]
-                    infectioncount.count_df['symptomatic'].iloc[index] = (
-                        infectioncount.count_df['symptomatic'].iloc[index] + 1)
-                    self.determine_status_change(['symptomatic', 'hospitalised'],  # check if hospitalised
+                    infectioncount.count_df.loc[index, 'symptomatic'] = (
+                        infectioncount.count_df.loc[index, 'symptomatic'] + 1)
+                    self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
                                                  params.p_nv_IH)
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
-                        infectioncount.count_df['symptomatic'].iloc[index] = (
-                            infectioncount.count_df['symptomatic'].iloc[index] - 1)
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)
-                        self.determine_status_change(['hospitalised', 'dead'],  # check if they die
+                        self.determine_status_change(['dead', 'hospitalised'],  # check if they die
                                                      params.p_nv_HD)
                         if self.status == 'dead':  # if they die, calculate how long it takes
                             self.death_t_i = self.hosp_t_i + self.pick_distr_prob(params.death_t)
+            return
         # If a person is susceptible, see if they become exposed
         if self.status == 'susceptible':
-            self.determine_status_change(['susceptible', 'exposed'], self.prob_exposed)
+            self.determine_status_change(['exposed', 'susceptible'], self.prob_exposed)
             if self.status == 'exposed':  # once exposed, choose time until infected
+                self.immunity_time_infec = 0 # give immunity time
                 self.latent_t_i = self.pick_distr_prob(params.latent_t)
+            return
 
     def determine_status_change(self, statuses, probability):
         """Determines if the person's status, based on probability.
