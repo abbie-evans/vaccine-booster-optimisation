@@ -2,7 +2,8 @@
 # - contains parameters that need to be individually defined per person
 # - function: to assign the age group of the person
 # - function: calculates the probability a person's status changes from susceptible to exposed
-# - function: valculates the relative susceptibility, v(t), of an individual
+# - function: calculates the relative susceptibility, v(t), of an individual
+# - function: initialises people with infected status for the start of the simulation
 # - function: decision tree to determine a person's status at each time step
 # - function: determines if the person's status, based on probability
 # - function: determines the number of days a person is in a status, dependent on the probabiltiy distribution
@@ -78,6 +79,12 @@ class Person:
                                  immunity_newvacc,
                                  immunity_infec)
         return susceptibility
+
+    def initialise_infection(self):
+        """Initialises people with infected status for the start of the simulation."""
+        self.status = 'exposed'
+        self.immunity_time_infec = 0 # reset the immunity time counter for infection
+        self.latent_t_i = self.pick_distr_prob(params.latent_t) # gives them a latent time
 
     def change_status(self):
         """Decision tree to determine a person's status at each time step."""

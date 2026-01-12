@@ -17,6 +17,12 @@ infectioncount = InfectionCount.instance()
 class test_person(TestCase):
     """A class to test that the Person class is set up and runs correctly."""
 
+    """@classmethod
+    def setUpClass(cls) -> None:
+        """Initialise a parameters."""
+        super(params, cls).setUpClass() # sets up parameters
+        cls.p_v_symp_a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"""
+
     def setUp(self):
         """Create a test Person object."""
         self.testPerson = Person()
