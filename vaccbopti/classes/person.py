@@ -115,8 +115,8 @@ class Person:
         if self.status == 'dead' and self.infect_t_i == -1:
             return
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
-        if (self.status == 'symptomatic' or self.status == 'asymptomatic' or 
-            self.status == 'hospitalised' or self.status == 'dead'):
+        if (self.status == 'symptomatic' or self.status == 'asymptomatic'
+           or self.status == 'hospitalised' or self.status == 'dead'):
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
                 index = np.where(params.age_groups == self.age_group)[0][0]
