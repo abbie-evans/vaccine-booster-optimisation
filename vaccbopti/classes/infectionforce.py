@@ -4,8 +4,8 @@ from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
 
-class InfectionForce:
 
+class InfectionForce:
 
     '''
     This class defines the function to compute the force of infection on

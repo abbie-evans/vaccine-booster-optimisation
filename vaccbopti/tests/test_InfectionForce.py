@@ -49,9 +49,10 @@ class TestInfectionForce(TestCase):
         test_function, test_nb = self.testInfectionForce.calc_lambda(1)
         #the function should run over 16 age groups
         loop_times = 16
-        self.test_nb =  float(1.1)
+        self.test_nb = float(1.1)
         self.assertEqual(loop_times, test_nb)
         self.assertEqual(type(test_function), type(self.test_nb))
+
 
 if __name__ == '__main__':
     unittest.main()
