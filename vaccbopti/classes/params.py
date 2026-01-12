@@ -17,21 +17,21 @@ class Params:
             self.project_root = os.path.dirname(os.path.dirname(__file__))
             self.contactmatrix = pd.read_csv(f'{self.project_root}/classes/UK_Contacts.csv', header=None)
             self.age_groups = np.array(['0-4', '5-9', '10-14', '15-19',  # age groups set up
-                                '20-24', '25-29', '30-34', '35-39',
-                                '40-44', '45-49', '50-54', '55-59',
-                                '60-64', '65-69', '70-74', '75+'])
+                                        '20-24', '25-29', '30-34', '35-39',
+                                        '40-44', '45-49', '50-54', '55-59',
+                                        '60-64', '65-69', '70-74', '75+'])
             self.n_indivs_a = [5758, 6112, 5849, 5413,  # number in each age group N(a)
-                        6011, 6698, 6828, 6691,
-                        6424, 6311, 6889, 6696,
-                        5769, 5015, 5021, 8515]
+                               6011, 6698, 6828, 6691,
+                               6424, 6311, 6889, 6696,
+                               5769, 5015, 5021, 8515]
             self.p_v_symp_a = [0.068, 0.015, 0.021, 0.026,  # probability of developing symptoms d(a)
-                        0.067, 0.098, 0.104, 0.094,
-                        0.101, 0.125, 0.193, 0.261,
-                        0.293, 0.539, 0.633, 0.678]
+                               0.067, 0.098, 0.104, 0.094,
+                               0.101, 0.125, 0.193, 0.261,
+                               0.293, 0.539, 0.633, 0.678]
             self.infec_rate_param = [0.186, 0.108, 0.122, 0.131,  # infection rate beta(a)
-                                0.185, 0.213, 0.217, 0.210,
-                                0.215, 0.233, 0.272, 0.305,
-                                0.318, 0.397, 0.422, 0.430]
+                                     0.185, 0.213, 0.217, 0.210,
+                                     0.215, 0.233, 0.272, 0.305,
+                                     0.318, 0.397, 0.422, 0.430]
             self.infec_asymp = 0.255  # infectiousness of an asymptomatic relative to symptomatic
             self.shape_param = 0.25  # shape parameter linking immunity to infection level
             self.n50_ag_infec = 0.091  # 50% immunity level against infection n50_1
@@ -45,36 +45,36 @@ class Params:
             self.mean_latent = 5  # mean latent period (days)
             self.mean_infec = 9  # mean infectious period (days)
             self.p_nv_IH = [0.011, 0.011, 0.006, 0.005,  # probability they are hospitalised
-                    0.004, 0.003, 0.004, 0.006,
-                    0.008, 0.011, 0.011, 0.01,
-                    0.014, 0.016, 0.016, 0.017]
+                            0.004, 0.003, 0.004, 0.006,
+                            0.008, 0.011, 0.011, 0.01,
+                            0.014, 0.016, 0.016, 0.017]
             self.mean_hosp = 7.75  # mean hospitalisation time (days)
             self.sd_hosp = 5.57  # s.d. of hospitalisation time (days)
             self.p_nv_HD = [0.001, 0.001, 0.014, 0.008,  # probability of death
-                    0.009, 0.019, 0.017, 0.019,
-                    0.028, 0.031, 0.047, 0.085,
-                    0.146, 0.137, 0.246, 0.445]
+                            0.009, 0.019, 0.017, 0.019,
+                            0.028, 0.031, 0.047, 0.085,
+                            0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
 
             # latent period (gamma)
             self.shape_dist = 3.0
             self.scale_dist_latent_t = self.mean_latent / self.shape_dist
-            self.latent_t = float(np.random.gamma(self.shape_dist, self.scale_dist_latent_t))
+            self.latent_t = np.random.gamma(shape = self.shape_dist, scale = self.scale_dist_latent_t, size = 1000)
 
             # infectious period (gamma)
             self.scale_dist_infec_t = self.mean_infec / self.shape_dist
-            self.infec_t = float(np.random.gamma(self.shape_dist, self.scale_dist_infec_t))
+            self.infec_t = np.random.gamma(shape = self.shape_dist, scale = self.scale_dist_infec_t, size = 1000)
 
             # delay between infectiousness and hospitalisation (Weibull)
             self.k = 1.4
             self.lam = 8.4
-            self.hosp_t = float(np.random.weibull(self.k) * self.lam)
+            self.hosp_t = np.random.weibull(a = self.k * self.lam, size = 1000)
 
             # delay between hospitalisation and death (gamma)
             self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2
             self.scale_dist_death_t = (self.sd_death**2) / self.mean_death
-            self.death_t = float(np.random.gamma(self.shape_dist_death_t, self.scale_dist_death_t))
+            self.death_t = np.random.gamma(shape = self.shape_dist_death_t, scale = self.scale_dist_death_t, size = 1000)
 
             # tau curves to access under each condition
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
@@ -90,8 +90,8 @@ class Params:
                 f_x: tau_x curves to be indexed
             """
             exp_val = (- self.shape_param
-                        * np.log10(self.calc_nx(n0_x))
-                        - np.log10(n50_m))  # susceptibility M=1 or hospitalisation M=2
+                       * np.log10(self.calc_nx(n0_x))
+                       - np.log10(n50_m))  # susceptibility M=1 or hospitalisation M=2
             f_x = 1 / (1 + np.exp(exp_val))
             return f_x
 

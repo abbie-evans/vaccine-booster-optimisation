@@ -1,13 +1,19 @@
 # FILE CONTAINING ALL THE RELEVANT INFORMATION AND FUNCTIONS FOR A PERSON IN THE SIMULATION.
+# - contains parameters that need to be individually defined per person
+# - function: to assign the age group of the person
+# - function: calculates the probability a person's status changes from susceptible to exposed
+# - function: valculates the relative susceptibility, v(t), of an individual
+# - function: decision tree to determine a person's status at each time step
+# - function: determines if the person's status, based on probability
+# - function: determines the number of days a person is in a status, dependent on the probabiltiy distribution
 
 # Import useful modules
 import numpy as np
 from vaccbopti.classes.params import Params
-from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.infectioncount import InfectionCount
-
 params = Params.instance()
 infectioncount = InfectionCount.instance()
+
 
 # Define Person class
 class Person:
@@ -46,10 +52,9 @@ class Person:
         """
         self.age_group = str(params.age_groups[n])
 
-    def calc_prob_exposed(self):
+    def calc_prob_exposed(self, force_infection):
         """Calculates the probability a person's status changes from susceptible to exposed."""
-        index = np.where(params.age_groups == self.age_group)[0][0]
-        exp_val = np.exp(-self.calc_susceptibility() * InfectionForce.lambda_list[index])
+        exp_val = np.exp(-self.calc_susceptibility() * force_infection)
         self.prob_exposed = 1 - exp_val
 
     def calc_susceptibility(self):
@@ -140,5 +145,5 @@ class Person:
         Returns:
             days (int): the number of days a person is in a specific status
         """
-        days = np.random.choice(distribution)
+        days = int(round(np.random.choice(distribution)))
         return int(days)
