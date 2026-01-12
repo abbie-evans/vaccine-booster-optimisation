@@ -1,8 +1,6 @@
 # FILE FOR TESTING THE PERSON CLASS
 
 # Import useful modules
-import sys
-sys.path.insert(0, "C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
 import numpy as np
 import unittest
 from unittest import TestCase
@@ -40,7 +38,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.calc_susceptibility(), 1)
         self.testPerson.immunity_time_exvacc = 5
         self.assertAlmostEqual(self.testPerson.calc_susceptibility(), 1 - 0.22898922)
-    
+
     def test_calc_prob_exposed(self):
         self.testPerson.immunity_time_exvacc = 5
         self.testPerson.calc_prob_exposed(1)
@@ -120,7 +118,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
-    
+
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_IH', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_HD', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -173,6 +171,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'dead')
         self.testPerson.change_status()
         self.assertEqual(self.testPerson.status, 'dead')
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -106,8 +106,8 @@ class Person:
     def initialise_infection(self):
         """Initialises people with infected status for the start of the simulation."""
         self.status = 'exposed'
-        self.immunity_time_infec = 0 # reset the immunity time counter for infection
-        self.latent_t_i = self.pick_distr_prob(params.latent_t) # gives them a latent time
+        self.immunity_time_infec = 0  # reset the immunity time counter for infection
+        self.latent_t_i = self.pick_distr_prob(params.latent_t)  # gives them a latent time
 
     def change_status(self):
         """Decision tree to determine a person's status at each time step."""
@@ -115,13 +115,14 @@ class Person:
         if self.status == 'dead' and self.infect_t_i == -1:
             return
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
-        if self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised' or self.status == 'dead':
+        if (self.status == 'symptomatic' or self.status == 'asymptomatic' or 
+            self.status == 'hospitalised' or self.status == 'dead'):
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
                 index = np.where(params.age_groups == self.age_group)[0][0]
                 if self.status == 'dead':
                     infectioncount.count_df.loc[index, 'symptomatic'] = (
-                            infectioncount.count_df.loc[index, 'symptomatic'] - 1)
+                        infectioncount.count_df.loc[index, 'symptomatic'] - 1)
                     return
                 if self.status == 'symptomatic' or self.status == 'hospitalised':
                     infectioncount.count_df.loc[index, 'symptomatic'] = (
@@ -159,6 +160,6 @@ class Person:
         if self.status == 'susceptible':
             self.determine_status_change(['exposed', 'susceptible'], self.prob_exposed)
             if self.status == 'exposed':  # once exposed, choose time until infected
-                self.immunity_time_infec = 0 # give immunity time
+                self.immunity_time_infec = 0  # give immunity time
                 self.latent_t_i = self.pick_distr_prob(params.latent_t)
             return
