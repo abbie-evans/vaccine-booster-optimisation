@@ -60,7 +60,7 @@ class Params:
             # latent period (gamma)
             self.shape_dist = 3.0
             self.scale_dist_latent_t = self.mean_latent / self.shape_dist
-            self.latent_t = float(np.random.gamma(self.shape_dist, self.scale_dist_latent_t))
+            self.latent_t = np.random.gamma(self.shape_dist, self.scale_dist_latent_t, 1000)
 
             # infectious period (gamma)
             self.scale_dist_infec_t = self.mean_infec / self.shape_dist
