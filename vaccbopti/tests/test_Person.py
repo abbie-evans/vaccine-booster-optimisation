@@ -6,6 +6,7 @@ sys.path.insert(0, "C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/v
 import numpy as np
 import unittest
 from unittest import TestCase
+from unittest.mock import patch
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
@@ -16,12 +17,6 @@ infectioncount = InfectionCount.instance()
 # Define testing class
 class test_person(TestCase):
     """A class to test that the Person class is set up and runs correctly."""
-
-    """@classmethod
-    def setUpClass(cls) -> None:
-        """Initialise a parameters."""
-        super(params, cls).setUpClass() # sets up parameters
-        cls.p_v_symp_a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"""
 
     def setUp(self):
         """Create a test Person object."""
@@ -56,6 +51,7 @@ class test_person(TestCase):
         self.assertIsNot(self.testPerson.latent_t_i, 1)
         self.testPerson.latent_t_i = -1
     
+    @patch.object(params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     def test_change_status_asymptomatic(self):
         """Test that the status change decision tree works correctly on the asymptomatic branch."""
         self.testPerson.get_age_group(4)
@@ -70,7 +66,7 @@ class test_person(TestCase):
         self.assertIsNot(self.testPerson.latent_t_i, -1)
         self.testPerson.latent_t_i = 0
         # Checking the switch from exposed to asymptomatic.
-        params.p_v_symp_a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        print(params.p_v_symp_a) ### SHOULD 100% go to asymptomatic with new values
         self.testPerson.change_status()
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
@@ -86,21 +82,20 @@ class test_person(TestCase):
         self.assertEqual(infectioncount.count_df.loc[4, 'asymptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
+    @patch.object(params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     def test_change_status_symptomatic(self):
         """Test that the status change decision tree works correctly on the symptomatic branch."""
-        """self.testPerson.get_age_group(4)
+        self.testPerson.get_age_group(4)
         # Checking the switch from exposed to symptomatic (not hospitalised or dead).
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0
-        #params.p_v_symp_a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        params.p_v_symp_a = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        print(params.p_v_symp_a) ### SHOULD 100% go to symptomatic with new values
         self.testPerson.change_status()
-        #print(self.testPerson.status)
+        self.assertEqual(self.testPerson.status, 'symptomatic')
         #self.assertEqual(self.testPerson.latent_t_i, -1)
         #self.assertNotEqual(self.testPerson.infect_t_i, -1)
-        #self.assertEqual(self.testPerson.status, 'symptomatic')
         #self.assertEqual(infectioncount.count_df.loc[4, 'symptomatic'], 1)
-        #self.testPerson.infect_t_i = 1"""
+        #self.testPerson.infect_t_i = 1
 
 
 if __name__ == "__main__":

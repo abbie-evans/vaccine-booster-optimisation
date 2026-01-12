@@ -95,6 +95,7 @@ class Person:
         if self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised' or self.status == 'dead':
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
+                print(params.p_v_symp_a)
                 index = np.where(params.age_groups == self.age_group)[0][0]
                 if self.status == 'dead':
                     infectioncount.count_df.loc[index, 'symptomatic'] = (
