@@ -56,7 +56,8 @@ class InfectionForce:
             sub_z = self.calc_z(a, b=b)
             sum_z = sum_z + sub_z
             test_n += 1
-        lambda_a = params.infec_rate_param[a] * sum_z
+        # need to change to float instead of numpyfloat64
+        lambda_a = float(params.infec_rate_param[a] * sum_z)
         return lambda_a, test_n
 
     def all_lambda(self):
