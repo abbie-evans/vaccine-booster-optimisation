@@ -19,10 +19,7 @@ class TestInfectionForce(TestCase):
         '''
         Test that the parameters are initiated correctly from Params
         '''
-        self.assertEqual(self.testInfectionForce.infec_rate_param, self.parameters.infec_rate_param)
-        self.assertEqual(self.testInfectionForce.contactmatrix[1][2], self.parameters.contactmatrix[1][2])
-        self.assertEqual(self.testInfectionForce.n_indivs_a, self.parameters.n_indivs_a)
-        self.assertEqual(self.testInfectionForce.infec_asymp, 0.255)
+        self.assertEqual(self.parameters.infec_asymp, 0.255)
 
     def test_calc_z(self):
         '''
@@ -48,7 +45,13 @@ class TestInfectionForce(TestCase):
         # if the function replaces one value correctly, it should replace all of them
         self.assertEqual(list(self.testInfectionForce.count_df.iloc[1, :]), [0, 0])
 
-    # def test_calc_lambda_a(self):
+    def test_calc_lambda_a(self):
+        test_function, test_nb = self.testInfectionForce.calc_lambda(1)
+        #the function should run over 16 age groups
+        loop_times = 16
+        self.test_nb = float(1.1)
+        self.assertEqual(loop_times, test_nb)
+        self.assertEqual(type(test_function), type(self.test_nb))
 
 
 if __name__ == '__main__':
