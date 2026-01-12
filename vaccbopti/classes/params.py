@@ -60,21 +60,21 @@ class Params:
             # latent period (gamma)
             self.shape_dist = 3.0
             self.scale_dist_latent_t = self.mean_latent / self.shape_dist
-            self.latent_t = np.random.gamma(shape = self.shape_dist, scale = self.scale_dist_latent_t, size = 1000)
+            self.latent_t = np.random.gamma(shape=self.shape_dist, scale=self.scale_dist_latent_t, size=1000)
 
             # infectious period (gamma)
             self.scale_dist_infec_t = self.mean_infec / self.shape_dist
-            self.infec_t = np.random.gamma(shape = self.shape_dist, scale = self.scale_dist_infec_t, size = 1000)
+            self.infec_t = np.random.gamma(shape=self.shape_dist, scale=self.scale_dist_infec_t, size=1000)
 
             # delay between infectiousness and hospitalisation (Weibull)
             self.k = 1.4
             self.lam = 8.4
-            self.hosp_t = np.random.weibull(a = self.k * self.lam, size = 1000)
+            self.hosp_t = np.random.weibull(a=self.k * self.lam, size=1000)
 
             # delay between hospitalisation and death (gamma)
             self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2
             self.scale_dist_death_t = (self.sd_death**2) / self.mean_death
-            self.death_t = np.random.gamma(shape = self.shape_dist_death_t, scale = self.scale_dist_death_t, size = 1000)
+            self.death_t = np.random.gamma(shape=self.shape_dist_death_t, scale=self.scale_dist_death_t, size=1000)
 
             # tau curves to access under each condition
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
