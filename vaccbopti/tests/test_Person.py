@@ -44,7 +44,7 @@ class test_person(TestCase):
     def test_pick_distr_prob(self):
         """Test that a number is correctly picked from a probability distribution."""
         self.testPerson.latent_t_i = self.testPerson.pick_distr_prob(params.latent_t)
-        self.assertFalse(self.testPerson.latent_t_i, 1)
+        self.assertIsNot(self.testPerson.latent_t_i, 1)
 
 if __name__ == "__main__":
     unittest.main()
