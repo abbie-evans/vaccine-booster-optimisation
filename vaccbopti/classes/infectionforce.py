@@ -6,6 +6,7 @@ params = Params.instance()
 
 class InfectionForce:
 
+
     '''
     This class defines the function to compute the force of infection on
     each susceptible individual in age group a given by the function:
@@ -17,13 +18,12 @@ class InfectionForce:
     - age_groups:age group of indiv
     - contactmatrix: mean daily number of contacts that an indiv in age group b has with an indiv ina ge group a
     - n_indivs_a: number of individuals in age group a
-    - count_df: dataframe describing number of asymptomatic and symptomatically infected indivs in age group 
-    - infec_asymp: [constant] infectiousness of asymptomatic infected indiv, relative to symptomatic infectd individual 
+    - count_df: dataframe describing number of asymptomatic and symptomatically infected indivs in age group
+    - infec_asymp: [constant] infectiousness of asymptomatic infected indiv, relative to symptomatic infectd individual
     '''
     def __init__(self):
         self.lambda_list = []
         self.count_df = InfectionCount.instance().count_df
-
 
     def calc_z(self, a, b):
         '''
