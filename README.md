@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/github/abbie-evans/vaccine-booster-optimisation/graph/badge.svg?token=FC3C112WV9)](https://codecov.io/github/abbie-evans/vaccine-booster-optimisation)
+
 # Vaccine Booster Optimisation
 
 As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update
