@@ -69,7 +69,7 @@ class Params:
             # delay between infectiousness and hospitalisation (Weibull)
             self.k = 1.4
             self.lam = 8.4
-            self.hosp_t = np.random.weibull((self.k) * self.lam, 1000)
+            self.hosp_t = np.random.weibull(self.k * self.lam, 1000)
 
             # delay between hospitalisation and death (gamma)
             self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2
