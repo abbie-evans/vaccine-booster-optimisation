@@ -66,5 +66,5 @@ class InfectionForce:
     def all_lambda(self):
         """Calculates lambda for each age group a, and holds them in a list."""
         for a in range(len(params.age_groups)):
-            lambda_a = self.calc_lambda(a)
+            lambda_a, test_n = self.calc_lambda(a)
             self.lambda_list.append(lambda_a)

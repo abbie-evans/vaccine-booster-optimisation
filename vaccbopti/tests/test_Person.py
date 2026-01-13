@@ -81,6 +81,20 @@ class test_person(TestCase):
         self.assertNotEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.immunity_time_infec, 0)
 
+    def test_increment_immunity_time(self):
+        """Ensures that immunity is incremented correctly."""
+        self.testPerson.increment_immunity_time()
+        self.assertEqual(self.testPerson.immunity_time_exvacc, -1)
+        self.assertEqual(self.testPerson.immunity_time_newvacc, -1)
+        self.assertEqual(self.testPerson.immunity_time_infec, -1)
+        self.testPerson.immunity_time_exvacc = 0
+        self.testPerson.immunity_time_newvacc = 5
+        self.testPerson.immunity_time_infec = 10
+        self.testPerson.increment_immunity_time()
+        self.assertEqual(self.testPerson.immunity_time_exvacc, 1)
+        self.assertEqual(self.testPerson.immunity_time_newvacc, 6)
+        self.assertEqual(self.testPerson.immunity_time_infec, 11)
+
     @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     @patch.object(person.infectioncount, 'count_df', new=infectioncount.count_df)
     def test_change_status_asymptomatic(self):
