@@ -16,10 +16,10 @@ class Params:
             """Initialises all of the parameters to be accessed by other functions and model."""
             self.project_root = os.path.dirname(os.path.dirname(__file__))
             self.contactmatrix = pd.read_csv(f'{self.project_root}/classes/UK_Contacts.csv', header=None)
-            self.age_groups = np.array(['0-4', '5-9', '10-14', '15-19',  # age groups set up
-                                        '20-24', '25-29', '30-34', '35-39',
-                                        '40-44', '45-49', '50-54', '55-59',
-                                        '60-64', '65-69', '70-74', '75+'])
+            self.age_groups = ['0-4', '5-9', '10-14', '15-19',  # age groups set up
+                               '20-24', '25-29', '30-34', '35-39',
+                               '40-44', '45-49', '50-54', '55-59',
+                               '60-64', '65-69', '70-74', '75+']
             self.n_indivs_a = [5758, 6112, 5849, 5413,  # number in each age group N(a)
                                6011, 6698, 6828, 6691,
                                6424, 6311, 6889, 6696,
