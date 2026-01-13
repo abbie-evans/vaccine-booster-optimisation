@@ -10,6 +10,7 @@
 
 # Import useful modules
 import numpy as np
+import itertools
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
@@ -18,11 +19,13 @@ infectioncount = InfectionCount.instance()
 
 # Define Person class
 class Person:
-    """A class representing an individual in the simulation."""
+    """A class representing an individual in the simulation, each with unique ID."""
+    id_iter = itertools.count()
 
     def __init__(self):
         """Initialise the Person object.
         Parameters:
+            id (int): a unique ID for each person
             age_group (str): the age group the person belongs to (16 different classes, seen in parameter file)
             status (str): person's status relative to the infection
                           susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
@@ -38,9 +41,10 @@ class Person:
             immunity_time_newvacc (int): time since given since strain-adapted vaccine
             immunity_time_infec (int): time since infection with novel strain
         """
+        self.id = next(self.id_iter)
         self.age_group = None
         self.status = 'susceptible'
-        self.vacc_status = 'unvacc' 
+        self.vacc_status = 'unvacc'
         self.susceptibility = 0
         self.prob_exposed = 0.01
         self.latent_t_i = -1
