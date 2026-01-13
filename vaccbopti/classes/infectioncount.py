@@ -1,38 +1,35 @@
+# FILE CONTAINING THE DATAFRAME OF INFECTIOUS PEOPE TO INITIALISE AT THE START OF THE MODEL.
+
+# Important and useful modules
 import pandas as pd
 import numpy as np
 
 
+# Define InfectionCount class
 class InfectionCount:
-    '''
-    This class holds a dataframe with the number of people
-    that are asymptomatic and symptomatic infected
-    '''
-    class __InfectionCount:
+    """Holds a dataframe of the number of people that are asymptomatic/symptomatic infected."""
 
+    class __InfectionCount:
+        """Inner singleton class containing the dataframe."""
         df_status = ['symptomatic',
                      'asymptomatic']
         count_df = pd.DataFrame(0,
                                 index=np.arange(16),
                                 columns=df_status)
 
-    _instance = __InfectionCount
+    _instance = None
 
     def __init__(self):
-        """Virutal private constructor to enforce singleton pattern."""
+        """Virtual private constructor to enforce singleton pattern."""
         if InfectionCount._instance is not None:
             raise RuntimeError("This class is a singleton!")
 
     @staticmethod
     def instance():
-        """Creates singleton instance of __Parameters under
-        _instance if one doesn't already exist.
-
-        Returns
-        -------
-        __Parameters
-            An instance of the __Parameters class
-
+        """Creates singleton instance of __InfectionCount under _instance to access variables.
+        Returns:
+            __InfectionCount._instance: an instance of __InfectionCount to access the df
         """
         if not InfectionCount._instance:
-            raise RuntimeError("Config file hasn't been set")
+            InfectionCount._instance = InfectionCount.__InfectionCount()
         return InfectionCount._instance

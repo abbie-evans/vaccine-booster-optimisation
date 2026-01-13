@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/github/abbie-evans/vaccine-booster-optimisation/graph/badge.svg?token=FC3C112WV9)](https://codecov.io/github/abbie-evans/vaccine-booster-optimisation)
+[![Documentation Status](https://readthedocs.org/projects/vaccine-booster-optimisation/badge/?version=latest)](https://vaccine-booster-optimisation.readthedocs.io/en/latest/?badge=latest)
 
 # Vaccine Booster Optimisation
 
