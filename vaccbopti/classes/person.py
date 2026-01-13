@@ -106,7 +106,7 @@ class Person:
             probability (float or list): a float of probability or list of probabilities per age group
         """
         if type(probability) is list:
-            index = np.where(params.age_groups == self.age_group)[0][0]
+            index = np.where(np.array(params.age_groups) == self.age_group)[0][0]
             status = np.random.choice(statuses, size=1, p=[probability[index], 1 - probability[index]])
         else:
             status = np.random.choice(statuses, size=1, p=[probability, 1 - probability])
@@ -117,7 +117,7 @@ class Person:
         self.status = 'exposed'
         self.immunity_time_infec = 0  # reset the immunity time counter for infection
         self.latent_t_i = self.pick_distr_prob(params.latent_t)  # gives them a latent time
-    
+
     def increment_immunity_time(self):
         """Increments the time since immunity for each method."""
         if self.immunity_time_exvacc > -1:
@@ -129,7 +129,7 @@ class Person:
 
     def change_status(self):
         """Decision tree to determine a person's status at each time step."""
-        index = np.where(params.age_groups == self.age_group)[0][0]
+        index = np.where(np.array(params.age_groups) == self.age_group)[0][0]
         # If dead - removed from the population
         if self.status == 'dead' and self.infect_t_i == -1:
             return

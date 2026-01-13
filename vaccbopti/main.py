@@ -17,16 +17,16 @@ n_indiv = [3, 5, 5, 5,  # number in each age group N(a) - NORMALLY FROM PARAMS
            7, 8, 9, 12,
            5, 6, 5, 2]
 
-##### INTIALISE PEOPLE
+# INTIALISE PEOPLE
 timesteps = Timesteps(num_people, n_indiv)
 timesteps.initialise_people(n_infec)
 print(timesteps.People[1].immunity_time_exvacc)
 
-##### LOOP
+# LOOP
 for t in range(0, sim_length):
-    #### Calculate starting infectiousness/susceptibility etc
+    # Calculate starting infectiousness/susceptibility etc
     infection_force = InfectionForce()
     infection_force.all_lambda()
-    ### DEPENDING ON T ADMINISTER SOME VACCINES USING BOOSTER STRATEGY
+    # DEPENDING ON T ADMINISTER SOME VACCINES USING BOOSTER STRATEGY
     timesteps.get_p_exposed(infection_force.lambda_list)
     timesteps.increment_people()

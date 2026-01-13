@@ -1,14 +1,11 @@
 # FILE FOR TIMESTEPS CLASS
 
-
 # Import other modules
 from vaccbopti.classes.person import Person
 from vaccbopti.classes import Params
 from vaccbopti.classes.infectionforce import InfectionForce
 import numpy as np
 params = Params.instance()
-person = Person()
-force_of_infection = InfectionForce
 
 
 # Define Timesteps class
@@ -18,9 +15,9 @@ class Timesteps:
     def __init__(self, num_people, n_age_groups, sim_length=365, R_e=1.5):
         """Initialise the Timesteps object.
         Inputs:
-            sim_length (int): the total length of time in the simulation
             num_people (int): the total number of people involved in the simulation
             n_age_groups (list): the number of people in each age group
+            sim_length (int): the total length of time in the simulation
             R_e (float): effective reproduction number/transmissibility of the novel variant
         Parameters:
             indices (array): all the indices for all people
@@ -47,10 +44,10 @@ class Timesteps:
             new_beta: the new infection rate given the desired R_e value
             """
         for n in range(len(self.n_age_groups) - 1):
-            for p in range(self.n_age_groups[n], self.n_age_groups[n + 1]):
+            for p in range(self.n_age_groups[n], self.n_age_groups[n+1]):
                 self.People[p].age_group = str(params.age_groups[n])
                 self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
-        infect_group = np.random.choice(self.indices, n_infec)
+        infect_group = np.random.choice(self.indices, n_infec)    
         for p in infect_group:
             self.People[int(p)].initialise_infection()
 
@@ -59,7 +56,7 @@ class Timesteps:
                 calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a])) *
                              (1 / params.mean_infec * self.calculate_average_susceptibility() *
                               params.infec_rate_param[a] * params.contactmatrix[a, b]))
-
+        # THIS IS DUPLICATED FROM CALCULATED NEW BETA - SHOULD IT BE IN A NEW FUNCTION OR HERE?
         old_R_e = np.linalg.eigvals(calc_R_ab).max()
         new_beta_factor = self.R_e / old_R_e
 
@@ -71,20 +68,18 @@ class Timesteps:
         Parameters:
             force_infection (float): the force of infection calcuated"""
         for n in range(len(self.n_age_groups) - 1):
-            for p in range(self.n_age_groups[n], self.n_age_groups[n + 1]):
+            for p in range(self.n_age_groups[n], self.n_age_groups[n+1]):
                 self.People[p].calc_susceptibility()
                 self.People[p].calc_prob_exposed(force_infection[n])
 
     def increment_people(self):
         """Increases immunity times by 1 and changes status."""
         for p in self.People:
-            p.immunity_time_exvacc
-            p.immunity_time_newvacc
-            p.immunity_time_infec
+            p.increment_immunity_time()
+            p.change_status()
 
     def calculate_average_susceptibility(self):
-        """
-        Calculate the average of the susceptibility.
+        """Calculate the average of the susceptibility.
 
         First, take the attribute susceptibility calculated in get_p_exposed.
 
@@ -96,36 +91,23 @@ class Timesteps:
         average_susceptibility = susceptibility_sum / self.num_people
         return average_susceptibility
 
-    #def calc_new_beta(self, R_e):
-        """Calculate the new infection rate that will give the desired Re value
-        Initiate R_ab matrix and calculate the new beta factor.
-        """
-        for a in range(len(params.contactmatrix)):
-            for b in range(len(params.contactmatrix)):
-                calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp*(1 - params.p_v_symp_a[a]))*
-                             (1/params.mean_infec*self.calculate_average_susceptibility()*
-                              params.infec_rate_param[a]*params.contactmatrix[a, b]))
+#    def calc_new_beta(self, R_e):
+#    """Calculate the new infection rate that will give the desired Re value
+#     Initiate R_ab matrix and calculate the new beta factor.
+#    """
+#    for a in range(len(params.contactmatrix)):
+#        for b in range(len(params.contactmatrix)):
+#            calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp*(1 - params.p_v_symp_a[a]))*
+#                         (1/params.mean_infec*self.calculate_average_susceptibility()*
+#                          params.infec_rate_param[a]*params.contactmatrix[a, b]))
+#
+#    old_R_e = np.linalg.eigvals(calc_R_ab).max()
+#    new_beta_factor = self.R_e/old_R_e
+#
+#    new_beta = new_beta_factor*params.infec_rate_param
+#    return new_beta
 
-        old_R_e = np.linalg.eigvals(calc_R_ab).max()
-        new_beta_factor = R_e/old_R_e
-
-        new_beta = new_beta_factor*params.infec_rate_param
-        return new_beta
-
-    def simulate_vaccination(self, tmax):
-        for t in len(tmax):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # CHECK MAIN.PY TO SEE THE LOOP THERE - THAT's EQUIVALENT TO THIS LOOP
+    def simulate_vaccination(self):
+        for t in len(self.sim_length):
+            return
