@@ -40,7 +40,7 @@ class test_person(TestCase):
         """Test that the ages are called correctly and can be reindexed correctly."""
         self.testPerson.get_age_group(4)
         self.assertEqual(self.testPerson.age_group, "20-24")
-        index = np.where(params.age_groups == self.testPerson.age_group)[0][0]
+        index = np.where(np.array(params.age_groups) == self.testPerson.age_group)[0][0]
         self.assertEqual(index, 4)
 
     def test_calc_susceptibility(self):

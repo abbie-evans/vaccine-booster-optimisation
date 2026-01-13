@@ -3,7 +3,7 @@
 # Import other modules
 from vaccbopti.classes.person import Person
 from vaccbopti.classes import Params
-from vaccbopti.classes.infectionforce import InfectionForce
+#from vaccbopti.classes.infectionforce import InfectionForce
 import numpy as np
 params = Params.instance()
 
@@ -44,18 +44,18 @@ class Timesteps:
             new_beta: the new infection rate given the desired R_e value
             """
         for n in range(len(self.n_age_groups) - 1):
-            for p in range(self.n_age_groups[n], self.n_age_groups[n+1]):
+            for p in range(self.n_age_groups[n], self.n_age_groups[n + 1]):
                 self.People[p].age_group = str(params.age_groups[n])
                 self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
-        infect_group = np.random.choice(self.indices, n_infec)    
+        infect_group = np.random.choice(self.indices, n_infec)
         for p in infect_group:
             self.People[int(p)].initialise_infection()
 
         for a in range(len(params.contactmatrix)):
             for b in range(len(params.contactmatrix)):
-                calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a])) *
-                             (1 / params.mean_infec * self.calculate_average_susceptibility() *
-                              params.infec_rate_param[a] * params.contactmatrix[a, b]))
+                calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a]))
+                             * (1 / params.mean_infec * self.calculate_average_susceptibility()
+                              * params.infec_rate_param[a] * params.contactmatrix[a, b]))
         # THIS IS DUPLICATED FROM CALCULATED NEW BETA - SHOULD IT BE IN A NEW FUNCTION OR HERE?
         old_R_e = np.linalg.eigvals(calc_R_ab).max()
         new_beta_factor = self.R_e / old_R_e
@@ -68,7 +68,7 @@ class Timesteps:
         Parameters:
             force_infection (float): the force of infection calcuated"""
         for n in range(len(self.n_age_groups) - 1):
-            for p in range(self.n_age_groups[n], self.n_age_groups[n+1]):
+            for p in range(self.n_age_groups[n], self.n_age_groups[n + 1]):
                 self.People[p].calc_susceptibility()
                 self.People[p].calc_prob_exposed(force_infection[n])
 
