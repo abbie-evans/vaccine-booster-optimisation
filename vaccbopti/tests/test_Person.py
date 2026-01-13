@@ -82,6 +82,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.immunity_time_infec, 0)
 
     @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    @patch.object(person.infectioncount, 'count_df', new=infectioncount.count_df)
     def test_change_status_asymptomatic(self):
         """Test that the status change decision tree works correctly on the asymptomatic branch."""
         self.testPerson.get_age_group(4)
@@ -113,6 +114,7 @@ class test_person(TestCase):
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_HD', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    @patch.object(person.infectioncount, 'count_df', new=infectioncount.count_df)
     def test_change_status_symptomatic_fine(self):
         """Test that the status change decision tree works correctly on the symptomatic/unhospitalised branch."""
         self.testPerson.get_age_group(4)
@@ -137,6 +139,7 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_IH', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_HD', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    @patch.object(person.infectioncount, 'count_df', new=infectioncount.count_df)
     def test_change_status_symptomatic_hospitalised(self):
         """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
         self.testPerson.get_age_group(4)
@@ -162,6 +165,7 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_IH', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_HD', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    @patch.object(person.infectioncount, 'count_df', new=infectioncount.count_df)
     def test_change_status_symptomatic_dead(self):
         """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
         self.testPerson.get_age_group(4)

@@ -2,7 +2,9 @@
 
 # Import useful modules
 import unittest
+from unittest.mock import patch
 from unittest import TestCase
+import vaccbopti.classes.infectionforce as infectionforce
 from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectioncount import InfectionCount
@@ -22,9 +24,9 @@ class TestInfectionForce(TestCase):
         """Test that the list is correctly setup."""
         self.assertFalse(self.testInfectionForce.lambda_list)
 
+    @patch.object(infectionforce.infectioncount, 'count_df', new=infectioncount.count_df.replace(0, 2))
     def test_calc_z(self):
         """Test that the formula to calculate z correctly by replacing the values by 2."""
-        infectioncount.count_df = infectioncount.count_df.replace(0, 2)
         # Define the test values and compute manually
         test_I_b = 2
         test_A_b = 2
@@ -35,10 +37,6 @@ class TestInfectionForce(TestCase):
         # Execute the function in the class InfectionForce
         test_function = self.testInfectionForce.calc_z(1, 2)
         self.assertEqual(test_function, test_manual)
-        # Set df back to all zeros
-        infectioncount.count_df = infectioncount.count_df.replace(2, 0)
-        # If the function replaces one value correctly, it should replace all of them
-        self.assertEqual(list(infectioncount.count_df.iloc[1, :]), [0, 0])
 
     def test_calc_lambda(self):
         """Tests that the calculation for overall lambda is correct."""
