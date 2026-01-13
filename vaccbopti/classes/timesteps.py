@@ -55,7 +55,7 @@ class Timesteps:
             for b in range(len(params.contactmatrix)):
                 calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a]))
                              * (1 / params.mean_infec * self.calculate_average_susceptibility()
-                              * params.infec_rate_param[a] * params.contactmatrix[a, b]))
+                             * params.infec_rate_param[a] * params.contactmatrix[a, b]))
         # THIS IS DUPLICATED FROM CALCULATED NEW BETA - SHOULD IT BE IN A NEW FUNCTION OR HERE?
         old_R_e = np.linalg.eigvals(calc_R_ab).max()
         new_beta_factor = self.R_e / old_R_e
