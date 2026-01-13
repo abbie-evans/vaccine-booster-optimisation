@@ -6,13 +6,14 @@ from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
 infectioncount = InfectionCount.instance()
 
+
 # Define InfectionForce class
 class InfectionForce:
     """Defines the function to compute the force of infection on each susceptible individual.
     The equation of force of infection, lambda_a, in age group a is given by:
-        lambda_a = infect_rate_param_a * 
-                   sum over b age groups 1-16 { [contactmatrix_ab/n of indiv in a] * 
-                                                [n of infected indiv in b + 
+        lambda_a = infect_rate_param_a *
+                   sum over b age groups 1-16 { [contactmatrix_ab/n of indiv in a] *
+                                                [n of infected indiv in b +
                                                 (p(being asymptomatically infected) * asymptomatic indiv in b)] }
 
     Parameters
@@ -30,10 +31,10 @@ class InfectionForce:
             lambda_list (list): the force of infection for each age group 1-16
         """
         self.lambda_list = []
-        
+
     def calc_z(self, a, b):
         """Accesses the counts of infected people and calculates what we define as z, the sum.
-        z = [contactmatrix_ab/n of indiv in a] * [n of infected indiv in b + 
+        z = [contactmatrix_ab/n of indiv in a] * [n of infected indiv in b +
                                                   (p(being asymptomatically infected) * asymptomatic indiv in b)]
         Parameters:
             a (int): fixed age group for which lambda will be calculated
@@ -64,6 +65,6 @@ class InfectionForce:
 
     def all_lambda(self):
         """Calculates lambda for each age group a, and holds them in a list."""
-        for a in params.age_groups:
+        for a in range(len(params.age_groups)):
             lambda_a = self.calc_lambda(a)
             self.lambda_list.append(lambda_a)

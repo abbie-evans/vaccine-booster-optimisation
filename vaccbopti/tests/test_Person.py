@@ -22,6 +22,7 @@ class test_person(TestCase):
         self.testPerson = Person()
 
     def test_defaults(self):
+        """Ensure that a person is set up with correct defaults."""
         self.assertEqual(self.testPerson.age_group, None)
         self.assertEqual(self.testPerson.status, 'susceptible')
         self.assertEqual(self.testPerson.latent_t_i, -1)
@@ -40,6 +41,7 @@ class test_person(TestCase):
         self.assertAlmostEqual(self.testPerson.calc_susceptibility(), 1 - 0.22898922)
 
     def test_calc_prob_exposed(self):
+        """Ensure that the calculation occurs correctly."""
         self.testPerson.immunity_time_exvacc = 5
         self.testPerson.calc_prob_exposed(1)
         self.assertAlmostEqual(self.testPerson.prob_exposed, 0.5374546996)
@@ -60,6 +62,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'asymptomatic')
 
     def test_initialise_infec(self):
+        """Ensure that initialising random people as infected works correctly."""
         self.testPerson.immunity_time_infec = 5
         self.testPerson.initialise_infection()
         self.assertEqual(self.testPerson.status, 'exposed')
