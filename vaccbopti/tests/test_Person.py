@@ -27,6 +27,15 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'susceptible')
         self.assertEqual(self.testPerson.latent_t_i, -1)
 
+    def test_IDs(self):
+        """Ensures that when people are initiated, each ID is unique."""
+        People = [Person() for p in range(20)]
+        ids = [P.id for P in People]
+        unique = np.unique(ids)
+        self.assertTrue(set(ids) == set(unique))
+        anotherPerson = Person()
+        self.assertNotIn(anotherPerson.id, ids)
+
     def test_get_age_group(self):
         """Test that the ages are called correctly and can be reindexed correctly."""
         self.testPerson.get_age_group(4)
@@ -36,13 +45,16 @@ class test_person(TestCase):
 
     def test_calc_susceptibility(self):
         """Test that susceptibility calculations are correct."""
-        self.assertEqual(self.testPerson.calc_susceptibility(), 1)
+        self.testPerson.calc_susceptibility()
+        self.assertEqual(self.testPerson.susceptibility, 1)
         self.testPerson.immunity_time_exvacc = 5
-        self.assertAlmostEqual(self.testPerson.calc_susceptibility(), 1 - 0.22898922)
+        self.testPerson.calc_susceptibility()
+        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - 0.22898922)
 
     def test_calc_prob_exposed(self):
         """Ensure that the calculation occurs correctly."""
         self.testPerson.immunity_time_exvacc = 5
+        self.testPerson.calc_susceptibility()
         self.testPerson.calc_prob_exposed(1)
         self.assertAlmostEqual(self.testPerson.prob_exposed, 0.5374546996)
 

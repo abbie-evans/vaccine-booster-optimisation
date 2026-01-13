@@ -1,8 +1,6 @@
 # FILE FOR TESTING THE INFECTIONFORCE CLASS
 
 # Import useful modules
-import sys
-sys.path.append("C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
 import unittest
 from unittest import TestCase
 from vaccbopti.classes.infectionforce import InfectionForce
