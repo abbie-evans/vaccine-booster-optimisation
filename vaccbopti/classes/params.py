@@ -115,7 +115,7 @@ class Params:
             n_x = n0_x * (numerator / denominator)
             return n_x
 
-    _instance = __Params
+    _instance = None
 
     def __init__(self):
         """Virtual private constructor to enforce singleton pattern."""
@@ -125,8 +125,8 @@ class Params:
     def instance():
         """Creates singleton instance of __Parameters under _instance to access variables.
         Returns:
-            __Params._instance(): an instance of the __Parameters class to access all variables
+            __Params._instance: an instance of the __Parameters class to access all variables
         """
-        if not Params._instance():
-            raise RuntimeError("Error in configs.")
-        return Params._instance()
+        if not Params._instance:
+            Params._instance = Params.__Params()
+        return Params._instance

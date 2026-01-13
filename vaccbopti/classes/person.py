@@ -26,6 +26,9 @@ class Person:
             age_group (str): the age group the person belongs to (16 different classes, seen in parameter file)
             status (str): person's status relative to the infection
                           susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
+            vacc_status (str): person's vaccination status
+                               unvacc, vacc, ineligible
+            susceptibility (float): susceptibility, v(t), of an individual
             prob_exposed (float): probability an individual will become infected
             latent_t_i (int): time left in the latent period once exposed
             infect_t_i (int): time left in infectious period once infectious (symptomatic or asymptomatic)
@@ -37,6 +40,8 @@ class Person:
         """
         self.age_group = None
         self.status = 'susceptible'
+        self.vacc_status = 'unvacc' 
+        self.susceptibility = 0
         self.prob_exposed = 0.01
         self.latent_t_i = -1
         self.infect_t_i = -1
@@ -73,11 +78,11 @@ class Person:
         susceptibility = 1 - max(immunity_exvacc,
                                  immunity_newvacc,
                                  immunity_infec)
-        return susceptibility
+        self.susceptibility = susceptibility
 
     def calc_prob_exposed(self, force_infection):
         """Calculates the probability a person's status changes from susceptible to exposed."""
-        exp_val = np.exp(-self.calc_susceptibility() * force_infection)
+        exp_val = np.exp(-self.susceptibility * force_infection)
         self.prob_exposed = 1 - exp_val
 
     def pick_distr_prob(self, distribution):
