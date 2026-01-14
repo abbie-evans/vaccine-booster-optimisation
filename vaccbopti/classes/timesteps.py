@@ -1,14 +1,11 @@
 # FILE FOR TIMESTEPS CLASS
 
-
 # Import other modules
 from vaccbopti.classes.person import Person
 from vaccbopti.classes import Params
-from vaccbopti.classes.infectionforce import InfectionForce
+#from vaccbopti.classes.infectionforce import InfectionForce
 import numpy as np
 params = Params.instance()
-person = Person()
-force_of_infection = InfectionForce
 
 
 # Define Timesteps class
@@ -18,9 +15,9 @@ class Timesteps:
     def __init__(self, num_people, n_age_groups, sim_length=365, R_e=1.5):
         """Initialise the Timesteps object.
         Inputs:
-            sim_length (int): the total length of time in the simulation
             num_people (int): the total number of people involved in the simulation
             n_age_groups (list): the number of people in each age group
+            sim_length (int): the total length of time in the simulation
             R_e (float): effective reproduction number/transmissibility of the novel variant
         Parameters:
             indices (array): all the indices for all people
@@ -56,12 +53,12 @@ class Timesteps:
 
         for a in range(len(params.contactmatrix)):
             for b in range(len(params.contactmatrix)):
-                calc_r_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a])) *
-                             (1 / params.mean_infec * self.calculate_average_susceptibility() *
-                              params.infec_rate_param[a] * params.contactmatrix[a, b]))
+                calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a]))
+                             * (1 / params.mean_infec * self.calculate_average_susceptibility()
+                             * params.infec_rate_param[a] * params.contactmatrix[a, b]))
 
-        old_r_e = np.linalg.eigvals(calc_r_ab).max()
-        new_beta_factor = self.R_e / old_r_e
+        old_R_e = np.linalg.eigvals(calc_R_ab).max()
+        new_beta_factor = self.R_e / old_R_e
 
         new_beta = new_beta_factor * params.infec_rate_param
         return new_beta
@@ -78,13 +75,11 @@ class Timesteps:
     def increment_people(self):
         """Increases immunity times by 1 and changes status."""
         for p in self.People:
-            p.immunity_time_exvacc
-            p.immunity_time_newvacc
-            p.immunity_time_infec
+            p.increment_immunity_time()
+            p.change_status()
 
     def calculate_average_susceptibility(self):
-        """
-        Calculate the average of the susceptibility.
+        """Calculate the average of the susceptibility.
 
         First, take the attribute susceptibility calculated in get_p_exposed.
 
@@ -96,16 +91,7 @@ class Timesteps:
         average_susceptibility = susceptibility_sum / self.num_people
         return average_susceptibility
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # CHECK MAIN.PY TO SEE THE LOOP THERE - THAT's EQUIVALENT TO THIS LOOP
+    def simulate_vaccination(self):
+        for t in len(self.sim_length):
+            return
