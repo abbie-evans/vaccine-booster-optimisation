@@ -3,7 +3,6 @@
 # Import other modules
 from vaccbopti.classes.person import Person
 from vaccbopti.classes import Params
-#from vaccbopti.classes.infectionforce import InfectionForce
 import numpy as np
 import random
 params = Params.instance()
@@ -13,18 +12,17 @@ params = Params.instance()
 class Timesteps:
     """A class representing the steps in the simulation."""
 
-    def __init__(self, num_people, n_age_groups, sim_length=365, R_e=1.5):
+    def __init__(self, num_people, sim_length=365, R_e=1.5):
         """Initialise the Timesteps object.
         Inputs:
             num_people (int): the total number of people involved in the simulation
-            n_age_groups (list): the number of people in each age group
             sim_length (int): the total length of time in the simulation
             R_e (float): effective reproduction number/transmissibility of the novel variant
         Parameters:
             indices (list): all the indices for all people
             People (array): all the people in the simulation
             IDs (array): all the IDs of each of the people
-            n_age_groups (list): the indices for the ranges of people in each age group
+            rho_age_groups (list): the indices for the ranges of people in each age group
         """
         self.sim_length = sim_length
         self.R_e = R_e
@@ -32,20 +30,23 @@ class Timesteps:
         self.indices = list(np.linspace(0, num_people - 1, num_people))
         self.People = np.array([Person() for p in range(num_people)])
         self.IDs = np.array([p.id for p in self.People])
-        self.n_age_groups = np.cumsum([0] + n_age_groups)
+        rho_age_groups = np.array(params.prop_indivs_a) * num_people
+        rho_age_groups = [int(round(n)) for n in rho_age_groups[0:-1]]
+        rho_age_groups = np.cumsum([0] + rho_age_groups)
+        self.rho_age_groups = np.append(rho_age_groups, num_people)
 
     def initialise_people(self, n_infec):
         """Ensure people have all information necessary after initialisation:
            - assigned age groups,
            - have been infected/vaccinated with a previous variant at some point
            - random subset are infected
-           - updates their susceptibility based on these infection times 
+           - updates their susceptibility based on these infection times
         Parameters:
-            n_age_groups (list): number of people in each age group
+            rho_age_groups (list): number of people in each age group
             n_infec (int): number of people to be randomly infected
             """
-        for n in range(len(self.n_age_groups) - 1):
-            for p in range(self.n_age_groups[n], self.n_age_groups[n + 1]):
+        for n in range(len(self.rho_age_groups) - 1):
+            for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
                 self.People[p].get_age_group(n)
                 self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
         infect_group = random.sample(self.indices, n_infec)
@@ -56,8 +57,8 @@ class Timesteps:
         """Gets the probability that a person is exposed.
         Parameters:
             force_infection (float): the force of infection calcuated"""
-        for n in range(len(self.n_age_groups) - 1):
-            for p in range(self.n_age_groups[n], self.n_age_groups[n + 1]):
+        for n in range(len(self.rho_age_groups) - 1):
+            for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
                 self.People[p].calc_susceptibility()
                 self.People[p].calc_prob_exposed(force_infection[n])
 

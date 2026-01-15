@@ -21,8 +21,9 @@ class TestInfectionForce(TestCase):
         self.testInfectionForce = InfectionForce()
 
     def test_correct_init(self):
-        """Test that the list is correctly setup."""
-        self.assertFalse(self.testInfectionForce.lambda_list)
+        """Test that the empty array is correctly setup."""
+        for i in self.testInfectionForce.lambda_list:
+            self.assertEqual(i, 0)
 
     @patch.object(infectionforce.infectioncount, 'count_df', new=infectioncount.count_df.replace(0, 2))
     def test_calc_z(self):
@@ -49,8 +50,9 @@ class TestInfectionForce(TestCase):
     def test_all_lambda(self):
         """Tests that the function to add all lambda to the list is correct."""
         self.testInfectionForce.all_lambda()
-        self.assertTrue(self.testInfectionForce.lambda_list)
         self.assertEqual(len(self.testInfectionForce.lambda_list), 16)
+        for i in self.testInfectionForce.lambda_list:
+            self.assertIsInstance(i, float)
 
 
 if __name__ == '__main__':
