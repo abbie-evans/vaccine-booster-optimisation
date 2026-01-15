@@ -51,18 +51,6 @@ class Timesteps:
         for p in infect_group:
             self.People[int(p)].initialise_infection()
 
-        for a in range(len(params.contactmatrix)):
-            for b in range(len(params.contactmatrix)):
-                calc_R_ab = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a]))
-                             * (1 / params.mean_infec * self.calculate_average_susceptibility()
-                             * params.infec_rate_param[a] * params.contactmatrix[a, b]))
-
-        old_R_e = np.linalg.eigvals(calc_R_ab).max()
-        new_beta_factor = self.R_e / old_R_e
-
-        new_beta = new_beta_factor * params.infec_rate_param
-        return new_beta
-
     def get_p_exposed(self, force_infection):
         """Gets the probability that a person is exposed.
         Parameters:
@@ -72,24 +60,33 @@ class Timesteps:
                 self.People[p].calc_susceptibility()
                 self.People[p].calc_prob_exposed(force_infection[n])
 
+    def calculate_average_susceptibility(self):
+        """Calculate the average of the susceptibility for each person."""
+        susceptibility_sum = 0
+        for p in self.People:
+            susceptibility_sum += p.susceptibility
+        average_susceptibility = susceptibility_sum / self.num_people
+        return average_susceptibility
+
+    def calculate_new_beta(self):
+        """Calcuates a new beta, the infection rate parameter based on R_e (changes based on sim time)."""
+        R_a_b = np.zeros([len(params.contactmatrix), len(params.contactmatrix)])
+        for a in range(len(params.contactmatrix)):
+            for b in range(len(params.contactmatrix)):
+                R_a_b[a][b] = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a]))
+                                * (1 / params.mean_infec * self.calculate_average_susceptibility()
+                                * params.infec_rate_param[a] * params.contactmatrix[a][b]))
+        calc_R_e = np.linalg.eigvals(R_a_b).max()
+        new_beta_factor = self.R_e / calc_R_e
+        new_beta = new_beta_factor * np.array(params.infec_rate_param)
+        return list(new_beta)
+
     def increment_people(self):
         """Increases immunity times by 1 and changes status."""
         for p in self.People:
             p.increment_immunity_time()
             p.change_status()
 
-    def calculate_average_susceptibility(self):
-        """Calculate the average of the susceptibility.
-
-        First, take the attribute susceptibility calculated in get_p_exposed.
-
-        Then sum the values and divide by the number of people for getting the average susceptibility.
-        """
-        susceptibility_sum = 0
-        for p in self.People:
-            susceptibility_sum += p.susceptibility
-        average_susceptibility = susceptibility_sum / self.num_people
-        return average_susceptibility
 
     # CHECK MAIN.PY TO SEE THE LOOP THERE - THAT's EQUIVALENT TO THIS LOOP
     def simulate_vaccination(self):
