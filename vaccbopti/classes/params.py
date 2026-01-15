@@ -20,6 +20,8 @@ class Params:
                                '20-24', '25-29', '30-34', '35-39',
                                '40-44', '45-49', '50-54', '55-59',
                                '60-64', '65-69', '70-74', '75+']
+            self.old_groups = self.age_groups[7:]
+            self.young_groups = self.age_groups[:7]
             self.n_indivs_a = [5758, 6112, 5849, 5413,  # number in each age group N(a)
                                6011, 6698, 6828, 6691,
                                6424, 6311, 6889, 6696,
