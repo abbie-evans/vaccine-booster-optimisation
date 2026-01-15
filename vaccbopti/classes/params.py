@@ -22,7 +22,7 @@ class Params:
                                '60-64', '65-69', '70-74', '75+']
             self.old_groups = self.age_groups[7:]
             self.young_groups = self.age_groups[:7]
-            self.prop_indivs_a = [0.05758, 0.06112, 0.05849, 0.05413,  # prop of indiv in agegroups 
+            self.prop_indivs_a = [0.05758, 0.06112, 0.05849, 0.05413,  # prop of indiv in agegroups
                                   0.06011, 0.06698, 0.06828, 0.06691,
                                   0.06424, 0.06311, 0.06889, 0.06696,
                                   0.05769, 0.05015, 0.05021, 0.08515]

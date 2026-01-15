@@ -35,7 +35,7 @@ class test_timesteps(TestCase):
         self.assertEqual(len(self.testTimesteps.People), self.num_people)
         self.assertIsInstance(self.testTimesteps.People[0], Person)
         self.assertEqual(len(self.testTimesteps.IDs), self.num_people)
-        self.assertEqual(len(self.testTimesteps.n_age_groups), len(params.prop_indivs_a) + 1)
+        self.assertEqual(len(self.testTimesteps.rho_age_groups), len(params.prop_indivs_a) + 1)
 
     def test_initialise_people(self):
         """Ensure people are correctly given all information necessary after initialisation."""
