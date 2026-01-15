@@ -1,23 +1,18 @@
 # File for booster administration class
-
 # user input:
 # - efficiency of vaccine
 # - used strategy
 # - amount of people vaccinated each day
 
-from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
 # from vaccbopti.classes.timesteps import People
 import random as rd
-import numpy as np
-
 params = Params.instance()
 
 
 class BoosterAdmin:
     def __init__(self):
         self.vacc_list = []
-        self.vacc_indices = []
 
     def update_susceptibility(self, vaccine_choice, person):
         ''' 
@@ -34,8 +29,6 @@ class BoosterAdmin:
             person.immunity_time_newvacc = 0
             person.vacc_status = 'vacc'
     
-    #need to change 'person.' to the correct word 
-    # we now have a unique ID for each person in People
     def vaccine_administration(self, People, vaccine_choice, direction, age_targets, vacc_amount=1000):
         ''' 
         In this function, a list is created of all eligible individuals to be vaccinated (those who are
@@ -96,7 +89,7 @@ class BoosterAdmin:
         not taking into account the availability of the updated vaccine.
 
         '''
-        self.vaccine_administration(People, vaccine_choice='old_vacc',direction='descend',age_targets='everyone')
+        self.vaccine_administration(People, vaccine_choice='old_vacc', direction='descend', age_targets='everyone')
 
     def vacc_strat_2(self, People, t, t_newvacc_avail):
         '''
@@ -104,7 +97,7 @@ class BoosterAdmin:
         when the updated vaccine becomes available.
         '''
         if t > t_newvacc_avail:
-            self.vaccine_administration(People, vaccine_choice='new_vacc', direction='descend',age_targets='everyone')
+            self.vaccine_administration(People, vaccine_choice='new_vacc', direction='descend', age_targets='everyone')
     
     def vacc_strat_3 (self, People, t, t_newvacc_avail):
         '''
@@ -117,11 +110,11 @@ class BoosterAdmin:
         t_newvacc_avail : time when updated vaccine becomes available
         '''
         if t < t_newvacc_avail:
-            self.vaccine_administration(People, vaccine_choice='old_vacc',direction='descend',age_targets='mid-old')
+            self.vaccine_administration(People, vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
         elif t > t_newvacc_avail:
-            self.vaccine_administration(People, vaccine_choice='new_vacc', direction='descend',age_targets='mid-young')
+            self.vaccine_administration(People, vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
         elif len(self.vacc_list) == 0:
-            self.vaccine_administration(People, vaccine_choice='old_vacc',direction='descend',age_targets='mid-old')
+            self.vaccine_administration(People, vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
     
     def vacc_strat_4(self, People, t, t_newvacc_avail):
         '''
@@ -132,10 +125,10 @@ class BoosterAdmin:
         
         t : time (in days)
         t_newvacc_avail : time when updated vaccine becomes available
-
         '''
+
         if t < t_newvacc_avail:
-            self.vaccine_administration(People, vaccine_choice='old_vacc',direction='ascend',age_targets='mid-young')
+            self.vaccine_administration(People, vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
         elif t > t_newvacc_avail:
             self.vaccine_administration(People, vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
         elif len(self.vacc_list) == 0:
@@ -145,16 +138,15 @@ class BoosterAdmin:
         ''' 
         The old vaccine is administered randomnly to anyone within the population.
         '''
-        self.vaccine_administration(People, vaccine_choice='old_vacc',direction='random',age_targets='everyone')
+        self.vaccine_administration(People, vaccine_choice='old_vacc', direction='random', age_targets='everyone')
     
-    def vacc_strat_6(self, People,t, t_newvacc_avail):
+    def vacc_strat_6(self, People, t, t_newvacc_avail):
         ''' 
         The updated vaccine is administered randomnly to anyone within the population when it becomes available.
 
         t : time (in days)
         t_newvacc_avail : time when updated vaccine becomes available
-
         '''
         if t > t_newvacc_avail:
-            self.vaccine_administration(People, vaccine_choice='new_vacc',direction='random',age_targets='everyone')
+            self.vaccine_administration(People, vaccine_choice='new_vacc', direction='random', age_targets='everyone')
 
