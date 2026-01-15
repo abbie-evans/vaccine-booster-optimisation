@@ -48,7 +48,7 @@ class InfectionForce:
         z = (M_ab / N_a) * (I_b + (p * A_b))
         return z
 
-    def calc_lambda(self, infec_rate_param, a):
+    def calc_lambda(self, a, infec_rate_param=params.infec_rate_param):
         """Calculates lambda for age group a from the obtained value of calc_z().
         lambda_a = infect_rate_param_a * sum over b age groups 1-16 {z}
         Parameters:
@@ -67,5 +67,5 @@ class InfectionForce:
     def all_lambda(self, infec_rate_param=params.infec_rate_param):
         """Calculates lambda for each age group a, and holds them in a list."""
         for a in range(len(params.age_groups)):
-            lambda_a, test_n = self.calc_lambda(infec_rate_param, a)
+            lambda_a, test_n = self.calc_lambda(a, infec_rate_param)
             self.lambda_list.append(lambda_a)

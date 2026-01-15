@@ -1,15 +1,15 @@
 # FILE FOR TESTING THE PERSON CLASS
 
 # Import useful modules
-import sys
-sys.path.append("C:/Users/lina4801/OneDrive - Nexus365/Team-Project-Sandpit/vaccine-booster-optimisation")
-import numpy as np
 import unittest
 from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
+from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.timesteps import Timesteps
 params = Params.instance()
+infection_force = InfectionForce()
+infection_force.all_lambda()
 
 
 # Define testing class
@@ -61,6 +61,46 @@ class test_timesteps(TestCase):
         self.assertEqual(self.testTimesteps.People[87].age_group, params.age_groups[13])
         self.assertEqual(self.testTimesteps.People[93].age_group, params.age_groups[14])
         self.assertEqual(self.testTimesteps.People[98].age_group, params.age_groups[15])
+        # Ensures everyone has been given a random previous infection/vaccine time
+        for p in self.testTimesteps.People:
+            self.assertIsNot(p.immunity_time_exvacc, -1)
+        # Ensures the correct number of people have been randomly infected
+        exposed = [p.status for p in self.testTimesteps.People if p.status == 'exposed']
+        self.assertEqual(len(exposed), self.n_infec)
+
+    def test_get_p_exposed(self):
+        """Tests that people are accurately given susceptibilities and p(exposure) once initialised."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        self.testTimesteps.get_p_exposed(infection_force.lambda_list)
+        # Ensures every person now has an updated susceptibility and probability of exposure
+        for p in self.testTimesteps.People:
+            self.assertIsNot(p.susceptibility, 0)
+            self.assertIsNot(p.prob_exposed, 0)
+
+    def test_calculate_average_susceptibility(self):
+        """Tests average susceptibility calculation occurs and gives a value."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        self.testTimesteps.get_p_exposed(infection_force.lambda_list)
+        self.assertIsNotNone(self.testTimesteps.calculate_average_susceptibility())
+        self.assertIsNot(self.testTimesteps.calculate_average_susceptibility(), 0)
+
+    def test_calculate_new_beta(self):
+        """Tests that a new beta is outputted once people have updated susceptibility."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        self.testTimesteps.get_p_exposed(infection_force.lambda_list)
+        beta = self.testTimesteps.calculate_new_beta()
+        self.assertIs(len(beta), len(params.infec_rate_param))
+        for b in beta:
+            self.assertIsNotNone(b)
+
+    def test_increment_people(self):
+        """Tests that the increments occur correctly."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        exvacc_times_old = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        self.testTimesteps.increment_people()
+        exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        for i in range(len(exvacc_times_new)):
+            self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
 
 
 if __name__ == "__main__":
