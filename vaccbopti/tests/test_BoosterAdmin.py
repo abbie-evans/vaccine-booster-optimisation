@@ -26,7 +26,7 @@ class testBoosterAdmin(TestCase):
         test1 = BoosterAdmin()
         test1.vaccine_administration(People, vaccine_choice='old_vacc',
                                      direction='descend', age_targets='everyone')
-        
+
         # Check that eligible unvaccinated people no longer exist in Population
         # (Eligible = not symptomatic, hospitalised, or dead)
         remaining_unvacc = [p for p in People
@@ -102,7 +102,7 @@ class testBoosterAdmin(TestCase):
             person.age_group = str(np.random.choice(params.age_groups))
             person.status = str(np.random.choice(statuses))
             person.vacc_status = str(np.random.choice(vacc_statuses))
-        
+
         #count number of vacc people
         count_original5 = sum(1 for p in People
                               if p.status not in ['symptomatic', 'hospitalised', 'dead']
