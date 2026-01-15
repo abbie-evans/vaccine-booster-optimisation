@@ -5,14 +5,6 @@
 # - used strategy
 # - amount of people vaccinated each day
 
-#define the actual strategies
-#using calc_susceptibility
-# strategy determines how many people we pick from each agegroup
-# sub_group of people who are eligible
-# 1000 people are offered vacc each day
-# 
-
-
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
 # from vaccbopti.classes.timesteps import People
