@@ -14,7 +14,6 @@ import numpy as np
 params = Params.instance()
 
 
-
 class BoosterAdmin:
     def __init__(self):
         self.vacc_list = []
