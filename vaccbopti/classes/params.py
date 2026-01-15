@@ -107,7 +107,7 @@ class Params:
             Returns:
                 n_x: immunity levels as the exponential decay
             """
-            tau_x = np.linspace(0, 365 * 2, 365 * 2 + 1)
+            tau_x = np.linspace(0, 5000, 5000 + 1)
             num_exp1 = self.decay_fast * tau_x + self.decay_slow * self.decay_switch
             num_exp2 = self.decay_slow * tau_x + self.decay_fast * self.decay_switch
             numerator = np.exp(num_exp1) + np.exp(num_exp2)
