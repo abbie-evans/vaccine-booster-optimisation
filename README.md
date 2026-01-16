@@ -24,12 +24,12 @@
  - strategy 0: doesn't apply booster vaccines
  - strategy 1: vaccinates everyone using an older vaccine (not updated for the new variant), starting at the oldest age group and descending
  - strategy 2: vaccinates everyone starting at the oldest age group and descending, once the updated variant-specific vaccine becomes available
- - strategy 3: starts vaccinating with the old vaccine from the oldest age groups (from 75+ down), until the new variant-specific vaccine becomes available
-               then, the new variant-specific vaccine is administered in the middle groups (from 49 down)
-               when all the updated vaccines have been administered, the old vaccination is continued in the older age groups
- - strategy 4: starts vaccinating with the old vaccine to the youngest age groups (0+ up)
-               switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the updated variant-specific vaccine
-               it then switches back to vaccinating the remaining individuals in the young age groups with the old vaccine
+ - strategy 3: starts vaccinating with the old vaccine from the oldest age groups (from 75+ down), until the new variant-specific vaccine becomes available. 
+               Then, the new variant-specific vaccine is administered in the middle groups (from 49 down). 
+               When all the updated vaccines have been administered, the old vaccination is continued in the older age groups
+ - strategy 4: starts vaccinating with the old vaccine to the youngest age groups (0+ up). 
+               Switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the updated variant-specific vaccine. 
+               It then switches back to vaccinating the remaining individuals in the young age groups with the old vaccine
  - strategy 5: the old vaccine is administered randomnly to anyone within the population
  - strategy 6: the updated variant-specific vaccine is administered randomnly to anyone within population when it becomes available
 
