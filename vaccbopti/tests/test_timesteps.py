@@ -3,6 +3,7 @@
 # Import useful modules
 import unittest
 from unittest import TestCase
+import numpy as np
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
@@ -202,6 +203,13 @@ class test_timesteps(TestCase):
         exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.People]
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
+
+    def test_set_outputdf(self):
+        self.testTimesteps.set_outputdf()
+        nb_col = len(self.testTimesteps.statusDF.columns)
+        # we require 193 columns because 16 age groups, 4 statuses and 2 vacc-statuses + time
+        required_cols = 193
+        self.assertEqual(nb_col, required_cols)
 
 
 if __name__ == "__main__":

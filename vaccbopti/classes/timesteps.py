@@ -3,6 +3,7 @@
 # Import other modules
 import numpy as np
 import random
+import pandas as pd
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.booster_admin import BoosterAdmin
@@ -36,6 +37,10 @@ class Timesteps:
         rho_age_groups = [int(round(n)) for n in rho_age_groups[0:-1]]
         rho_age_groups = np.cumsum([0] + rho_age_groups)
         self.rho_age_groups = np.append(rho_age_groups, num_people)
+        #migrated from output.py for output DF
+        self.tracked_status = ['asymptomatic', 'symptomatic', 'hospitalised', 'dead']
+        self.vacc_states = ['vacc', 'unvacc','ineligible']
+        self.statusDF = None
 
     def initialise_people(self, n_infec):
         """Ensure people have all information necessary after initialisation:
@@ -134,3 +139,33 @@ class Timesteps:
         for p in self.People:
             p.change_status(infectioncount)
             p.increment_immunity_time()
+
+    def set_outputdf(self):
+        '''
+        Create a dataframe with all the age groups, persons' status and vaccine status
+        '''
+        #pull column names
+        columns = ['t']
+        for age_group in params.age_groups:
+            for status in self.tracked_status:
+                for vacc_state in self.vacc_states:
+                    columns.append(f'{age_group}_{status}_{vacc_state}')
+        self.statusDF = pd.DataFrame(columns=columns)
+    
+    def append_daily_nbs_outputdf(self, t, People):
+        '''
+        Sum over the age groups, statuses and vaccine statuses
+        and append to the dataframe as a new row with t=time in days
+        '''
+        row = {'t': t}
+        for age_group in params.age_groups:
+            for status in self.tracked_status:
+                for vacc_state in self.vacc_states:
+                    count = sum(1 for p in People 
+                            if p.age_group == age_group 
+                            and p.status == status 
+                            and p.vacc_status == vacc_state)
+                    print(f' for {age_group} {status} {vacc_state} the sum is {count}')
+                    row[f'{age_group}_{status}_{vacc_state}'] = count
+        # append to df        
+        self.statusDF = pd.concat([self.statusDF, pd.DataFrame([row])], ignore_index=True)
