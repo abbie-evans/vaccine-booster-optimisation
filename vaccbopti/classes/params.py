@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.stats as stats
 import scipy.integrate as integrate
 import os
-from stats import weibull_min
+from scipy.stats import weibull_min
 
 
 # Define Params class
@@ -84,7 +84,7 @@ class Params:
         def integration(self, k, dist, parameters): #shape, scale
             "Define the integration function"
             integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
-            integrand_weibull = lambda u: (1 - abs(u - k)) * stats.weibull_min.pdf(u, parameters[0]*parameters[1])
+            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0]*parameters[1])
             if dist == "gamma":
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
             else:
