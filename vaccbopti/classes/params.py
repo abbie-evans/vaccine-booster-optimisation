@@ -62,6 +62,7 @@ class Params:
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
             self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
+
             """Shape and scale parameters for gamma and weibull distributions for periods."""
             self.shape = 3.0
             self.scale_latent_t = self.mean_latent / self.shape_dist
