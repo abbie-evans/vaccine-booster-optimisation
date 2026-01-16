@@ -3,7 +3,10 @@
 # Important and useful modules
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
+import scipy.integrate as integrate
 import os
+from stats import weibull_min
 
 
 # Define Params class
@@ -56,30 +59,49 @@ class Params:
                             0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
+            self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods (latent_t, infec_t, hosp_t, death_t)
+            self.shape_dist = 3.0 # shape parameter for gamma distribution of latent_t and infec_t gamma distribution
+            self.scale_dist_latent_t = self.mean_latent / self.shape_dist # scale parameter for latent_t gamma distribution
+            self.scale_dist_infec_t = self.mean_infec / self.shape_dist # scale parameter for infec_t gamma distribution
+            self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2 # shape parameter for death_t gamma distribution
+            self.scale_dist_death_t = (self.sd_death**2) / self.mean_death # scale parameter for death_t gamma distribution
+            self.k = 1.4 # k parameter for weibull distribution of hosp_t
+            self.lam = 8.4 # lam parameter for weibull distribution of hosp_t
 
-            # latent period (gamma)
-            self.shape_dist = 3.0
-            self.scale_dist_latent_t = self.mean_latent / self.shape_dist
-            self.latent_t = np.random.gamma(shape=self.shape_dist, scale=self.scale_dist_latent_t, size=1000)
+            """Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled."""
+            self.latent_t = self.integral_probabilities_array("gamma", [self.shape_dist, self.scale_dist_latent_t])
+            self.infec_t = self.integral_probabilities_array("gamma", [self.shape_dist, self.scale_dist_infec_t])
+            self.hosp_t = self.integral_probabilities_array("weibull", [self.k, self.lam])
+            self.death_t = self.integral_probabilities_array("gamma", [self.shape_dist_death_t, self.scale_dist_death_t])
 
-            # infectious period (gamma)
-            self.scale_dist_infec_t = self.mean_infec / self.shape_dist
-            self.infec_t = np.random.gamma(shape=self.shape_dist, scale=self.scale_dist_infec_t, size=1000)
-
-            # delay between infectiousness and hospitalisation (Weibull)
-            self.k = 1.4
-            self.lam = 8.4
-            self.hosp_t = np.random.weibull(a=self.k * self.lam, size=1000)
-
-            # delay between hospitalisation and death (gamma)
-            self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2
-            self.scale_dist_death_t = (self.sd_death**2) / self.mean_death
-            self.death_t = np.random.gamma(shape=self.shape_dist_death_t, scale=self.scale_dist_death_t, size=1000)
-
-            # tau curves to access under each condition
+            """Tau curves to access under each condition"""
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
             self.f_newvacc = self.calc_fx(self.n0_newvacc, self.n50_ag_infec)
             self.f_infec = self.calc_fx(self.n0_infec, self.n50_ag_infec)
+
+        def integration(self, k, dist, parameters): #shape, scale
+            "Define the integration function"
+            integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
+            integrand_weibull = lambda u: (1 - abs(u - k)) * stats.weibull_min.pdf(u, parameters[0]*parameters[1])
+            if dist == "gamma":
+                return integrate.quad(integrand_gamma, k - 1, k + 1)
+            else:
+                return integrate.quad(integrand_weibull, k - 1, k + 1)
+
+        def integral_of_density_probability(self, dist, parameters):
+            """run for each k in values (one Lk)"""
+            prob = []
+            for k in self.days_samples[1:]:
+                result = self.integration(k, dist, parameters)
+                prob.append(result[0])
+            return prob
+
+        def integral_probabilities_array(self, dist, parameters):
+            """Ensure that the probabilities sum to 1"""
+            lk1 = 1 - sum(self.integral_of_density_probability(dist, parameters))
+            # final array for the probabilities of each Lk
+            lk = self.integral_of_density_probability(dist, parameters) + [lk1]
+            return np.random.choice(self.days_samples, p=lk)
 
         def calc_fx(self, n0_x, n50_m):
             """Method to calculate the tau_x curves.
