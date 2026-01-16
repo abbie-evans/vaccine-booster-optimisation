@@ -3,7 +3,10 @@
 # Important and useful modules
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
+import scipy.integrate as integrate
 import os
+from scipy.stats import weibull_min
 
 
 # Define Params class
@@ -58,35 +61,60 @@ class Params:
                             0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
+            self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
 
-            # latent period (gamma)
-            self.shape_dist = 3.0
-            self.scale_dist_latent_t = self.mean_latent / self.shape_dist
-            self.latent_t = np.random.gamma(shape=self.shape_dist, scale=self.scale_dist_latent_t, size=1000)
-
-            # infectious period (gamma)
-            self.scale_dist_infec_t = self.mean_infec / self.shape_dist
-            self.infec_t = np.random.gamma(shape=self.shape_dist, scale=self.scale_dist_infec_t, size=1000)
-
-            # delay between infectiousness and hospitalisation (Weibull)
+            """Shape and scale parameters for gamma and weibull distribution for periods."""
+            self.shape = 3.0
+            self.scale_latent_t = self.mean_latent / self.shape
+            self.scale_infec_t = self.mean_infec / self.shape
+            self.shape_death_t = (self.mean_death / self.sd_death) ** 2
+            self.scale_death_t = (self.sd_death**2) / self.mean_death
             self.k = 1.4
             self.lam = 8.4
-            self.hosp_t = np.random.weibull(a=self.k * self.lam, size=1000)
 
-            # delay between hospitalisation and death (gamma)
-            self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2
-            self.scale_dist_death_t = (self.sd_death**2) / self.mean_death
-            self.death_t = np.random.gamma(shape=self.shape_dist_death_t, scale=self.scale_dist_death_t, size=1000)
+            """Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled."""
+            self.latent_t = self.integral_probabilities_array("gamma",
+                                                              [self.shape, self.scale_latent_t])
+            self.infec_t = self.integral_probabilities_array("gamma",
+                                                             [self.shape, self.scale_infec_t])
+            self.hosp_t = self.integral_probabilities_array("weibull",
+                                                            [self.k, self.lam])
+            self.death_t = self.integral_probabilities_array("gamma",
+                                                             [self.shape_death_t, self.scale_death_t])
 
-            # tau curves to access under each condition
+            """Tau curves to access under each condition"""
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
             self.f_newvacc = self.calc_fx(self.n0_newvacc, self.n50_ag_infec)
             self.f_infec = self.calc_fx(self.n0_infec, self.n50_ag_infec)
 
+        def integration(self, k, dist, parameters):
+            "Define the integration function"
+            integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
+            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0] * parameters[1])
+            if dist == "gamma":
+                return integrate.quad(integrand_gamma, k - 1, k + 1)
+            else:
+                return integrate.quad(integrand_weibull, k - 1, k + 1)
+
+        def integral_of_density_probability(self, dist, parameters):
+            """run for each k in values (one Lk)"""
+            prob = []
+            for k in self.days_samples[1:]:
+                result = self.integration(k, dist, parameters)
+                prob.append(result[0])
+            return prob
+
+        def integral_probabilities_array(self, dist, parameters):
+            """Ensure that the probabilities sum to 1"""
+            lk1 = 1 - sum(self.integral_of_density_probability(dist, parameters))
+            # final array for the probabilities of each Lk
+            lk = [lk1] + self.integral_of_density_probability(dist, parameters)
+            return lk
+
         def calc_fx(self, n0_x, n50_m):
             """Method to calculate the tau_x curves.
             Parameters:
-                n0_x (float): which method is conffering resistance
+                n0_x (float): which method is conferring resistance
                 n50_m (float): deciding on immunity level conferred by infection or hospitalisation
             Returns:
                 f_x: tau_x curves to be indexed
@@ -100,7 +128,7 @@ class Params:
         def calc_nx(self, n0_x):
             """Calculating n_x, the immunity levels modelled using a biphasic exponential decay function.
             Parameters:
-                n0_x (float): which method is conffering resistance
+                n0_x (float): which method is conferring resistance
                                 - vaccination with existing vaccine
                                 - vaccination with variant adapted vaccine
                                 - infection with new strain
@@ -125,7 +153,7 @@ class Params:
 
     @staticmethod
     def instance():
-        """Creates singleton instance of __Parameters under _instance to access variables.
+        """Creates a singleton instance of __Parameters under _instance to access variables.
         Returns:
             __Params._instance: an instance of the __Parameters class to access all variables
         """
