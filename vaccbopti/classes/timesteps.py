@@ -2,11 +2,12 @@
 
 # Import other modules
 from vaccbopti.classes.person import Person
-from vaccbopti.classes import Params
+from vaccbopti.classes.params import Params
+from vaccbopti.classes.booster_admin import BoosterAdmin
 import numpy as np
 import random
 params = Params.instance()
-
+boosters = BoosterAdmin()
 
 # Define Timesteps class
 class Timesteps:
@@ -40,15 +41,22 @@ class Timesteps:
            - assigned age groups,
            - have been infected/vaccinated with a previous variant at some point
            - random subset are infected
+           - random subset are ineligible for vaccination
            - updates their susceptibility based on these infection times
         Parameters:
             rho_age_groups (list): number of people in each age group
             n_infec (int): number of people to be randomly infected
             """
+        # Assign age groups
         for n in range(len(self.rho_age_groups) - 1):
             for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
                 self.People[p].get_age_group(n)
                 self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
+        # Ineligible for booster group
+        inelig_group = random.sample(self.indices, int(round(0.2*self.num_people)))
+        for p in inelig_group:
+            self.People[int(p)].vacc_status = 'ineligible'
+        # Randomly infected group
         infect_group = random.sample(self.indices, n_infec)
         for p in infect_group:
             self.People[int(p)].initialise_infection()
@@ -85,6 +93,40 @@ class Timesteps:
         new_beta_factor = self.R_e / calc_R_e
         new_beta = new_beta_factor * np.array(params.infec_rate_param)
         return new_beta.tolist()
+
+    def administer_booster(self, vacc_strat, t_newvacc_avail, t, vacc_amount=2000):
+        """Administers the booster based on the strategy inputted by the user.
+        - strategy 0: doesn't apply booster vaccines
+        - strategy 1: vaccinates everyone starting at the oldest age group and descending,
+                      not taking into account the availability of the updated vaccine
+        - strategy 2: vaccinates everyone starting at the oldest age group and descending,
+                      when the updated vaccine becomes available
+        - strategy 3: starts vaccinating with the old vaccine from the oldest age groups (from 75+ down),
+                      until the new vaccine becomes available. Then, the new vaccine starting at the middle
+                      groups is prioritised (from 49 down). When all the updated vaccines have been administered,
+                      the old vaccination is continued in the older age groups.
+        - strategy 4: starts vaccinating with the old vaccine to the youngest age groups (0+ up), and switches to
+                      vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
+                      updated vaccine. It then switches back to vaccinating the remaining individuals in the young
+                      age groups with the old vaccine.
+        - strategy 5: the old vaccine is administered randomnly to anyone within the population
+        - strategy 6: the updated vaccine is administered randomnly to anyone within the population when it becomes available
+        Parameteters:
+            vacc_strat (int): which number vaccine strategy we're using"""
+        if vacc_strat == 0:
+            return
+        if vacc_strat == 1:
+            boosters.vacc_strat_1(self.People, vacc_amount)
+        if vacc_strat == 2:
+            boosters.vacc_strat_2(self.People, vacc_amount, t, t_newvacc_avail)
+        if vacc_strat == 3:
+            boosters.vacc_strat_3(self.People, vacc_amount, t, t_newvacc_avail)
+        if vacc_strat == 4:
+            boosters.vacc_strat_4(self.People, vacc_amount, t, t_newvacc_avail)
+        if vacc_strat == 5:
+            boosters.vacc_strat_5(self.People, vacc_amount)
+        if vacc_strat == 6:
+            boosters.vacc_strat_6(self.People, vacc_amount, t, t_newvacc_avail)
 
     def increment_people(self):
         """Increases immunity times by 1 and changes status."""
