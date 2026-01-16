@@ -108,7 +108,7 @@ class Params:
             lk1 = 1 - sum(self.integral_of_density_probability(dist, parameters))
             # final array for the probabilities of each Lk
             lk = self.integral_of_density_probability(dist, parameters) + [lk1]
-            return np.random.choice(self.days_samples, p=lk)
+            return lk
 
         def calc_fx(self, n0_x, n50_m):
             """Method to calculate the tau_x curves.
