@@ -1,11 +1,11 @@
 # FILE FOR TIMESTEPS CLASS
 
 # Import other modules
+import numpy as np
+import random
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.booster_admin import BoosterAdmin
-import numpy as np
-import random
 params = Params.instance()
 boosters = BoosterAdmin()
 
@@ -129,8 +129,8 @@ class Timesteps:
         if vacc_strat == 6:
             boosters.vacc_strat_6(self.People, vacc_amount, t, t_newvacc_avail)
 
-    def increment_people(self):
+    def increment_people(self, infectioncount):
         """Increases immunity times by 1 and changes status."""
         for p in self.People:
-            p.change_status()
+            p.change_status(infectioncount)
             p.increment_immunity_time()

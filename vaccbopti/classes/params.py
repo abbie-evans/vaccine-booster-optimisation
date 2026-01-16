@@ -1,11 +1,11 @@
 # FILE CONTAINING ALL THE RELEVANT INFORMATION TO INITIALISE AT THE START OF THE MODEL.
 
 # Important and useful modules
+import os
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import scipy.integrate as integrate
-import os
 from scipy.stats import weibull_min
 
 

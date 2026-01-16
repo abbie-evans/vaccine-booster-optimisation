@@ -9,27 +9,12 @@ import numpy as np
 class InfectionCount:
     """Holds a dataframe of the number of people that are asymptomatic/symptomatic infected."""
 
-    class __InfectionCount:
-        """Inner singleton class containing the dataframe."""
-        df_status = ['symptomatic',
-                     'asymptomatic']
-        count_df = pd.DataFrame(0,
-                                index=np.arange(16),
-                                columns=df_status)
-
-    _instance = None
-
     def __init__(self):
-        """Virtual private constructor to enforce singleton pattern."""
-        if InfectionCount._instance is not None:
-            raise RuntimeError("This class is a singleton!")
-
-    @staticmethod
-    def instance():
-        """Creates singleton instance of __InfectionCount under _instance to access variables.
-        Returns:
-            __InfectionCount._instance: an instance of __InfectionCount to access the df
-        """
-        if not InfectionCount._instance:
-            InfectionCount._instance = InfectionCount.__InfectionCount()
-        return InfectionCount._instance
+            """Initialise the dataframe.
+            Parameters:
+                df_status (list): status that need to be included in the dataframe
+                count_df (df): the dataframe of counts"""
+            self.df_status = ['symptomatic', 'asymptomatic']
+            self.count_df = pd.DataFrame(0,
+                                        index=np.arange(16),
+                                        columns=self.df_status)

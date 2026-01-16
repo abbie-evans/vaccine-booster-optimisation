@@ -6,10 +6,12 @@ from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
+from vaccbopti.classes.infectioncount import InfectionCount
 from vaccbopti.classes.timesteps import Timesteps
 params = Params.instance()
 infection_force = InfectionForce()
-infection_force.all_lambda()
+infectioncount = InfectionCount().count_df
+infection_force.all_lambda(infectioncount)
 
 
 # Define testing class
@@ -196,7 +198,7 @@ class test_timesteps(TestCase):
         """Tests that the increments occur correctly."""
         self.testTimesteps.initialise_people(self.n_infec)
         exvacc_times_old = [p.immunity_time_exvacc for p in self.testTimesteps.People]
-        self.testTimesteps.increment_people()
+        self.testTimesteps.increment_people(infectioncount)
         exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.People]
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
