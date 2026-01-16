@@ -33,7 +33,7 @@ class BoosterAdmin:
     def vaccine_administration(self, People, vacc_amount, vaccine_choice, direction, age_targets):
         """Administers a vaccine to the population.
         - a list is created of all eligible individuals to be vaccinated
-            - those who are not symptomatic, hospitalised, dead, vaccinated, 
+            - those who are not symptomatic, hospitalised, dead, vaccinated,
             - and they are 'eligible for vaccination' (person.vacc_status='unvacc')
             - ineligible refers to the 20% of the population that would not be vaccinated for various reasons
         - the list is randomised and resorted according to the vaccination strategy (param 'direction'):

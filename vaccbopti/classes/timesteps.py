@@ -9,6 +9,7 @@ import random
 params = Params.instance()
 boosters = BoosterAdmin()
 
+
 # Define Timesteps class
 class Timesteps:
     """A class representing the steps in the simulation."""
@@ -53,7 +54,7 @@ class Timesteps:
                 self.People[p].get_age_group(n)
                 self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
         # Ineligible for booster group
-        inelig_group = random.sample(self.indices, int(round(0.2*self.num_people)))
+        inelig_group = random.sample(self.indices, int(round(0.2 * self.num_people)))
         for p in inelig_group:
             self.People[int(p)].vacc_status = 'ineligible'
         # Randomly infected group
@@ -110,7 +111,7 @@ class Timesteps:
                       updated vaccine. It then switches back to vaccinating the remaining individuals in the young
                       age groups with the old vaccine.
         - strategy 5: the old vaccine is administered randomnly to anyone within the population
-        - strategy 6: the updated vaccine is administered randomnly to anyone within the population when it becomes available
+        - strategy 6: updated vaccine administered randomnly to anyone within population when it becomes available
         Parameteters:
             vacc_strat (int): which number vaccine strategy we're using"""
         if vacc_strat == 0:

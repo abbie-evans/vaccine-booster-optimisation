@@ -41,7 +41,7 @@ class testBoosterAdmin(TestCase):
         self.assertEqual(person.vacc_status, 'vacc')
 
     def test_vaccine_administration(self):
-        """Test that after vaccine administration, no eligible self.People remain unvaccinated"""       
+        """Test that after vaccine administration, no eligible self.People remain unvaccinated."""
         # Run vaccine administration
         admin.vaccine_administration(self.People, 200, vaccine_choice='old_vacc',
                                      direction='descend', age_targets='everyone')
@@ -76,7 +76,7 @@ class testBoosterAdmin(TestCase):
         self.assertEqual(count_original, count_postVS)
 
     def test_vacc_strat_3(self):
-        """Test that vaccine strategy 3 on single population: 
+        """Test that vaccine strategy 3 on single population:
            - old vaccine to mid-old before availability
            - new vaccine to mid-young after
         """
