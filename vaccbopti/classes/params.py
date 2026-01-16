@@ -63,13 +63,13 @@ class Params:
             self.sd_death = 12.1  # s.d. of death time (days)
             self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
             """Shape and scale parameters for gamma and weibull distributions for periods."""
-            self.shape= 3.0
+            self.shape = 3.0
             self.scale_latent_t = self.mean_latent / self.shape_dist
             self.scale_infec_t = self.mean_infec / self.shape_dist
             self.shape_death_t = (self.mean_death / self.sd_death) ** 2
             self.scale_death_t = (self.sd_death**2) / self.mean_death
-            self.k = 1.4 # k parameter for weibull distribution of hosp_t
-            self.lam = 8.4 # lam parameter for weibull distribution of hosp_t
+            self.k = 1.4  # k parameter for weibull distribution of hosp_t
+            self.lam = 8.4  # lam parameter for weibull distribution of hosp_t
 
             """Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled."""
             self.latent_t = self.integral_probabilities_array("gamma",
@@ -86,10 +86,10 @@ class Params:
             self.f_newvacc = self.calc_fx(self.n0_newvacc, self.n50_ag_infec)
             self.f_infec = self.calc_fx(self.n0_infec, self.n50_ag_infec)
 
-        def integration(self, k, dist, parameters): #shape, scale
+        def integration(self, k, dist, parameters):
             "Define the integration function"
             integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
-            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0]*parameters[1])
+            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0] * parameters[1])
             if dist == "gamma":
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
             else:
