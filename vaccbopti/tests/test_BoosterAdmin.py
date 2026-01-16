@@ -44,7 +44,7 @@ class testBoosterAdmin(TestCase):
         """Test that after vaccine administration, no eligible self.People remain unvaccinated."""
         # Run vaccine administration
         self.admin.vaccine_administration(self.People, 200, vaccine_choice='old_vacc',
-                                     direction='descend', age_targets='everyone')
+                                          direction='descend', age_targets='everyone')
         # Check that eligible unvaccinated People no longer exist in Population
         # (Eligible = not symptomatic, hospitalised, or dead)
         remaining_unvacc = [p for p in self.People
