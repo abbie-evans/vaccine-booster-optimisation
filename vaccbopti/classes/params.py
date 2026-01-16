@@ -63,14 +63,14 @@ class Params:
             self.sd_death = 12.1  # s.d. of death time (days)
             self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
 
-            """Shape and scale parameters for gamma and weibull distributions for periods."""
+            """Shape and scale parameters for gamma and weibull distribution for periods."""
             self.shape = 3.0
             self.scale_latent_t = self.mean_latent / self.shape
             self.scale_infec_t = self.mean_infec / self.shape
             self.shape_death_t = (self.mean_death / self.sd_death) ** 2
             self.scale_death_t = (self.sd_death**2) / self.mean_death
-            self.k = 1.4  # k parameter for weibull distribution of hosp_t
-            self.lam = 8.4  # lam parameter for weibull distribution of hosp_t
+            self.k = 1.4
+            self.lam = 8.4
 
             """Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled."""
             self.latent_t = self.integral_probabilities_array("gamma",
@@ -114,7 +114,7 @@ class Params:
         def calc_fx(self, n0_x, n50_m):
             """Method to calculate the tau_x curves.
             Parameters:
-                n0_x (float): which method is conffering resistance
+                n0_x (float): which method is conferring resistance
                 n50_m (float): deciding on immunity level conferred by infection or hospitalisation
             Returns:
                 f_x: tau_x curves to be indexed
@@ -128,7 +128,7 @@ class Params:
         def calc_nx(self, n0_x):
             """Calculating n_x, the immunity levels modelled using a biphasic exponential decay function.
             Parameters:
-                n0_x (float): which method is conffering resistance
+                n0_x (float): which method is conferring resistance
                                 - vaccination with existing vaccine
                                 - vaccination with variant adapted vaccine
                                 - infection with new strain
@@ -153,7 +153,7 @@ class Params:
 
     @staticmethod
     def instance():
-        """Creates singleton instance of __Parameters under _instance to access variables.
+        """Creates a singleton instance of __Parameters under _instance to access variables.
         Returns:
             __Params._instance: an instance of the __Parameters class to access all variables
         """
