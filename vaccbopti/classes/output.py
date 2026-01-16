@@ -1,15 +1,21 @@
 # Class to store data output
 import pandas as pd
 from vaccbopti.classes.params import Params
+from vaccbopti.classes.timesteps import Timesteps.People
 params = Params.instance()
+
 
 class Output:
     def __init__(self):
-        self.tracked_status = ['symptomatic', 'hospitalised', 'dead']
+        self.tracked_status = ['asymptomatic', 'symptomatic', 'hospitalised', 'dead']
         self.vacc_states = ['vacc', 'unvacc']
         self.statusDF = None
     
     def setdf(self):
+        '''
+        Create a dataframe with all the age groups, persons' status and vaccine status
+
+        '''
         #pull column names
         columns = ['t']
         for age_group in params.age_groups:
@@ -17,11 +23,13 @@ class Output:
                 for vacc_state in self.vacc_states:
                     columns.append(f'{age_group}_{status}_{vacc_state}')
         self.statusDF = pd.DataFrame(columns=columns)
+
     
-    def initialise_df(self):
-        self.setdf()
-    
-    def append_daily_nbs(self, t, People=People):
+    def append_daily_nbs(self, t, People):
+        '''
+        Sum over the age groups, statuses and vaccine statuses
+        and append to the dataframe as a new row with t=time in days
+        '''
         row = {'t': t}
         for age_group in params.age_groups:
             for status in self.tracked_status:
@@ -30,6 +38,7 @@ class Output:
                             if p.age_group == age_group 
                             and p.status == status 
                             and p.vacc_status == vacc_state)
+                    print(f' for {age_group} {status} {vacc_state} the sum is {count}')
                     row[f'{age_group}_{status}_{vacc_state}'] = count
         # append to df        
         self.statusDF = pd.concat([self.statusDF, pd.DataFrame([row])], ignore_index=True)

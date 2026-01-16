@@ -3,7 +3,6 @@
 # Import useful modules
 import unittest
 from unittest import TestCase
-import numpy as np
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
@@ -216,19 +215,20 @@ class test_timesteps(TestCase):
         # Initialize people and set up the output dataframe
         self.testTimesteps.initialise_people(self.n_infec)
         self.testTimesteps.set_outputdf()
-        
+
         # Run a mini simulation loop for 5 timesteps
         num_timesteps = 5
         for t in range(num_timesteps):
             self.testTimesteps.append_daily_nbs_outputdf(t, self.testTimesteps.People)
-        
+
         # Check that the dataframe has the correct number of rows (one per timestep)
         num_rows = self.testTimesteps.statusDF.shape[0]
         self.assertEqual(num_rows, num_timesteps)
-        
+
         # Check that the 't' column contains the correct values
         t_values = self.testTimesteps.statusDF['t'].tolist()
         self.assertEqual(t_values, list(range(num_timesteps)))
+
 
 if __name__ == "__main__":
     unittest.main()
