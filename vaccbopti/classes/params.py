@@ -65,8 +65,8 @@ class Params:
 
             """Shape and scale parameters for gamma and weibull distributions for periods."""
             self.shape = 3.0
-            self.scale_latent_t = self.mean_latent / self.shape_dist
-            self.scale_infec_t = self.mean_infec / self.shape_dist
+            self.scale_latent_t = self.mean_latent / self.shape
+            self.scale_infec_t = self.mean_infec / self.shape
             self.shape_death_t = (self.mean_death / self.sd_death) ** 2
             self.scale_death_t = (self.sd_death**2) / self.mean_death
             self.k = 1.4  # k parameter for weibull distribution of hosp_t
@@ -108,7 +108,7 @@ class Params:
             """Ensure that the probabilities sum to 1"""
             lk1 = 1 - sum(self.integral_of_density_probability(dist, parameters))
             # final array for the probabilities of each Lk
-            lk = self.integral_of_density_probability(dist, parameters) + [lk1]
+            lk = [lk1] + self.integral_of_density_probability(dist, parameters)
             return lk
 
         def calc_fx(self, n0_x, n50_m):
