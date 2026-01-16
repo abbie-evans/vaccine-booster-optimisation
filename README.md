@@ -116,7 +116,7 @@ Individuals who remain asymptomatic throughout infection and those who have an i
 | $\overline{\nu}(t)$ | `susceptibility` | average susceptibility of the whole population to the new variant at the start of the simulation | calculated at the start of the simulation | 
 | $\beta^{(a)}$ | `infec_rate_param` | infection rate parameter, reflecting the susceptibility of individuals in age group $a$ (per day) | [0.186, 0.108, 0.122, 0.131, 0.185, 0.213,  0.217, 0.210, 0.215, 0.233, 0.272, 0.305, 0.318, 0.397, 0.422, 0.430] |
 | $M_{ab}$ | `contactmatrix` | mean daily number of contacts that an individual in age group $b$ has with an individual age group $a$ | contact matrix for UK |
-| $N^{(a)}$ | `n_indivs_a` | the number of individuals in age group $a$ | [5758, 6112, 5849, 5413, 6011, 6698, 6828, 6691, 6424, 6311, 6889, 6696, 5769, 5015, 5021, 8515] |
+| $\rho^{(a)}$ | `prop_indivs_a` | the prop of individuals in age group $a$ | [0.05758, 0.06112, 0.05849, 0.05413, 0.06011, 0.06698, 0.06828, 0.06691, 0.06424, 0.06311, 0.06889, 0.06696, 0.05769, 0.05015, 0.05021, 0.08515] |
 | $I^{(b)}$ | `n_infec_sympt` | numbers of individuals in group $b$ that are infectious symptomatic | calculated at the start of the simulation |
 | $A^{(b)}$ | `n_infec_asympt` | numbers of individuals in group $b$ that are infectious asymptomatic | calculated at the start of the simulation |
 | $k$ | `shape_param` | shape parameter linking immunity level and protection against infection/hospitality | 0.25 |
