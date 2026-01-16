@@ -61,20 +61,25 @@ class Params:
                             0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
-            self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods (latent_t, infec_t, hosp_t, death_t)
-            self.shape_dist = 3.0 # shape parameter for gamma distribution of latent_t and infec_t gamma distribution
-            self.scale_dist_latent_t = self.mean_latent / self.shape_dist # scale parameter for latent_t gamma distribution
-            self.scale_dist_infec_t = self.mean_infec / self.shape_dist # scale parameter for infec_t gamma distribution
-            self.shape_dist_death_t = (self.mean_death / self.sd_death) ** 2 # shape parameter for death_t gamma distribution
-            self.scale_dist_death_t = (self.sd_death**2) / self.mean_death # scale parameter for death_t gamma distribution
+            self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
+            """Shape and scale parameters for gamma and weibull distributions for periods."""
+            self.shape= 3.0
+            self.scale_latent_t = self.mean_latent / self.shape_dist
+            self.scale_infec_t = self.mean_infec / self.shape_dist
+            self.shape_death_t = (self.mean_death / self.sd_death) ** 2
+            self.scale_death_t = (self.sd_death**2) / self.mean_death
             self.k = 1.4 # k parameter for weibull distribution of hosp_t
             self.lam = 8.4 # lam parameter for weibull distribution of hosp_t
 
             """Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled."""
-            self.latent_t = self.integral_probabilities_array("gamma", [self.shape_dist, self.scale_dist_latent_t])
-            self.infec_t = self.integral_probabilities_array("gamma", [self.shape_dist, self.scale_dist_infec_t])
-            self.hosp_t = self.integral_probabilities_array("weibull", [self.k, self.lam])
-            self.death_t = self.integral_probabilities_array("gamma", [self.shape_dist_death_t, self.scale_dist_death_t])
+            self.latent_t = self.integral_probabilities_array("gamma",
+                                                              [self.shape, self.scale_latent_t])
+            self.infec_t = self.integral_probabilities_array("gamma",
+                                                             [self.shape, self.scale_infec_t])
+            self.hosp_t = self.integral_probabilities_array("weibull",
+                                                            [self.k, self.lam])
+            self.death_t = self.integral_probabilities_array("gamma",
+                                                             [self.shape_death_t, self.scale_death_t])
 
             """Tau curves to access under each condition"""
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
