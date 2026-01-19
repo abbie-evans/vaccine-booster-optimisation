@@ -12,9 +12,7 @@
 import numpy as np
 import itertools
 from vaccbopti.classes.params import Params
-from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
-infectioncount = InfectionCount.instance()
 
 
 # Define Person class
@@ -127,7 +125,7 @@ class Person:
         if self.immunity_time_infec > -1:
             self.immunity_time_infec += 1
 
-    def change_status(self):
+    def change_status(self, infectioncount):
         """Decision tree to determine a person's status at each time step."""
         index = np.where(np.array(params.age_groups) == self.age_group)[0][0]
         # If dead - removed from the population
@@ -139,12 +137,12 @@ class Person:
             self.infect_t_i -= 1
             if self.infect_t_i == -1:
                 if self.status == 'dead':
-                    infectioncount.count_df.loc[index, 'symptomatic'] -= 1
+                    infectioncount.loc[index, 'symptomatic'] -= 1
                     return
                 if self.status == 'symptomatic' or self.status == 'hospitalised':
-                    infectioncount.count_df.loc[index, 'symptomatic'] -= 1
+                    infectioncount.loc[index, 'symptomatic'] -= 1
                 if self.status == 'asymptomatic':
-                    infectioncount.count_df.loc[index, "asymptomatic"] -= 1
+                    infectioncount.loc[index, "asymptomatic"] -= 1
                 self.status = 'susceptible'
             return
         # If exposed, count down until latent period is finished and then determine response to infection
@@ -155,9 +153,9 @@ class Person:
                                              params.p_v_symp_a)
                 self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time
                 if self.status == 'asymptomatic':
-                    infectioncount.count_df.loc[index, 'asymptomatic'] += 1
+                    infectioncount.loc[index, 'asymptomatic'] += 1
                 if self.status == 'symptomatic':  # if symptomatic
-                    infectioncount.count_df.loc[index, 'symptomatic'] += 1
+                    infectioncount.loc[index, 'symptomatic'] += 1
                     self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
                                                  params.p_nv_IH)
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital

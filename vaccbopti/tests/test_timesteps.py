@@ -6,10 +6,12 @@ from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
+from vaccbopti.classes.infectioncount import InfectionCount
 from vaccbopti.classes.timesteps import Timesteps
 params = Params.instance()
 infection_force = InfectionForce()
-infection_force.all_lambda()
+infectioncount = InfectionCount().count_df
+infection_force.all_lambda(infectioncount)
 
 
 # Define testing class
@@ -57,6 +59,9 @@ class test_timesteps(TestCase):
         self.assertEqual(self.testTimesteps.People[82].age_group, params.age_groups[13])
         self.assertEqual(self.testTimesteps.People[87].age_group, params.age_groups[14])
         self.assertEqual(self.testTimesteps.People[92].age_group, params.age_groups[15])
+        # Ensures 20% of people are ineligble for the booster vaccine
+        vacc_status = [p.vacc_status for p in self.testTimesteps.People if p.vacc_status == 'ineligible']
+        self.assertEqual(len(vacc_status), int(round(self.num_people * 0.2)))
         # Ensures everyone has been given a random previous infection/vaccine time
         for p in self.testTimesteps.People:
             self.assertIsNot(p.immunity_time_exvacc, -1)
@@ -89,14 +94,140 @@ class test_timesteps(TestCase):
         for b in beta:
             self.assertIsNotNone(b)
 
+    def test_administer_booster_s0(self):
+        """Tests the booster administration with strategy 0 occurs correctly."""
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.testTimesteps.administer_booster(0, 1, 1, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(old_it_exvacc, new_it_exvacc)
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+
+    def test_administer_booster_s1(self):
+        """Tests the booster administration with strategy 1 occurs correctly."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.testTimesteps.administer_booster(1, 1, 1, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertNotEqual(old_it_exvacc, new_it_exvacc)
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+
+    def test_administer_booster_2(self):
+        """Tests the booster administration with strategy 2 occurs correctly."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        # Check before the new booster comes out that nothing is happening in the loop
+        self.testTimesteps.administer_booster(2, 2, 1, 10)
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+        # Check after the new bosoter coems out that boosters occur
+        self.testTimesteps.administer_booster(2, 2, 5, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(old_it_exvacc, new_it_exvacc)
+        self.assertNotEqual(old_it_newvacc, new_it_newvacc)
+
+    def test_administer_booster_3(self):
+        """Tests the booster administration with strategy 3 occurs correctly."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        # Check before the new booster comes out that old booster is added
+        self.testTimesteps.administer_booster(3, 2, 1, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertNotEqual(old_it_exvacc, new_it_exvacc)
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+        # Check after booster available that it is changing
+        self.testTimesteps.administer_booster(3, 2, 5, 10)
+        new_new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(new_it_exvacc, new_new_it_exvacc)
+        self.assertNotEqual(old_it_newvacc, new_it_newvacc)
+
+    def test_administer_booster_4(self):
+        """Tests the booster administration with strategy 4 occurs correctly."""
+        self.testTimesteps.initialise_people(self.n_infec)
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        # Check before the new booster comes out that old booster is added
+        self.testTimesteps.administer_booster(4, 2, 1, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertNotEqual(old_it_exvacc, new_it_exvacc)
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+        # Check after booster available that it is changing
+        self.testTimesteps.administer_booster(4, 2, 5, 10)
+        new_new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(new_it_exvacc, new_new_it_exvacc)
+        self.assertNotEqual(old_it_newvacc, new_it_newvacc)
+
+    def test_administer_booster_5(self):
+        """Tests the booster administration with strategy 5 occurs correctly."""
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.testTimesteps.administer_booster(5, 2, 1, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertNotEqual(old_it_exvacc, new_it_exvacc)
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+
+    def test_administer_booster_6(self):
+        """Tests the booster administration with strategy 6 occurs correctly."""
+        old_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        old_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        # Check before the new booster comes out that old booster is added
+        self.testTimesteps.administer_booster(6, 2, 1, 10)
+        new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(old_it_exvacc, new_it_exvacc)
+        self.assertListEqual(old_it_newvacc, new_it_newvacc)
+        # Check after booster available that it is changing
+        self.testTimesteps.administer_booster(6, 2, 5, 10)
+        new_new_it_exvacc = [p.immunity_time_exvacc for p in self.testTimesteps.People]
+        new_it_newvacc = [p.immunity_time_newvacc for p in self.testTimesteps.People]
+        self.assertListEqual(new_it_exvacc, new_new_it_exvacc)
+        self.assertNotEqual(old_it_newvacc, new_it_newvacc)
+
     def test_increment_people(self):
         """Tests that the increments occur correctly."""
         self.testTimesteps.initialise_people(self.n_infec)
         exvacc_times_old = [p.immunity_time_exvacc for p in self.testTimesteps.People]
-        self.testTimesteps.increment_people()
+        self.testTimesteps.increment_people(infectioncount)
         exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.People]
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
+
+    def test_set_outputdf(self):
+        self.testTimesteps.set_outputdf()
+        nb_col = len(self.testTimesteps.statusDF.columns)
+        # we require 193 columns because 16 age groups, 4 statuses and 2 vacc-statuses + time
+        required_cols = 193
+        self.assertEqual(nb_col, required_cols)
+
+    def test_append_daily_nbs_outputdf(self):
+        """Test that append_daily_nbs_outputdf correctly adds rows for each timestep."""
+        # Initialize people and set up the output dataframe
+        self.testTimesteps.initialise_people(self.n_infec)
+        self.testTimesteps.set_outputdf()
+
+        # Run a mini simulation loop for 5 timesteps
+        num_timesteps = 5
+        for t in range(num_timesteps):
+            self.testTimesteps.append_daily_nbs_outputdf(t, self.testTimesteps.People)
+
+        # Check that the dataframe has the correct number of rows (one per timestep)
+        num_rows = self.testTimesteps.statusDF.shape[0]
+        self.assertEqual(num_rows, num_timesteps)
+
+        # Check that the 't' column contains the correct values
+        t_values = self.testTimesteps.statusDF['t'].tolist()
+        self.assertEqual(t_values, list(range(num_timesteps)))
 
 
 if __name__ == "__main__":

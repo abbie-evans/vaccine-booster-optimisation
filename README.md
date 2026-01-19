@@ -3,24 +3,37 @@
 
 # Vaccine Booster Optimisation
 
-As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update
-existing vaccines.
+ As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update existing vaccines.
 
-This repository holds the code to a **stochastic, individual-based outbreak simulation model** that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay).
+ This repository holds the code to a **stochastic, individual-based outbreak simulation model** that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay).
 
 
-## To Setup and Run the Model
+## To Setup and Run the Model Locally
 
 1. Download all the files in this repository.
 2. Use `setup.py`.
+2. Open in the terminal the folder `vaccine-booster-optimisation` and ensure you have your Python virtual environment running
+3. Run `pip install .`
+4. Run `python vaccbopti/main.py`
 
 ## Background
- 
- The model uses a set population of individuals (default is `100 000` individuals) with a global age distribution (based on UK values). This age distribution is separated into groups of every 5 years (0-4 years old, 5-9 years old, etc), in addition to 75+ years old. Each individual's immune status is tracked, which is conferred by infection and/or a booster vaccination. We assume each individual in the population has previously been vaccinated against and/or infected by a previous SARS-CoV-2 varient at least once over a two-year period before the start of the simulation. Additionally, we assume `2000` booster doses per day are administered, such that the entire population is vaccinated within 40 days, with a maximum vaccine uptake level of `80%`.
 
- As this is a stochastic individual-based model, the simulation is repeated `100` times, and the mean of these simulations is presented. Each simulation represents the dynamics over a given period such that one wave of the outbreak occurs.
+ This is a stochastic individual-based model, the simulation is repeated `100` times, and the mean of these simulations is presented. Each simulation represents the dynamics over a given period such that one wave of the outbreak occurs. The model uses a set population of individuals (default is `100 000` individuals) with a global age distribution (based on UK values). This age distribution is separated into groups of every 5 years (0-4 years old, 5-9 years old, etc), in addition to 75+ years old. Each individual's immune status is tracked, which is conferred by infection and/or a booster vaccination. We assume each individual in the population has previously been vaccinated against and/or infected by a previous SARS-CoV-2 varient at least once over a two-year period before the start of the simulation, giving them some level of immunity. 
 
- We consider the effect on the number of deaths and the years of life lost (YLL) due to premature mortality, given the level of protection of the variant-adapted vaccine against infection and hospitalisation, for a period of one year following variant emergence.
+ The user has an option of 7 different booster administration strategies. If a booster vaccine is adminstrated to the population, we assume a set amount per day is given out (default is `2000` such that the entire population is vaccinated within 40 days), with a maximum vaccine uptake level of `80%`.
+ - strategy 0: doesn't apply booster vaccines
+ - strategy 1: vaccinates everyone using an older vaccine (not updated for the new variant), starting at the oldest age group and descending
+ - strategy 2: vaccinates everyone starting at the oldest age group and descending, once the updated variant-specific vaccine becomes available
+ - strategy 3: starts vaccinating with the old vaccine from the oldest age groups (from 75+ down), until the new variant-specific vaccine becomes available. 
+               Then, the new variant-specific vaccine is administered in the middle groups (from 49 down). 
+               When all the updated vaccines have been administered, the old vaccination is continued in the older age groups
+ - strategy 4: starts vaccinating with the old vaccine to the youngest age groups (0+ up). 
+               Switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the updated variant-specific vaccine. 
+               It then switches back to vaccinating the remaining individuals in the young age groups with the old vaccine
+ - strategy 5: the old vaccine is administered randomnly to anyone within the population
+ - strategy 6: the updated variant-specific vaccine is administered randomnly to anyone within population when it becomes available
+
+ We consider the effect of the vaccine booster administration strategy on the number of deaths and the years of life lost (YLL) due to premature mortality, given the level of protection of the variant-adapted vaccine against infection and hospitalisation, for a period of one year following variant emergence.
  
 
  ### Modelling the Infectiousness of the Variant
