@@ -90,14 +90,14 @@ class Params:
         def integration(self, k, dist, parameters):
             "Define the integration function"
             integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
-            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0] * parameters[1])
+            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0], scale = parameters[1])
             if dist == "gamma":
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
             else:
                 return integrate.quad(integrand_weibull, k - 1, k + 1)
 
         def integral_of_density_probability(self, dist, parameters):
-            """run for each k in values (one Lk)"""
+            """Run for each k in values (one Lk)"""
             prob = []
             for k in self.days_samples[1:]:
                 result = self.integration(k, dist, parameters)
