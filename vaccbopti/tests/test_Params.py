@@ -30,8 +30,9 @@ class TestParams(TestCase):
                                "integration",
                                return_value=(0.1, 0.001)):
             self.testParams.days_samples = [1, 2, 3, 4]
-            np.testing.assert_array_equal(self.testParams.integral_of_density_probability("gamma", [2, 1]),
-                                      [0.1, 0.1, 0.1]
+            np.testing.assert_array_equal(
+                self.testParams.integral_of_density_probability("gamma", [2, 1]),
+                [0.1, 0.1, 0.1]
             )
 
     def test_integral_probabilities_array(self):
@@ -39,8 +40,9 @@ class TestParams(TestCase):
         with mock.patch.object(self.testParams,
                                "integral_of_density_probability",
                                return_value=[0.1, 0.2, 0.3, 0.4]):
-            np.testing.assert_array_equal(self.testParams.integral_probabilities_array("gamma", [2, 1]),
-                                      [0.0, 0.1, 0.2, 0.3, 0.4]
+            np.testing.assert_array_equal(
+                self.testParams.integral_probabilities_array("gamma", [2, 1]),
+                [0.0, 0.1, 0.2, 0.3, 0.4]
             )
 
     def test_calc_fx(self):
