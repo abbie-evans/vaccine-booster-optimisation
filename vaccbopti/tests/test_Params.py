@@ -18,11 +18,11 @@ class TestParams(TestCase):
 
     def test_integration_gamma(self):
         """Ensure that the function runs for each k in values (one Lk) for gamma distribution"""
-        np.testing.assert_array_equal(round(self.testParams.integration(1, "gamma", [2, 1])[0],2), 0.1)
+        np.testing.assert_array_equal(round(self.testParams.integration(1, "gamma", [2, 1])[0], 2), 0.1)
 
     def test_integration_weibull(self):
         """Ensure that the function runs for each k in values (one Lk) for weibull distribution"""
-        np.testing.assert_array_equal(round(self.testParams.integration(1, "weibull", [2, 1])[0],2), 0.61)
+        np.testing.assert_array_equal(round(self.testParams.integration(1, "weibull", [2, 1])[0], 2), 0.61)
 
     def test_integral_of_density_probability(self):
         """Ensure that the function runs for each k in values (one Lk)"""
