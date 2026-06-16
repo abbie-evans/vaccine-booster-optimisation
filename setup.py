@@ -11,7 +11,7 @@ setup(name='vaccbopti',
       version='0.1',
       description='A package to model vaccine booster optimisation',
       long_description=get_readme(),
-      author='AnMei Daniels, Monica Dewi, Kristijonas Raibuzis, Bente Vissel',
+      author='Abbie Evans, AnMei Daniels, Monica Dewi, Kristijonas Raibuzis, Bente Vissel',
       url='https://github.com/abbie-evans/vaccine-booster-optimisation',
       # Packages to include
       packages=find_packages(include=('vaccbopti')),
