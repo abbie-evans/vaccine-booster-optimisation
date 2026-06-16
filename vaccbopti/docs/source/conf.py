@@ -8,7 +8,7 @@
 
 project = 'Vaccine Booster Optimisation'
 copyright = '2025, An Mei Daniels, Bente Vissel, Monica Dewi, Kristijonas Raibuzis & Abbie Evans'
-author = 'An Mei Daniels, Bente Vissel, Monica Dewi, Kristijonas Raibuzis & Abbie Evans'
+author = 'Abbie Evans, An Mei Daniels, Bente Vissel, Monica Dewi & Kristijonas Raibuzis'
 release = '0.1'
 
 # -- General configuration ---------------------------------------------------
