@@ -6,6 +6,7 @@
 Vaccine Booster Optimisation documentation
 ==========================================
 
+.. include:: ../../README.rst
 
 .. toctree::
     core
