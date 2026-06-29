@@ -114,7 +114,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'asymptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from asymptomatic to susceptible.
@@ -123,7 +123,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'asymptomatic')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'asymptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
@@ -140,7 +140,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'symptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'symptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from symptomatic to susceptible.
@@ -149,7 +149,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'symptomatic')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
@@ -168,7 +168,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'hospitalised')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertNotEqual(self.testPerson.hosp_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from hospitalised to susceptible.
@@ -177,7 +177,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'hospitalised')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'hospitalised'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
@@ -197,7 +197,7 @@ class test_person(TestCase):
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertNotEqual(self.testPerson.hosp_t_i, -1)
         self.assertNotEqual(self.testPerson.death_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the person stays dead after the infectious period is over.
@@ -206,9 +206,9 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'dead')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'hospitalised'], 0)
-        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'dead'], 1)
         self.assertEqual(self.testPerson.status, 'dead')
         self.testPerson.change_status(infectioncount)

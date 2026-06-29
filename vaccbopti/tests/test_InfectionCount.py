@@ -20,7 +20,7 @@ class TestInfectionCount(TestCase):
         """Ensures the dataframe has the correct length."""
         len_df = len(self.testTable.count_df)
         len_age_groups = len(ageNbs)
-        self.assertEqual(len_df, len_age_groups*2)
+        self.assertEqual(len_df, len_age_groups * 2)
 
     def test_amend_df(self):
         """Ensures the dataframe is ammended correctly."""
