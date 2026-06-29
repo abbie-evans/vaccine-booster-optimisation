@@ -11,7 +11,7 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 
 
 # Get initial variables
-sim_length = 50  # change this for simulation length
+sim_length = 10  # change this for simulation length
 num_people = 100  # change this for variable number of people
 n_infec = 60  # change this for initial number of people exposed
 R_e = 1.5  # change this for transmissibility of the novel variant
@@ -31,11 +31,12 @@ for t in range(1, sim_length):
     statuses = [p.status for p in timesteps.People if p.status != 'susceptible']
     print(f'T={t}: {statuses}')
     if [p.status for p in timesteps.People if (p.status != 'susceptible')
-                                              & (p.status != 'exposed')
-                                              & (p.status != 'dead')]:
+                                            & (p.status != 'exposed')]:
         print(infectioncount)
     # Actual loop code
     infection_force.all_lambda(infectioncount, infec_rate_param, num_people=num_people)  # update force of infection
     timesteps.administer_booster(vacc_strat, t_newvacc_avail, t, vacc_amount)  # administer the boosters
     timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
     timesteps.increment_people(infectioncount)  # update people
+
+#timesteps.statusDF.to_csv('output.csv')

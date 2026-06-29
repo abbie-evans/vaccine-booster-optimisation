@@ -29,6 +29,7 @@ class Person:
                           susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
             vacc_status (str): person's vaccination status
                                unvacc, vacc, ineligible
+            vacc_status_t_i (str): the person's vaccine status at the time of infection
             susceptibility (float): susceptibility, v(t), of an individual
             prob_exposed (float): probability an individual will become infected
             latent_t_i (int): time left in the latent period once exposed
@@ -43,6 +44,7 @@ class Person:
         self.age_group = None
         self.status = 'susceptible'
         self.vacc_status = 'unvacc'
+        self.vacc_status_t_i = 'unvacc'
         self.susceptibility = 0
         self.prob_exposed = 0.01
         self.latent_t_i = -1
@@ -127,23 +129,30 @@ class Person:
 
     def change_status(self, infectioncount):
         """Decision tree to determine a person's status at each time step."""
-        index = np.where(np.array(params.age_groups) == self.age_group)[0][0]
         # If dead - removed from the population
         if self.status == 'dead' and self.infect_t_i == -1:
             return
+        # Check vaccine status and set to add to index
+        if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':
+            vaccine = 'unvaccinated'
+        if self.vacc_status_t_i == 'vacc':
+            vaccine = 'vaccinated'
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
         if (self.status == 'symptomatic' or self.status == 'asymptomatic'
            or self.status == 'hospitalised' or self.status == 'dead'):
-            self.infect_t_i -= 1
-            if self.infect_t_i == -1:
-                if self.status == 'dead':
-                    infectioncount.loc[index, 'symptomatic'] -= 1
+            self.infect_t_i -= 1  # count down infection time
+            if self.infect_t_i == -1:  # if infection time is over
+                if self.status == 'dead':  # if status is dead...
+                    infectioncount.loc[(self.age_group, vaccine), 'dead'] += 1  # ...and time over, add to dead
+                    infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1  # ...and remove from hospital
                     return
-                if self.status == 'symptomatic' or self.status == 'hospitalised':
-                    infectioncount.loc[index, 'symptomatic'] -= 1
-                if self.status == 'asymptomatic':
-                    infectioncount.loc[index, "asymptomatic"] -= 1
-                self.status = 'susceptible'
+                if self.status == 'symptomatic':
+                    infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] -= 1
+                if self.status == 'hospitalised':
+                                    infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1
+                if self.status == 'asymptomatic':  # if was asymptomatic, remove from count
+                    infectioncount.loc[(self.age_group, vaccine), "asymptomatic"] -= 1
+                self.status = 'susceptible'  # back to susceptible
             return
         # If exposed, count down until latent period is finished and then determine response to infection
         if self.status == 'exposed':
@@ -153,15 +162,17 @@ class Person:
                                              params.p_v_symp_a)
                 self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time
                 if self.status == 'asymptomatic':
-                    infectioncount.loc[index, 'asymptomatic'] += 1
+                    infectioncount.loc[(self.age_group, vaccine), 'asymptomatic'] += 1
                 if self.status == 'symptomatic':  # if symptomatic
-                    infectioncount.loc[index, 'symptomatic'] += 1
                     self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
                                                  params.p_nv_IH)
+                    if self.status != 'hospitalised':  # if not hospitalised
+                        infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] += 1  # set symptomatic count
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)
                         self.determine_status_change(['dead', 'hospitalised'],  # check if they die
                                                      params.p_nv_HD)
+                        infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] += 1  # add to hospitalised count
                         if self.status == 'dead':  # if they die, calculate how long it takes
                             self.death_t_i = self.hosp_t_i + self.pick_distr_prob(params.death_t)
             return
@@ -169,6 +180,7 @@ class Person:
         if self.status == 'susceptible':
             self.determine_status_change(['exposed', 'susceptible'], self.prob_exposed)
             if self.status == 'exposed':  # once exposed, choose time until infected
+                self.vacc_status_t_i = self.vacc_status  # set vaccine status for the dataframe
                 self.immunity_time_infec = 0  # give immunity time
                 self.latent_t_i = self.pick_distr_prob(params.latent_t)
             return

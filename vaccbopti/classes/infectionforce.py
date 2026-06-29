@@ -42,11 +42,12 @@ class InfectionForce:
             infectioncount (df): the pandas dataframe to read the counts of (a)symptomatic people
             num_people (int): the total number of people in the simulation
         """
+        infectioncount = infectioncount.groupby('ages').mean()
         M_ab = params.contactmatrix[a][b]
         N_a = int(round(params.prop_indivs_a[a] * num_people))
-        I_b = infectioncount.loc[b, 'symptomatic']
+        I_b = float(infectioncount.loc[params.age_groups[b], ['symptomatic', 'hospitalised']].mean())
         p = params.infec_asymp
-        A_b = infectioncount.loc[b, 'asymptomatic']
+        A_b = float(infectioncount.loc[params.age_groups[b], 'asymptomatic'])
         z = (M_ab / N_a) * (I_b + (p * A_b))
         return z
 
