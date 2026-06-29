@@ -3,6 +3,7 @@
 # Import other modules
 import numpy as np
 import random
+import itertools
 import pandas as pd
 from .person import Person
 from .params import Params
@@ -26,6 +27,7 @@ class Timesteps:
             People (array): all the people in the simulation
             IDs (array): all the IDs of each of the people
             rho_age_groups (list): the indices for the ranges of people in each age group
+            statusDF (pd.DataFrame): will contain the values of each of the statuses for each group at each timepoint
         """
         self.sim_length = sim_length
         self.R_e = R_e
@@ -37,10 +39,13 @@ class Timesteps:
         rho_age_groups = [int(round(n)) for n in rho_age_groups[0:-1]]
         rho_age_groups = np.cumsum([0] + rho_age_groups)
         self.rho_age_groups = np.append(rho_age_groups, num_people)
-        #migrated from output.py for output DF
-        self.tracked_status = ['asymptomatic', 'symptomatic', 'hospitalised', 'dead']
-        self.vacc_states = ['vacc', 'unvacc', 'ineligible']
-        self.statusDF = None
+        # Create output dataframes
+        timepoints = list(range(0, self.sim_length))
+        vaccine = ['unvaccinated', 'vaccinated']
+        df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
+        index = list(itertools.product(*[timepoints, params.age_groups, vaccine]))
+        index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])
+        self.statusDF = pd.DataFrame(0, index=index, columns=df_status)
 
     def initialise_people(self, n_infec):
         """Ensure people have all information necessary after initialisation:
@@ -135,37 +140,19 @@ class Timesteps:
             boosters.vacc_strat_6(self.People, vacc_amount, t, t_newvacc_avail)
 
     def increment_people(self, infectioncount):
-        """Increases immunity times by 1 and changes status."""
+        """Increases immunity times by 1 and changes status.
+        Parameters:
+            infectioncount (pd.DataFrame): the dataframe containing the day's data"""
         for p in self.People:
             p.change_status(infectioncount)
             p.increment_immunity_time()
 
-    def set_outputdf(self):
-        '''
-        Create a dataframe with all the age groups, persons' status and vaccine status
-        '''
-        #pull column names
-        columns = ['t']
-        for age_group in params.age_groups:
-            for status in self.tracked_status:
-                for vacc_state in self.vacc_states:
-                    columns.append(f'{age_group}_{status}_{vacc_state}')
-        self.statusDF = pd.DataFrame(columns=columns)
-
-    def append_daily_nbs_outputdf(self, t, People):
-        '''
-        Sum over the age groups, statuses and vaccine statuses
-        and append to the dataframe as a new row with t=time in days
-        '''
-        row = {'t': t}
-        for age_group in params.age_groups:
-            for status in self.tracked_status:
-                for vacc_state in self.vacc_states:
-                    count = sum(1 for p in People
-                                if p.age_group == age_group
-                                and p.status == status
-                                and p.vacc_status == vacc_state)
-                    print(f' for {age_group} {status} {vacc_state} the sum is {count}')
-                    row[f'{age_group}_{status}_{vacc_state}'] = count
-        #append to df
-        self.statusDF = pd.concat([self.statusDF, pd.DataFrame([row])], ignore_index=True)
+    def append_daily_nbs_outputdf(self, t, infectioncount):
+        """Adds the daily data to the overall dataframe.
+        Parameters:
+            t (int): the timestep of the simulation
+            infectioncount (pd.DataFrame): the dataframe containing the day's data"""
+        if (self.statusDF.loc[t].index == infectioncount.index).all():
+            self.statusDF.loc[t] = infectioncount.to_numpy()
+        else:
+            raise IndexError("The index of overall table and daily table don't match - values will not line up.")

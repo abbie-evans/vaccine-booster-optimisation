@@ -37,5 +37,6 @@ for t in range(1, sim_length):
     timesteps.administer_booster(vacc_strat, t_newvacc_avail, t, vacc_amount)  # administer the boosters
     timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
     timesteps.increment_people(infectioncount)  # update people
+    timesteps.append_daily_nbs_outputdf(t, infectioncount)
 
-#timesteps.statusDF.to_csv('output.csv')
+timesteps.statusDF.to_csv(f'{project_root}/outputs/output.csv')
