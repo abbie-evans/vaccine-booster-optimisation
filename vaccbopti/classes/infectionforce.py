@@ -2,7 +2,7 @@
 
 # Important and useful modules
 import numpy as np
-from vaccbopti.classes.params import Params
+from .params import Params
 params = Params.instance()
 
 

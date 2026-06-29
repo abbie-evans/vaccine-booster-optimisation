@@ -4,9 +4,9 @@
 import numpy as np
 import random
 import pandas as pd
-from vaccbopti.classes.person import Person
-from vaccbopti.classes.params import Params
-from vaccbopti.classes.booster_admin import BoosterAdmin
+from .person import Person
+from .params import Params
+from .booster_admin import BoosterAdmin
 params = Params.instance()
 boosters = BoosterAdmin()
 

@@ -1,7 +1,7 @@
 # FILE FOR BOOSTER ADMINISTRATION CLASS
 
 # Import useful modules
-from vaccbopti.classes.params import Params
+from .params import Params
 import random
 params = Params.instance()
 

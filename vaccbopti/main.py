@@ -1,9 +1,9 @@
 # Import useful modules
 import os
-from classes.params import Params
-from classes.infectioncount import InfectionCount
-from classes.infectionforce import InfectionForce
-from classes.timesteps import Timesteps
+from vaccbopti.classes import Params
+from vaccbopti.classes import InfectionCount
+from vaccbopti.classes import InfectionForce
+from vaccbopti.classes import Timesteps
 params = Params.instance()
 infectioncount = InfectionCount().count_df
 infection_force = InfectionForce()
@@ -30,7 +30,7 @@ for t in range(1, sim_length):
     # Print to see things are running correctly :)
     statuses = [p.status for p in timesteps.People if p.status != 'susceptible']
     print(f'T={t}: {statuses}')
-    if [p.status for p in timesteps.People if (p.status != 'susceptible') & (p.status != 'exposed')]:
+    if [p.status for p in timesteps.People if (p.status != 'susceptible') & (p.status != 'exposed') & (p.status != 'dead')]:
         print(infectioncount)
     # Actual loop code
     infection_force.all_lambda(infectioncount, infec_rate_param, num_people=num_people)  # update force of infection

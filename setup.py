@@ -14,11 +14,12 @@ setup(name='vaccbopti',
       author='AnMei Daniels, Monica Dewi, Kristijonas Raibuzis, Bente Vissel',
       url='https://github.com/abbie-evans/vaccine-booster-optimisation',
       # Packages to include
-      packages=find_packages(include=('vaccbopti')),
+      packages=find_packages(include=('vaccbopti', 'vaccbopti.*')),
       install_requires=['numpy',
                         'pandas',
                         'matplotlib',
-                        'scipy'],
+                        'scipy',
+                        'shiny'],
       extras_require={'docs': ['sphinx>=1.5, !=1.7.3',  # Sphinx for doc generation (v.1.7.3 has a bug)
                                'sphinx_rtd_theme'],  # Nice theme for docs
                       'dev': ['flake8>=3',  # Flake8 for code style checking

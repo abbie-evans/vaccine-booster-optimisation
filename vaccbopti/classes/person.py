@@ -11,7 +11,7 @@
 # Import useful modules
 import numpy as np
 import itertools
-from vaccbopti.classes.params import Params
+from .params import Params
 params = Params.instance()
 
 
