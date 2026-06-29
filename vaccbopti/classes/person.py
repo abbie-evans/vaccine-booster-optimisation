@@ -136,7 +136,7 @@ class Person:
         if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':
             vaccine = 'unvaccinated'
         if self.vacc_status_t_i == 'old_vacc':
-                    vaccine = 'old_vaccine'
+            vaccine = 'old_vaccine'
         if self.vacc_status_t_i == 'new_vacc':
             vaccine = 'new_vaccine'
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
