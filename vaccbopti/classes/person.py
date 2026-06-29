@@ -149,7 +149,7 @@ class Person:
                 if self.status == 'symptomatic':
                     infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] -= 1
                 if self.status == 'hospitalised':
-                                    infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1
+                    infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1
                 if self.status == 'asymptomatic':  # if was asymptomatic, remove from count
                     infectioncount.loc[(self.age_group, vaccine), "asymptomatic"] -= 1
                 self.status = 'susceptible'  # back to susceptible

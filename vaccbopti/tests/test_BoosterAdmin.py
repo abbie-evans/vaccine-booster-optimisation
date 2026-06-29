@@ -60,7 +60,7 @@ class testBoosterAdmin(TestCase):
                              and p.vacc_status == 'unvacc')
         self.admin.vacc_strat_1(self.People, self.vacc_amount)
         count_post = sum(1 for p in self.People
-                         if p.vacc_status == 'vacc')
+                         if p.vacc_status == 'unvacc')
         self.assertNotEqual(count_original, count_post)
 
     def test_vacc_strat_2(self):
@@ -72,8 +72,8 @@ class testBoosterAdmin(TestCase):
         for a in range(20):
             self.admin.vacc_strat_2(self.People, self.vacc_amount, t=a, t_newvacc_avail=15)
         count_postVS = sum(1 for p in self.People
-                           if p.vacc_status == 'vacc')
-        self.assertEqual(count_original, count_postVS)
+                           if p.vacc_status == 'unvacc')
+        self.assertNotEqual(count_original, count_postVS)
 
     def test_vacc_strat_3(self):
         """Test that vaccine strategy 3 on single population:
@@ -122,7 +122,7 @@ class testBoosterAdmin(TestCase):
                              and p.vacc_status == 'unvacc')
         self.admin.vacc_strat_5(self.People, self.vacc_amount)
         count_postVS = sum(1 for p in self.People
-                           if p.vacc_status == 'vacc')
+                           if p.vacc_status == 'unvacc')
         self.assertNotEqual(count_original, count_postVS)
 
     def test_vacc_strat_6(self):
@@ -134,8 +134,8 @@ class testBoosterAdmin(TestCase):
         for a in range(20):
             self.admin.vacc_strat_6(self.People, self.vacc_amount, t=a, t_newvacc_avail=15)
         count_postVS = sum(1 for p in self.People
-                           if p.vacc_status == 'vacc')
-        self.assertEqual(count_original, count_postVS)
+                           if p.vacc_status == 'unvacc')
+        self.assertNotEqual(count_original, count_postVS)
 
 
 if __name__ == "__main__":

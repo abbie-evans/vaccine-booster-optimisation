@@ -20,14 +20,14 @@ class TestInfectionCount(TestCase):
         """Ensures the dataframe has the correct length."""
         len_df = len(self.testTable.count_df)
         len_age_groups = len(ageNbs)
-        self.assertEqual(len_df, len_age_groups)
+        self.assertEqual(len_df, len_age_groups*2)
 
     def test_amend_df(self):
         """Ensures the dataframe is ammended correctly."""
-        self.testTable.count_df.loc[2, 'symptomatic'] = 5
-        self.testTable.count_df.loc[15, 'asymptomatic'] = 17
-        self.assertEqual(self.testTable.count_df.loc[2, 'symptomatic'], 5)
-        self.assertEqual(self.testTable.count_df.loc[15, 'asymptomatic'], 17)
+        self.testTable.count_df.loc[(ageNbs[2], 'vaccinated'), 'symptomatic'] = 5
+        self.testTable.count_df.loc[(ageNbs[15], 'unvaccinated'), 'asymptomatic'] = 17
+        self.assertEqual(self.testTable.count_df.loc[(ageNbs[2], 'vaccinated'), 'symptomatic'], 5)
+        self.assertEqual(self.testTable.count_df.loc[(ageNbs[15], 'unvaccinated'), 'asymptomatic'], 17)
 
 
 if __name__ == '__main__':

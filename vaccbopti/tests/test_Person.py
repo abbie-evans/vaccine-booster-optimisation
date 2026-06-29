@@ -114,7 +114,8 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'asymptomatic'], 1)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'asymptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from asymptomatic to susceptible.
         self.testPerson.change_status(infectioncount)
@@ -122,7 +123,8 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'asymptomatic')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'asymptomatic'], 0)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'asymptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -138,15 +140,17 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'symptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'symptomatic'], 1)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'symptomatic'], 1)
         self.testPerson.infect_t_i = 1
-        # Checking the switch back from asymptomatic to susceptible.
+        # Checking the switch back from symptomatic to susceptible.
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, 0)
         self.assertEqual(self.testPerson.status, 'symptomatic')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'symptomatic'], 0)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -164,22 +168,24 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'hospitalised')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertNotEqual(self.testPerson.hosp_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'symptomatic'], 1)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.infect_t_i = 1
-        # Checking the switch back from asymptomatic to susceptible.
+        # Checking the switch back from hospitalised to susceptible.
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, 0)
         self.assertEqual(self.testPerson.status, 'hospitalised')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'symptomatic'], 0)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'hospitalised'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_IH', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_HD', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     def test_change_status_symptomatic_dead(self):
-        """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
+        """Test that the status change decision tree works correctly on the symptomatic/dead branch."""
         self.testPerson.get_age_group(4)
         infectioncount = InfectionCount().count_df
         # Checking the switch from exposed to symptomatic/dead.
@@ -191,7 +197,8 @@ class test_person(TestCase):
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertNotEqual(self.testPerson.hosp_t_i, -1)
         self.assertNotEqual(self.testPerson.death_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'symptomatic'], 1)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the person stays dead after the infectious period is over.
         self.testPerson.change_status(infectioncount)
@@ -199,7 +206,10 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'dead')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
-        self.assertEqual(infectioncount.loc[4, 'symptomatic'], 0)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'hospitalised'], 0)
+        self.assertEqual(infectioncount.loc[(self.testPerson.age_group, 
+                                             'unvaccinated'), 'dead'], 1)
         self.assertEqual(self.testPerson.status, 'dead')
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.status, 'dead')
