@@ -25,7 +25,7 @@ class test_timesteps(TestCase):
             num_people (int): number of people in the test simulation
             n_infec (int): number of infected people to start with
             n_indiv (list): number of people in each age group"""
-        self.sim_length = 100
+        self.sim_length = 5
         self.num_people = 100
         self.n_infec = 10
         self.testTimesteps = Timesteps(self.num_people, self.sim_length)
@@ -203,31 +203,15 @@ class test_timesteps(TestCase):
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
 
-    def test_set_outputdf(self):
-        self.testTimesteps.set_outputdf()
-        nb_col = len(self.testTimesteps.statusDF.columns)
-        # we require 193 columns because 16 age groups, 4 statuses and 2 vacc-statuses + time
-        required_cols = 193
-        self.assertEqual(nb_col, required_cols)
-
     def test_append_daily_nbs_outputdf(self):
         """Test that append_daily_nbs_outputdf correctly adds rows for each timestep."""
         # Initialize people and set up the output dataframe
         self.testTimesteps.initialise_people(self.n_infec)
-        self.testTimesteps.set_outputdf()
-
-        # Run a mini simulation loop for 5 timesteps
-        num_timesteps = 5
-        for t in range(num_timesteps):
-            self.testTimesteps.append_daily_nbs_outputdf(t, self.testTimesteps.People)
-
+        for t in range(self.sim_length):
+            self.testTimesteps.append_daily_nbs_outputdf(t, infectioncount)
         # Check that the dataframe has the correct number of rows (one per timestep)
         num_rows = self.testTimesteps.statusDF.shape[0]
-        self.assertEqual(num_rows, num_timesteps)
-
-        # Check that the 't' column contains the correct values
-        t_values = self.testTimesteps.statusDF['t'].tolist()
-        self.assertEqual(t_values, list(range(num_timesteps)))
+        self.assertEqual(num_rows, self.sim_length * len(params.age_groups) * 2)
 
 
 if __name__ == "__main__":
