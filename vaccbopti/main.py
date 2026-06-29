@@ -25,7 +25,7 @@ t_newvacc_avail = 2  # if only making vaccine available after a certain time cha
 
 # Create overall output dataframes
 timepoints = list(range(0, sim_length))
-vaccine = ['unvaccinated', 'vaccinated']
+vaccine = ['unvaccinated', 'old_vaccine', 'new_vaccine']
 df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
 index = list(itertools.product(*[timepoints, params.age_groups, vaccine]))
 index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])

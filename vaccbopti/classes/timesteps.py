@@ -41,7 +41,7 @@ class Timesteps:
         self.rho_age_groups = np.append(rho_age_groups, num_people)
         # Create output dataframes
         timepoints = list(range(0, self.sim_length))
-        vaccine = ['unvaccinated', 'vaccinated']
+        vaccine = ['unvaccinated', 'old_vaccine', 'new_vaccine']
         df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
         index = list(itertools.product(*[timepoints, params.age_groups, vaccine]))
         index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])
@@ -55,7 +55,6 @@ class Timesteps:
            - random subset are ineligible for vaccination
            - updates their susceptibility based on these infection times
         Parameters:
-            rho_age_groups (list): number of people in each age group
             n_infec (int): number of people to be randomly infected
             """
         # Assign age groups

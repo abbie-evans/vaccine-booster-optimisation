@@ -211,7 +211,7 @@ class test_timesteps(TestCase):
             self.testTimesteps.append_daily_nbs_outputdf(t, infectioncount)
         # Check that the dataframe has the correct number of rows (one per timestep)
         num_rows = self.testTimesteps.statusDF.shape[0]
-        self.assertEqual(num_rows, self.sim_length * len(params.age_groups) * 2)
+        self.assertEqual(num_rows, self.sim_length * len(params.age_groups) * 3)
 
 
 if __name__ == "__main__":

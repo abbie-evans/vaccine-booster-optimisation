@@ -28,7 +28,7 @@ class Person:
             status (str): person's status relative to the infection
                           susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
             vacc_status (str): person's vaccination status
-                               unvacc, vacc, ineligible
+                               unvacc, old_vacc, new_vacc, ineligible
             vacc_status_t_i (str): the person's vaccine status at the time of infection
             susceptibility (float): susceptibility, v(t), of an individual
             prob_exposed (float): probability an individual will become infected
@@ -135,8 +135,10 @@ class Person:
         # Check vaccine status and set to add to index
         if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':
             vaccine = 'unvaccinated'
-        if self.vacc_status_t_i == 'vacc':
-            vaccine = 'vaccinated'
+        if self.vacc_status_t_i == 'old_vacc':
+                    vaccine = 'old_vaccine'
+        if self.vacc_status_t_i == 'new_vacc':
+            vaccine = 'new_vaccine'
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
         if (self.status == 'symptomatic' or self.status == 'asymptomatic'
            or self.status == 'hospitalised' or self.status == 'dead'):

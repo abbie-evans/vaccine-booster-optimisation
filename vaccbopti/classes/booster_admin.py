@@ -17,7 +17,7 @@ class BoosterAdmin:
         self.vacc_list = []
 
     def update_susceptibility(self, vaccine_choice, person):
-        """Vaccinates an individual (vacc_status to 'vacc') and updates their immunity time (set to 0).
+        """Vaccinates an individual (vacc_status to 'vacc' - old or new) and updates their immunity time (set to 0).
         This implies they will not be included in the list of people eligible for vaccination.
         Parameters:
             vaccine_choice: 'old_vacc' (existing vaccine) or 'new_vacc' (updated vaccine when it becomes available)
@@ -25,10 +25,10 @@ class BoosterAdmin:
         """
         if vaccine_choice == 'old_vacc':
             person.immunity_time_exvacc = 0
-            person.vacc_status = 'vacc'
+            person.vacc_status = 'old_vacc'
         elif vaccine_choice == 'new_vacc':
             person.immunity_time_newvacc = 0
-            person.vacc_status = 'vacc'
+            person.vacc_status = 'new_vacc'
 
     def vaccine_administration(self, People, vacc_amount, vaccine_choice, direction, age_targets):
         """Administers a vaccine to the population.
