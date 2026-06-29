@@ -51,12 +51,12 @@ for r in range(number_runs):
 
     # Update overall dataframes
     statusDF_sum = statusDF_sum.add(timesteps.statusDF)  # summing values from each run (will divide to get average)
-    statusDF_sum_squares = statusDF_sum_squares.add(timesteps.statusDF ** 2)  # sum of squares to find the variance/std later
+    statusDF_sum_squares = statusDF_sum_squares.add(timesteps.statusDF ** 2)  # sum of squares to find the variance/std
 
 # Get the mean and std from sum values and save to output
-statusDF_std = (statusDF_sum_squares / number_runs) - (statusDF_sum / number_runs) ** 2 # get std over 
+statusDF_std = (statusDF_sum_squares / number_runs) - (statusDF_sum / number_runs) ** 2  # get std over
 statusDF_std = np.sqrt(statusDF_std)
 statusDF_mean = statusDF_sum / number_runs  # get mean over runs
 
-statusDF_mean.to_csv(f'{project_root}/outputs/output_mean.csv') # save mean data
-statusDF_std.to_csv(f'{project_root}/outputs/output_std.csv') # save std data
+statusDF_mean.to_csv(f'{project_root}/outputs/output_mean.csv')  # save mean data
+statusDF_std.to_csv(f'{project_root}/outputs/output_std.csv')  # save std data

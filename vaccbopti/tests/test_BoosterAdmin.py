@@ -67,8 +67,7 @@ class testBoosterAdmin(TestCase):
         """Test that vaccine strategy 2 works correctly."""
         # Count number of vaccinated People
         count_original = sum(1 for p in self.People
-                             if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                             and p.vacc_status == 'unvacc')
+                             if p.vacc_status == 'unvacc')
         for a in range(20):
             self.admin.vacc_strat_2(self.People, self.vacc_amount, t=a, t_newvacc_avail=15)
         count_postVS = sum(1 for p in self.People
