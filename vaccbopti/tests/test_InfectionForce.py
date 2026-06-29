@@ -9,7 +9,6 @@ from vaccbopti.classes.infectioncount import InfectionCount
 parameters = Params.instance()
 
 
-
 # Define testing class
 class TestInfectionForce(TestCase):
     """A class to test that the InfectionForce class is set up and runs correctly."""
