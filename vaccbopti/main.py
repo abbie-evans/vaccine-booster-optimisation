@@ -30,7 +30,9 @@ for t in range(1, sim_length):
     # Print to see things are running correctly :)
     statuses = [p.status for p in timesteps.People if p.status != 'susceptible']
     print(f'T={t}: {statuses}')
-    if [p.status for p in timesteps.People if (p.status != 'susceptible') & (p.status != 'exposed') & (p.status != 'dead')]:
+    if [p.status for p in timesteps.People if (p.status != 'susceptible') & 
+                                              (p.status != 'exposed') & 
+                                              (p.status != 'dead')]:
         print(infectioncount)
     # Actual loop code
     infection_force.all_lambda(infectioncount, infec_rate_param, num_people=num_people)  # update force of infection
