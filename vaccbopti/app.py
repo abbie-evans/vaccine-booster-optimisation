@@ -5,13 +5,7 @@ import numpy as np
 import pandas as pd
 from shiny import reactive
 from shiny.express import input, render, ui
-from vaccbopti.classes import Params
-from vaccbopti.classes import InfectionCount
-from vaccbopti.classes import InfectionForce
-from vaccbopti.classes import Timesteps
-params = Params.instance()
-infectioncount = InfectionCount().count_df
-infection_force = InfectionForce()
+from run_simulation import Simulation
 project_root = os.path.dirname(os.path.dirname(__file__))
 
 # Title
@@ -40,8 +34,8 @@ with ui.sidebar(position="left"):
                 ui.input_numeric("num_people", "Number of People", 100, min=10, step=1)
                 "The number of people to have in the simulation."
             # Percentage of people that will not recieve the vaccine
-            with ui.tooltip(id="n_ineligable_tooltip", placement="right"):
-                ui.input_numeric("n_ineligable", "% of Population Ineligable for Vaccine", 0.2, min=0, max=1, step=0.01)
+            with ui.tooltip(id="n_ineligible_tooltip", placement="right"):
+                ui.input_numeric("n_ineligible", "% of Population Ineligable for Vaccine", 0.2, min=0, max=1, step=0.01)
                 "The percentage of people that will not be vaccinated, due to being immunocompromised or vaccine-hesitant."
             # Number of Infected
             with ui.tooltip(id="n_infec_tooltip", placement="right"):
@@ -49,11 +43,11 @@ with ui.sidebar(position="left"):
                 "The number of people who start the simulation exposed to the new variant."
             @reactive.effect  # dynamically changes the max limit to be limited by total number of people
             def _():
-                num_people = input.num_people()
                 n_infec = input.n_infec()
-                if n_infec > num_people:
-                    n_infec = num_people
-                ui.update_numeric("n_infec", value=n_infec, max=num_people)
+                if (input.num_people() is not None) & (n_infec is not None):
+                    if n_infec > input.num_people():
+                        n_infec = input.num_people()
+                    ui.update_numeric("n_infec", value=n_infec, max=input.num_people())
             # R_e
             with ui.tooltip(id="R_e_tooltip", placement="right"):
                 ui.input_numeric("R_e", "Transmissability of New Variant", 1.5, min=0.1, step=0.01)
@@ -79,10 +73,21 @@ with ui.sidebar(position="left"):
                 "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
             # Run Simulation
             ui.input_action_button("run_simulation_button", "Run simulation")  
-            @render.text
+            @reactive.calc
             @reactive.event(input.run_simulation_button)
             def run_simulation():
-                return
+                sim = Simulation(number_runs=input.number_runs(),
+                                 sim_length=input.sim_length(),
+                                 num_people=input.num_people(),
+                                 n_infec=input.n_infec(),
+                                 n_ineligible=input.n_ineligible(),
+                                 R_e=input.R_e(),
+                                 vacc_strat=input.vacc_strat(),
+                                 vacc_amount=input.vacc_amount(),
+                                 t_newvacc_avail=input.t_newvacc_avail())
+                with ui.Progress(min=1, max=input.number_runs()*input.sim_length()) as p:
+                    sim.run(progress=p)
+                    sim.save_csv()
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
