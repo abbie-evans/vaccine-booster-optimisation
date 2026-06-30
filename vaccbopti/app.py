@@ -1,8 +1,5 @@
 # Import useful modules
 import os
-import itertools
-import numpy as np
-import pandas as pd
 from shiny import reactive
 from shiny.express import input, render, ui
 from run_simulation import Simulation
@@ -68,14 +65,14 @@ with ui.sidebar(position="left"):
                 ui.input_numeric("vacc_amount", "Number of Boosters Admistered Per Day", 10, min=1)
                 "The number of booster vaccines to administer per day."
             # New Vaccine Availability
-            with ui.tooltip(id="t_newacc_avail_tooltip", placement="right"):
-                ui.input_numeric("t_newacc_avail", "New Vaccine Availability", 10, min=1)
+            with ui.tooltip(id="t_newvacc_avail_tooltip", placement="right"):
+                ui.input_numeric("t_newvacc_avail", "New Vaccine Availability", 10, min=1)
                 "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
-            # Run Simulation
-            ui.input_action_button("run_simulation_button", "Run simulation")  
+            # Run simulation Button
+            ui.input_action_button("run", "Run simulation")  
+            # Run simulation code
             @reactive.calc
-            @reactive.event(input.run_simulation_button)
-            def run_simulation():
+            def calc_simulation():
                 sim = Simulation(number_runs=input.number_runs(),
                                  sim_length=input.sim_length(),
                                  num_people=input.num_people(),
@@ -85,9 +82,16 @@ with ui.sidebar(position="left"):
                                  vacc_strat=input.vacc_strat(),
                                  vacc_amount=input.vacc_amount(),
                                  t_newvacc_avail=input.t_newvacc_avail())
-                with ui.Progress(min=1, max=input.number_runs()*input.sim_length()) as p:
+                with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
                     sim.run(progress=p)
                     sim.save_csv()
+                return "Done! :)"
+            # Run simulation
+            @render.text
+            @reactive.event(input.run)
+            def run_simulation():
+                out = calc_simulation()
+                return out
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):

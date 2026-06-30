@@ -69,10 +69,10 @@ class Simulation:
                 timesteps.increment_people(infectioncount)  # update people
                 timesteps.append_daily_nbs_outputdf(t, infectioncount)  # updates overall dataframe
                 # Shiny progress update
-                if progress is not None and r*t % 5 == 10:
+                if progress is not None and r*t % 10 == 0:
                     progress.set(r*t, 
                                  message=f"Performing step {r*t}/{self.number_runs*self.sim_length}",
-                                 detail=f"Run: {r}/{self.number_runs}; Timestep: {t}/{self.sim_length}")
+                                 detail=f"Run: {r + 1}/{self.number_runs + 1}; Timestep: {t + 1}/{self.sim_length + 1}")
             # Update overall dataframes
             self.statusDF_sum = self.statusDF_sum.add(timesteps.statusDF)  # summing values from each run (will divide to get average)
             self.statusDF_sum_squares = self.statusDF_sum_squares.add(timesteps.statusDF ** 2)  # sum of squares to find the variance/std
