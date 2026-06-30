@@ -96,8 +96,9 @@ class Person:
         Returns:
             days (int): the number of days a person is in a specific status
         """
-        days = int(round(np.random.choice(distribution)))
-        return int(days)
+        choices = list(range(1, len(distribution) + 1))
+        days = np.random.choice(choices, p=distribution)
+        return days
 
     def determine_status_change(self, statuses, probability):
         """Determines if the person's status, based on probability.
@@ -143,11 +144,13 @@ class Person:
         if (self.status == 'symptomatic' or self.status == 'asymptomatic'
            or self.status == 'hospitalised' or self.status == 'dead'):
             self.infect_t_i -= 1  # count down infection time
-            if self.infect_t_i == -1:  # if infection time is over
-                if self.status == 'dead':  # if status is dead...
+            if self.status == 'dead':  # count down death time
+                self.death_t_i -= 1
+                if self.death_t_i == -1:  # death time over
                     infectioncount.loc[(self.age_group, vaccine), 'dead'] += 1  # ...and time over, add to dead
                     infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1  # ...and remove from hospital
                     return
+            if self.infect_t_i == -1:  # if infection time is over
                 if self.status == 'symptomatic':
                     infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] -= 1
                 if self.status == 'hospitalised':

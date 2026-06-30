@@ -199,13 +199,13 @@ class test_person(TestCase):
         self.assertNotEqual(self.testPerson.death_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'hospitalised'], 1)
-        self.testPerson.infect_t_i = 1
-        # Checking the person stays dead after the infectious period is over.
+        self.testPerson.death_t_i = 1
+        # Checking the person stays dead after the dead period is over.
         self.testPerson.change_status(infectioncount)
-        self.assertEqual(self.testPerson.infect_t_i, 0)
+        self.assertEqual(self.testPerson.death_t_i, 0)
         self.assertEqual(self.testPerson.status, 'dead')
         self.testPerson.change_status(infectioncount)
-        self.assertEqual(self.testPerson.infect_t_i, -1)
+        self.assertEqual(self.testPerson.death_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'hospitalised'], 0)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
