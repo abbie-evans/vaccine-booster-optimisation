@@ -5,6 +5,10 @@ from shiny.express import input, render, ui
 from run_simulation import Simulation
 project_root = os.path.dirname(os.path.dirname(__file__))
 
+# Create a list of each of the outputs of subsequent runs
+sim_runs_means = []
+sim_runs_stds = []
+
 # Title
 ui.page_opts(title="Vaccine Booster Optimisation Simulations", fillable=True)
 
@@ -85,13 +89,15 @@ with ui.sidebar(position="left"):
                 with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
                     sim.run(progress=p)
                     sim.save_csv()
-                return "Done! :)"
+                return sim
             # Run simulation
             @render.text
             @reactive.event(input.run)
             def run_simulation():
-                out = calc_simulation()
-                return out
+                sim = calc_simulation()
+                sim_runs_means.append(sim.statusDF_mean)
+                sim_runs_stds.append(sim.statusDF_std)
+                return f"Saved run {len(sim_runs_means)} of the session! :)"
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
