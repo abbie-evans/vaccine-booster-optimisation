@@ -18,6 +18,7 @@ number_runs = 2  # change this for the number of runs you want to average over
 sim_length = 50  # change this for simulation length
 num_people = 100  # change this for variable number of people
 n_infec = 60  # change this for initial number of people exposed
+n_ineligable = 0.2  # change this to change the percent of population that won't receive vaccine
 R_e = 1.5  # change this for transmissibility of the novel variant
 vacc_strat = 3  # change this for vaccine strategy
 vacc_amount = 10  # change this for varying number of boosters per day
@@ -37,7 +38,7 @@ for r in range(number_runs):
 
     # Initialise people for the simulation
     timesteps = Timesteps(num_people, sim_length, R_e)  # initialise people
-    timesteps.initialise_people(n_infec)  # give people old immunity and some new infections
+    timesteps.initialise_people(n_infec, n_ineligable=n_ineligable)  # give people old immunity and some new infections
     timesteps.get_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
     infec_rate_param = timesteps.calculate_new_beta()  # get a new beta based on these initial values
 

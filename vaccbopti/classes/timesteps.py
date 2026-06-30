@@ -47,7 +47,7 @@ class Timesteps:
         index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])
         self.statusDF = pd.DataFrame(0, index=index, columns=df_status)
 
-    def initialise_people(self, n_infec):
+    def initialise_people(self, n_infec, n_ineligable=0.2):
         """Ensure people have all information necessary after initialisation:
            - assigned age groups,
            - have been infected/vaccinated with a previous variant at some point
@@ -56,6 +56,7 @@ class Timesteps:
            - updates their susceptibility based on these infection times
         Parameters:
             n_infec (int): number of people to be randomly infected
+            n_ineligable (float): percent of overall population that will not receive the vaccine
             """
         # Assign age groups
         for n in range(len(self.rho_age_groups) - 1):
@@ -63,7 +64,7 @@ class Timesteps:
                 self.People[p].get_age_group(n)
                 self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
         # Ineligible for booster group
-        inelig_group = random.sample(self.indices, int(round(0.2 * self.num_people)))
+        inelig_group = random.sample(self.indices, int(round(n_ineligable * self.num_people)))
         for p in inelig_group:
             self.People[int(p)].vacc_status = 'ineligible'
         # Randomly infected group

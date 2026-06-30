@@ -39,11 +39,15 @@ with ui.sidebar(position="left"):
             with ui.tooltip(id="num_people_tooltip", placement="right"):
                 ui.input_numeric("num_people", "Number of People", 100, min=10, step=1)
                 "The number of people to have in the simulation."
+            # Percentage of people that will not recieve the vaccine
+            with ui.tooltip(id="n_ineligable_tooltip", placement="right"):
+                ui.input_numeric("n_ineligable", "% of Population Ineligable for Vaccine", 0.2, min=0, max=1, step=0.01)
+                "The percentage of people that will not be vaccinated, due to being immunocompromised or vaccine-hesitant."
             # Number of Infected
             with ui.tooltip(id="n_infec_tooltip", placement="right"):
-                ui.input_numeric("n_infec", "Initially Infected People", 40, min=0, step=1)
+                ui.input_numeric("n_infec", "Initially Infected People", 40, min=0, max=100, step=1)
                 "The number of people who start the simulation exposed to the new variant."
-            @reactive.effect
+            @reactive.effect  # dynamically changes the max limit to be limited by total number of people
             def _():
                 num_people = input.num_people()
                 n_infec = input.n_infec()
@@ -73,6 +77,12 @@ with ui.sidebar(position="left"):
             with ui.tooltip(id="t_newacc_avail_tooltip", placement="right"):
                 ui.input_numeric("t_newacc_avail", "New Vaccine Availability", 10, min=1)
                 "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
+            # Run Simulation
+            ui.input_action_button("run_simulation_button", "Run simulation")  
+            @render.text
+            @reactive.event(input.run_simulation_button)
+            def run_simulation():
+                return
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
