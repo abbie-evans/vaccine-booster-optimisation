@@ -1,8 +1,7 @@
 from shiny.express import ui
 
-ui.page_opts(title="Page title")
+with ui.sidebar(bg="#f8f8f8"):  
+    "Sidebar" 
 
-with ui.sidebar():
-    "Sidebar content"
 
 "Main content"

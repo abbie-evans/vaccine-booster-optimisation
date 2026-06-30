@@ -19,7 +19,7 @@ sim_length = 50  # change this for simulation length
 num_people = 100  # change this for variable number of people
 n_infec = 60  # change this for initial number of people exposed
 R_e = 1.5  # change this for transmissibility of the novel variant
-vacc_strat = 1  # change this for vaccine strategy
+vacc_strat = 3  # change this for vaccine strategy
 vacc_amount = 10  # change this for varying number of boosters per day
 t_newvacc_avail = 2  # if only making vaccine available after a certain time change this
 
@@ -58,5 +58,5 @@ statusDF_std = (statusDF_sum_squares / number_runs) - (statusDF_sum / number_run
 statusDF_std = np.sqrt(statusDF_std)
 statusDF_mean = statusDF_sum / number_runs  # get mean over runs
 
-statusDF_mean.to_csv(f'{project_root}/outputs/output_mean.csv')  # save mean data
-statusDF_std.to_csv(f'{project_root}/outputs/output_std.csv')  # save std data
+statusDF_mean.to_csv(f'{project_root}/outputs/output_mean_strategy_{vacc_strat}.csv')  # save mean data
+statusDF_std.to_csv(f'{project_root}/outputs/output_std_strategy_{vacc_strat}.csv')  # save std data
