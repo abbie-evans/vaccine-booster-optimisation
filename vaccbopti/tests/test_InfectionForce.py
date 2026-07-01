@@ -27,8 +27,8 @@ class TestInfectionForce(TestCase):
         """Test that the formula to calculate z correctly by replacing the values by 2."""
         # Define the test values and compute manually
         self.infectioncount.count_df = self.infectioncount.count_df.replace(0, 2)
-        test_I_b = 2
-        test_A_b = 2
+        test_I_b = 12
+        test_A_b = 6
         test_p = 0.255
         test_M_12 = 3.81832
         test_N_a = 6112
