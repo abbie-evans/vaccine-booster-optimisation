@@ -1,17 +1,37 @@
 # Import useful modules
-import os
-from shiny import reactive
+import glob, re, os
+from shiny import reactive, render, ui
 from shiny.express import input, render, ui
 from run_simulation import Simulation
+
+from make_plots import load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+
+#update
+from shinywidgets import render_plotly
+from faicons import icon_svg as icon
+#for the conditional
+from shiny import ui as core_ui
+
+#colour scheme
+## setup
+import plotly.express as px
+VIVID = px.colors.qualitative.Vivid
+
 project_root = os.path.dirname(os.path.dirname(__file__))
 
 # Create a list of each of the outputs of subsequent runs
 sim_runs_means = []
 sim_runs_stds = []
 
+## Get the available strategy + CSV files
+# needs to be updated to a general path?
+strategy_dir = f'{project_root}/outputs'
+mean_files = sorted(glob.glob(f'{strategy_dir}/output_mean_strategy_*.csv'))
+strategy_labels = [re.search(r'strategy_(.+)\.csv', f).group(1) for f in mean_files]
+
+LEGEND_CAPTION = "S = symptomatic · AS = asymptomatic · H = hospitalised · D = dead"
 
 # --- THE GUI OF THE PAGE --
-
 # Title
 ui.page_opts(title="Vaccine Booster Optimisation Simulations", fillable=True)
 
@@ -87,9 +107,70 @@ with ui.navset_card_pill(id="main_tabs"):
     with ui.nav_panel("Introduction"):
         "Panel A content for testing"
     with ui.nav_panel("Outputs"):
-        "Panel B content"
+        # need a second nested structure
+        with ui.navset_tab(id="outputs_tabs"):
+            with ui.nav_panel("Within-strategy dynamics"):
+                with ui.card():
+                    ui.input_select("strategy", "Select strategy", choices=strategy_labels)
+                with ui.layout_columns(col_widths=[8, 4]):
+                    with ui.card():
+                        ui.card_header("Status over time")
 
+                        @render_plotly
+                        def status_plot():
+                            df_agg, df_sd_agg = agg_data()
+                            return plot_track_status_plotly(df_agg, df_sd_agg)
 
+                        ui.markdown(f"*{LEGEND_CAPTION}*")
+                    
+                    with ui.layout_columns(col_widths=[12, 12]):
+                        with ui.value_box(showcase=icon("skull"), theme="red"):
+                            "Total deaths"
+
+                            @render.text
+                            def total_deaths_text():
+                                agg = all_strategy_agg()
+                                totals = get_strategy_totals(agg, input.strategy())
+                                return f"{totals['total_deaths']:,.0f}"
+
+                        with ui.value_box(showcase=icon("hospital"), theme="orange"):
+                            "Total hospitalisations"
+
+                            @render.text
+                            def total_hosp_text():
+                                agg = all_strategy_agg()
+                                totals = get_strategy_totals(agg, input.strategy())
+                                return f"{totals['total_hospitalised']:,.0f}"
+
+            with ui.nav_panel("Age dynamics"):
+                with ui.card():
+                    ui.input_select("strategy_age", "Select strategy", choices=strategy_labels)
+                with ui.card():
+                    ui.card_header("Dynamics within age groups")
+                    ui.input_select("age_status", "Select variable", choices=['S', 'AS', 'H', 'D'])
+
+                    @render_plotly
+                    def age_plot():
+                        df_agg = age_agg_data()
+                        return plot_age_dynamics_plotly(df_agg, input.age_status())
+
+                    ui.markdown(f"*{LEGEND_CAPTION}*")
+
+            with ui.nav_panel("Strategy comparison"):
+                with ui.card():
+                    ui.card_header("Comparing strategies")
+                    ui.input_select("strategy_status", "Select variable", choices=['S', 'AS', 'H', 'D'])
+                    ui.input_selectize(
+                        "strategies_to_compare", "Select strategies",
+                        choices=strategy_labels, multiple=True,
+                        selected=strategy_labels
+                    )
+
+                    @render_plotly
+                    def strategy_plot():
+                        agg = all_strategy_agg()
+                        selected = list(input.strategies_to_compare())
+                        return plot_strategy_comparison_plotly(agg, input.strategy_status(), strategies_to_plot=selected)
 # --- FUNCTIONS TO RUN THE GUI ---
 
 # Run simulation code
@@ -118,3 +199,32 @@ def run_simulation():
     sim_runs_stds.append(sim.statusDF_std)  # add std dataframe to list of runs
     ui.update_navset("main_tabs", selected="Outputs")  # switch to outputs tab!
     return f"Saved run {len(sim_runs_means)} of the session! :)"  # visible output so know it's worked
+
+## REACTIVE functions added from Bente
+## reactive plots
+@reactive.calc
+def agg_data():
+    label = input.strategy()
+    sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+    sd_path = f'{strategy_dir}/output_std_strategy_{label}.csv'
+    df_sum, df_sd = load_status_data(sum_path, sd_path)
+    df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
+    df_sd_agg = aggregate_status_sd(df_sd, group_cols=['t', 'vacc_status'])
+    return df_agg, df_sd_agg
+
+
+@reactive.calc
+def age_agg_data():
+    label = input.strategy_age()
+    sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+    df_sum, _ = load_status_data(sum_path)
+    return aggregate_status(df_sum, group_cols=['t', 'ages'])
+
+@reactive.calc
+def all_strategy_agg():
+    result = {}
+    for label in strategy_labels:
+        sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+        df_sum, _ = load_status_data(sum_path)
+        result[label] = aggregate_status(df_sum, group_cols=['t'])
+    return result
