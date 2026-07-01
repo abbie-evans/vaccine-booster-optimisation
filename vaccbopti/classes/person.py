@@ -131,7 +131,7 @@ class Person:
     def change_status(self, infectioncount):
         """Decision tree to determine a person's status at each time step."""
         # If dead - removed from the population
-        if self.status == 'dead' and self.infect_t_i == -1:
+        if self.status == 'dead' and self.death_t_i == -1:
             return
         # Check vaccine status and set to add to index
         if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':

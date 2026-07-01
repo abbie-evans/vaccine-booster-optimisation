@@ -18,7 +18,8 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 class Simulation:
     """The class that will be used to run a simulation."""
 
-    def __init__(self, number_runs=2, sim_length=100, num_people=100, n_infec=60, n_ineligible=0.2, R_e=1.5, vacc_strat=0, vacc_amount=10, t_newvacc_avail=5):
+    def __init__(self, number_runs=2, sim_length=100, num_people=100, n_infec=60, n_ineligible=0.2,
+                 R_e=1.5, vacc_strat=0, vacc_amount=10, t_newvacc_avail=5):
         """Initialise the simulation with the user inputs.
         User inputs:
             number_runs (int): the number of runs you want to average over
@@ -58,30 +59,31 @@ class Simulation:
         for r in range(self.number_runs):
             # Initialise people for the simulation
             timesteps = Timesteps(self.num_people, self.sim_length, self.R_e)  # initialise people
-            timesteps.initialise_people(self.n_infec, n_ineligible=self.n_ineligible)  # give people old immunity and some new infections
+            timesteps.initialise_people(self.n_infec, n_ineligible=self.n_ineligible)  # set immunity and infections
             timesteps.get_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
             infec_rate_param = timesteps.calculate_new_beta()  # get a new beta based on these initial values
             # Loop through timesteps
             for t in range(1, self.sim_length):
-                infection_force.all_lambda(infectioncount, infec_rate_param, num_people=self.num_people)  # update force of infection
-                timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # administer the boosters
+                infection_force.all_lambda(infectioncount, infec_rate_param, num_people=self.num_people)  # F_infec
+                timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
                 timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
                 timesteps.increment_people(infectioncount)  # update people
                 timesteps.append_daily_nbs_outputdf(t, infectioncount)  # updates overall dataframe
                 # Shiny progress update
                 if (progress is not None) and ((r + 1) * t % 10 == 0 or t == 1):
-                    progress.set((r + 1) * t, 
+                    progress.set((r + 1) * t,
                                  message=f"Performing step {(r + 1) * t}/{self.number_runs*self.sim_length}",
                                  detail=f"Run: {r + 1}/{self.number_runs}; Timestep: {t}/{self.sim_length}")
             # Update overall dataframes
-            self.statusDF_sum = self.statusDF_sum.add(timesteps.statusDF)  # summing values from each run (will divide to get average)
-            self.statusDF_sum_squares = self.statusDF_sum_squares.add(timesteps.statusDF ** 2)  # sum of squares to find the variance/std
+            self.statusDF_sum = self.statusDF_sum.add(timesteps.statusDF)  # summing each run (divide to get average)
+            self.statusDF_sum_squares = self.statusDF_sum_squares.add(timesteps.statusDF ** 2)  # sum squares for std
         # Get the mean and std from sum values and save to output
-        self.statusDF_std = (self.statusDF_sum_squares / self.number_runs) - (self.statusDF_sum / self.number_runs) ** 2  # get std over
+        self.statusDF_std = ((self.statusDF_sum_squares / self.number_runs)
+                             - (self.statusDF_sum / self.number_runs) ** 2)
         self.statusDF_std = np.sqrt(self.statusDF_std)
         self.statusDF_mean = self.statusDF_sum / self.number_runs  # get mean over runs
 
     def save_csv(self):
         """Saves the csvs"""
-        self.statusDF_mean.to_csv(f'{project_root}/outputs/output_mean_strategy_{self.vacc_strat}.csv')  # save mean data
-        self.statusDF_std.to_csv(f'{project_root}/outputs/output_std_strategy_{self.vacc_strat}.csv')  # save std data
+        self.statusDF_mean.to_csv(f'{project_root}/outputs/output_mean_strategy_{self.vacc_strat}.csv')  # save mean
+        self.statusDF_std.to_csv(f'{project_root}/outputs/output_std_strategy_{self.vacc_strat}.csv')  # save std
