@@ -78,8 +78,8 @@ class Simulation:
             self.statusDF_sum = self.statusDF_sum.add(timesteps.statusDF)  # summing each run (divide to get average)
             self.statusDF_sum_squares = self.statusDF_sum_squares.add(timesteps.statusDF ** 2)  # sum squares for std
         # Get the mean and std from sum values and save to output
-        self.statusDF_std = ((self.statusDF_sum_squares / self.number_runs) - 
-                             (self.statusDF_sum / self.number_runs) ** 2)
+        self.statusDF_std = ((self.statusDF_sum_squares / self.number_runs)
+                             - (self.statusDF_sum / self.number_runs) ** 2)
         self.statusDF_std = np.sqrt(self.statusDF_std)
         self.statusDF_mean = self.statusDF_sum / self.number_runs  # get mean over runs
 
