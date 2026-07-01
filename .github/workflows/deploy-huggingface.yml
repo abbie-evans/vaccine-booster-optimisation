@@ -24,3 +24,4 @@ jobs:
           git config --global user.name "Github Actions"
 
           git remote add hf https://oauth2:${HF_TOKEN}@huggingface.co/spaces/abbie-evans/vaccine-booster-optimisation
+          git push hf HEAD:main --force
