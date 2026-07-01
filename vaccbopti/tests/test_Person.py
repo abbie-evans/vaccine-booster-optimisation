@@ -49,6 +49,9 @@ class test_person(TestCase):
         self.testPerson.immunity_time_exvacc = 5
         self.testPerson.calc_susceptibility()
         self.assertAlmostEqual(self.testPerson.susceptibility, 1 - 0.22898922)
+        self.testPerson.immunity_time_newvacc = 3
+        self.testPerson.calc_susceptibility()
+        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - 0.24318079419781505)
 
     def test_calc_prob_exposed(self):
         """Ensure that the calculation occurs correctly."""
@@ -101,6 +104,7 @@ class test_person(TestCase):
         self.testPerson.get_age_group(4)
         # Checking the switch from susceptible to exposed and ensure that latent time is added.
         self.testPerson.status = 'susceptible'
+        self.testPerson.vacc_status = 'new_vacc'
         self.testPerson.prob_exposed = 0
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.status, 'susceptible')
@@ -115,7 +119,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'asymptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
-                                             'unvaccinated'), 'asymptomatic'], 1)
+                                             'new_vaccine'), 'asymptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from asymptomatic to susceptible.
         self.testPerson.change_status(infectioncount)
@@ -124,7 +128,7 @@ class test_person(TestCase):
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
-                                             'unvaccinated'), 'asymptomatic'], 0)
+                                             'new_vaccine'), 'asymptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -134,6 +138,8 @@ class test_person(TestCase):
         self.testPerson.get_age_group(4)
         infectioncount = InfectionCount().count_df
         # Checking the switch from exposed to symptomatic (not hospitalised or dead).
+        self.testPerson.vacc_status = 'old_vacc'
+        self.testPerson.vacc_status_t_i = 'old_vacc'
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0
         self.testPerson.change_status(infectioncount)
@@ -141,7 +147,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'symptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
-                                             'unvaccinated'), 'symptomatic'], 1)
+                                             'old_vaccine'), 'symptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from symptomatic to susceptible.
         self.testPerson.change_status(infectioncount)
@@ -150,7 +156,7 @@ class test_person(TestCase):
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
-                                             'unvaccinated'), 'symptomatic'], 0)
+                                             'old_vaccine'), 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])

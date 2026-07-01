@@ -105,11 +105,15 @@ class BoosterAdmin:
             self.vaccine_administration(People, vacc_amount,
                                         vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
         elif t > t_newvacc_avail:
-            self.vaccine_administration(People, vacc_amount,
-                                        vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
-        elif len(self.vacc_list) == 0:
-            self.vaccine_administration(People, vacc_amount,
-                                        vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
+            new_eligible = [p for p in People if p.status not in ['symptomatic', 'hospitalised', 'dead']
+                                              and p.vacc_status == 'unvacc'
+                                              and p.age_group in params.young_groups]
+            if len(new_eligible) != 0:
+                self.vaccine_administration(People, vacc_amount,
+                                            vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
+            elif len(new_eligible) == 0:
+                self.vaccine_administration(People, vacc_amount,
+                                            vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
 
     def vacc_strat_4(self, People, vacc_amount, t, t_newvacc_avail):
         """The fourth strategy starts vaccinating with the old vaccine to the youngest age groups ascending (0+ up),
@@ -124,11 +128,15 @@ class BoosterAdmin:
             self.vaccine_administration(People, vacc_amount,
                                         vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
         elif t > t_newvacc_avail:
-            self.vaccine_administration(People, vacc_amount,
-                                        vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
-        elif len(self.vacc_list) == 0:
-            self.vaccine_administration(People, vacc_amount,
-                                        vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
+            new_eligible = [p for p in People if p.status not in ['symptomatic', 'hospitalised', 'dead']
+                                                          and p.vacc_status == 'unvacc'
+                                                          and p.age_group in params.old_groups]
+            if len(new_eligible) != 0:
+                self.vaccine_administration(People, vacc_amount,
+                                            vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
+            elif len(new_eligible) != 0:
+                self.vaccine_administration(People, vacc_amount,
+                                            vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
 
     def vacc_strat_5(self, People, vacc_amount):
         """The old vaccine is administered randomnly to anyone within the population."""
