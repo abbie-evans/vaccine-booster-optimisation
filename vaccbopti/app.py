@@ -9,6 +9,9 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 sim_runs_means = []
 sim_runs_stds = []
 
+
+# --- THE GUI OF THE PAGE --
+
 # Title
 ui.page_opts(title="Vaccine Booster Optimisation Simulations", fillable=True)
 
@@ -74,38 +77,44 @@ with ui.sidebar(position="left"):
                 "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
             # Run simulation Button
             ui.input_action_button("run", "Run simulation")  
-            # Run simulation code
-            @reactive.calc
-            def calc_simulation():
-                sim = Simulation(number_runs=input.number_runs(),
-                                 sim_length=input.sim_length(),
-                                 num_people=input.num_people(),
-                                 n_infec=input.n_infec(),
-                                 n_ineligible=input.n_ineligible(),
-                                 R_e=input.R_e(),
-                                 vacc_strat=input.vacc_strat(),
-                                 vacc_amount=input.vacc_amount(),
-                                 t_newvacc_avail=input.t_newvacc_avail())
-                with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
-                    sim.run(progress=p)
-                    sim.save_csv()
-                return sim
-            # Run simulation
-            @render.text
-            @reactive.event(input.run)
-            def run_simulation():
-                sim = calc_simulation()
-                sim_runs_means.append(sim.statusDF_mean)
-                sim_runs_stds.append(sim.statusDF_std)
-                return f"Saved run {len(sim_runs_means)} of the session! :)"
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
             'Load csv'
 
-with ui.navset_card_pill(id="tab"):
+# Main outputs panels
+with ui.navset_card_pill(id="main_tabs"):
     with ui.nav_panel("Introduction"):
         "Panel A content for testing"
     with ui.nav_panel("Outputs"):
         "Panel B content"
 
+
+# --- FUNCTIONS TO RUN THE GUI ---
+
+# Run simulation code
+@reactive.calc
+def calc_simulation():
+    sim = Simulation(number_runs=input.number_runs(),
+                        sim_length=input.sim_length(),
+                        num_people=input.num_people(),
+                        n_infec=input.n_infec(),
+                        n_ineligible=input.n_ineligible(),
+                        R_e=input.R_e(),
+                        vacc_strat=input.vacc_strat(),
+                        vacc_amount=input.vacc_amount(),
+                        t_newvacc_avail=input.t_newvacc_avail())
+    with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
+        sim.run(progress=p)
+        sim.save_csv()
+    return sim
+
+# When button is pressed
+@render.text
+@reactive.event(input.run)
+def run_simulation():
+    sim = calc_simulation()  # run simulation
+    sim_runs_means.append(sim.statusDF_mean)  # add mean dataframe to list of runs
+    sim_runs_stds.append(sim.statusDF_std)  # add std dataframe to list of runs
+    ui.update_navset("main_tabs", selected="Outputs")  # switch to outputs tab!
+    return f"Saved run {len(sim_runs_means)} of the session! :)"  # visible output so know it's worked
