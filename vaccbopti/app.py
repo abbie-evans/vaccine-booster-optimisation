@@ -2,9 +2,11 @@
 import os
 import glob
 import re
+import pandas as pd
 from run_simulation import Simulation
 from shiny import reactive
 from shiny.express import input, render, ui
+from shiny.types import FileInfo
 from shinywidgets import render_plotly
 from make_plots import load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
@@ -17,8 +19,8 @@ mean_files = sorted(glob.glob(f'{strategy_dir}/output_mean_strategy_*.csv'))
 strategy_labels = [re.search(r'strategy_(.+)\.csv', f).group(1) for f in mean_files]
 
 # Create a list of each of the outputs of subsequent runs
-sim_runs_means = []
-sim_runs_stds = []
+sim_runs_means = {}
+sim_runs_stds = {}
 
 # Plot layouts
 VIVID = px.colors.qualitative.Vivid  # colour scheme
@@ -90,11 +92,26 @@ with ui.sidebar(position="left"):
                 ui.input_numeric("R_e", "Transmissability of New Variant", 1.5, min=0.1, step=0.01)
                 "The transmissability, R_e, of the novel varient."
             # Run simulation Button
-            ui.input_action_button("run", "Run simulation")  
+            ui.input_action_button("run", "Run simulation")
+            @render.text
+            @reactive.event(input.run)
+            def run_simulation():
+                sim = calc_simulation()  # run simulation 
+                sim_runs_means.update({f"Run {len(sim_runs_means) + 1}": sim.statusDF_mean})  # add mean dataframe to list of runs
+                sim_runs_stds.update({f"Run {len(sim_runs_means) + 1}": sim.statusDF_std})  # add std dataframe to list of runs
+                ui.update_navs("main_tabs", selected="Outputs")  # switch to outputs tab!
+                return f"Saved run {len(sim_runs_means)} of the session! :)"  # visible output so know it's worked
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
-            'Load csv'
+            ui.input_file("csv_upload", "Upload a mean and std .csv from previous runs!", multiple=True)  
+            # Save uploaded csv to file
+            @render.text
+            def add_uploaded_to_dict():
+                means, stds = parsed_file()
+                sim_runs_means.update(means)  # add means dataframe to list of runs
+                sim_runs_stds.update(stds)  # add stds dataframe to list of runs
+                return f'Added {len(means)} mean data file(s) and {len(stds)} stds data file(s) for analysis! Now {len(sim_runs_means)} simulations to analyse.'
 
 # Main outputs panels
 with ui.navset_card_pill(id="main_tabs"):
@@ -120,26 +137,26 @@ with ui.navset_card_pill(id="main_tabs"):
                             Each day, a set number of people will receive the booster vaccine, with a maximum vaccine uptake level (set by the percentage of the population ineligible for the vaccine). The booster administration strategy, and when an updated version of the booster is available will affect the outcome of the model.""")
             with ui.accordion_panel('Booster Administration Strategies'):
                 ui.markdown("""
-                            **No Booster Administration**<br>
-                            Strategy
+                            <u>No Booster Administration</u><br>
+                            No new or old boosters are administered to population.
                             <br><br>
-                            **Strategy 1**<br>
-                            Strategy
+                            <u>Strategy 1</u><br>
+                            Old vaccine is administered to everyone starting with the oldest age group and proceeding in descending (oldest to youngest) order. No new (updated) vaccine is administrated.
                             <br><br>
-                            **Strategy 2**<br>
-                            Strategy
+                            <u>Strategy 2</u><br>
+                            Once available new (updated) vaccine is administered to everyone starting with oldest age group and proceeding in descending (oldest to youngest) order. No old vaccine is administered.
                             <br><br>
-                            **Strategy 3**<br>
-                            Strategy
+                            <u>Strategy 3</u><br>
+                            Before the updated vaccine becomes available, the original vaccine is administered to the oldest eligible age groups proceeding in descending age order (oldest to youngest). Once the updated vaccine becomes available, vaccination switches to the updated vaccine, which is administered to individuals aged _49 years and younger_, again in descending age order. After all eligible individuals in the younger age groups have received the updated vaccine, vaccination resumes in the older age groups that have not yet been vaccinated, using the old vaccine.
                             <br><br>
-                            **Strategy 4**<br>
-                            Strategy
+                            <u>Strategy 4</u><br>
+                            Before the updated vaccine becomes available, the original vaccine is administered to the youngest eligible age groups proceeding in ascending age order (youngest to oldest). Once the updated vaccine becomes available, vaccination switches to the updated vaccine, which is administered to individuals aged _50 years and above_, again in ascending age order. After all eligible individuals in the older age groups have received the updated vaccine, vaccination resumes in the youngest age groups that have not yet been vaccinated, using the old vaccine.
                             <br><br>
-                            **Strategy 5**<br>
-                            Strategy
+                            <u>Strategy 5</u><br>
+                            The old vaccine is administered randomly to anyone eligible in the population
                             <br><br>
-                            **Strategy 6**<br>
-                            Strategy
+                            <u>Strategy 6</u><br>
+                            Once the new vaccine is available the updated vaccine is administered randomly to anyone eligible in the population.
                             """)
 
     # Output panels
@@ -228,18 +245,21 @@ def calc_simulation():
         sim.save_csv()
     return sim
 
-# When run simulation button is pressed
-@render.text
-@reactive.event(input.run)
-def run_simulation():
-    sim = calc_simulation()  # run simulation
-    sim_runs_means.append(sim.statusDF_mean)  # add mean dataframe to list of runs
-    sim_runs_stds.append(sim.statusDF_std)  # add std dataframe to list of runs
-    ui.update_navset("main_tabs", selected="Outputs")  # switch to outputs tab!
-    return f"Saved run {len(sim_runs_means)} of the session! :)"  # visible output so know it's worked
+# Upload csv
+@reactive.calc
+def parsed_file():
+    files: list[FileInfo] | None = input.csv_upload()
+    if files is not None:
+        means = {}
+        stds = {}
+        for file in files:
+            if 'mean' in file['name']:
+                means.update({file['name']: pd.read_csv(file["datapath"])})
+            elif 'std' in file['name']:
+                stds.update({file['name']: pd.read_csv(file["datapath"])})
+        return means, stds
 
-## REACTIVE functions added from Bente
-## reactive plots
+# Aggregate data based on vaccine status
 @reactive.calc
 def agg_data():
     label = input.strategy()
@@ -250,6 +270,7 @@ def agg_data():
     df_sd_agg = aggregate_status_sd(df_sd, group_cols=['t', 'vacc_status'])
     return df_agg, df_sd_agg
 
+# Aggregate data based on age groups
 @reactive.calc
 def age_agg_data():
     label = input.strategy_age()
@@ -257,6 +278,7 @@ def age_agg_data():
     df_sum, _ = load_status_data(sum_path)
     return aggregate_status(df_sum, group_cols=['t', 'ages'])
 
+# Compare all strategy data
 @reactive.calc
 def all_strategy_agg():
     result = {}
