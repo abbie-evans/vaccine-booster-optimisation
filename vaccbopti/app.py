@@ -4,20 +4,16 @@ import glob
 import re
 import pandas as pd
 from run_simulation import Simulation
-<<<<<<< HEAD
-
-from make_plots import get_yll, load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 
 #update
-=======
-from shiny import reactive
-from shiny.express import input, render, ui
-from shiny.types import FileInfo
->>>>>>> da2075794f5d2a03a9b01028d16d640646318095
 from shinywidgets import render_plotly
-from make_plots import load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from shiny import ui, reactive, render
+from make_plots import get_yll, load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
 from faicons import icon_svg as icon
+
+from shiny.express import input, render, ui
+from shiny.types import FileInfo
 
 # File paths
 project_root = os.path.dirname(os.path.dirname(__file__))

@@ -15,10 +15,6 @@ import plotly.express as px
 
 VIVID = px.colors.qualitative.Vivid
 
-
-#welcome
-ui.panel_title(title="VACCBOPTI: Booster Vaccination Optimisation Strategy Dashboard")
-
 #to rename them
 STATUS_COLS = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
 RENAME = {'symptomatic': 'S', 'asymptomatic': 'AS', 'hospitalised': 'H', 'dead': 'D'}
@@ -219,6 +215,7 @@ def get_strategy_totals(strategy_agg, label):
 ## plot plotl
 
 # discover available strategy files
+# need to update this path to general location
 strategy_dir = '/home/bentevissel/vaccine-booster-optimisation/outputs'
 mean_files = sorted(glob.glob(f'{strategy_dir}/output_mean_strategy_*.csv'))
 strategy_labels = [re.search(r'strategy_(.+)\.csv', f).group(1) for f in mean_files]
