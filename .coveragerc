@@ -5,4 +5,4 @@ omit =
     vaccbopti/__init__.py  
     vaccbopti/run_tests.py
     vaccbopti/version_info.py
-    vaccbopti/main.py
+    vaccbopti/app.py
