@@ -1,11 +1,15 @@
 from shiny.express import input
 import pandas as pd
 import plotly.graph_objects as go
+import os
 
 ## setup
 import plotly.express as px
 
 VIVID = px.colors.qualitative.Vivid
+
+project_root = os.path.dirname(os.path.dirname(__file__))
+
 
 #to rename them
 STATUS_COLS = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
@@ -107,6 +111,7 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
 
     fig.update_layout(
         title='Status over time',
+        hovermode="x",
         xaxis_title='Time',
         yaxis_title='Count',
         legend=dict(groupclick='togglegroup'),
@@ -143,6 +148,7 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     fig.update_layout(
         title=f'{status} by age group',
         xaxis_title='Time',
+        hovermode="x",
         yaxis_title=status,
         legend=dict(title='Age group', groupclick='togglegroup'),
     )
@@ -182,6 +188,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     fig.update_layout(
         title=f'{status} across strategies',
         xaxis_title='Time',
+        hovermode="x",
         yaxis_title=status,
         legend=dict(title='Strategy', groupclick='togglegroup'),
     )
@@ -203,3 +210,12 @@ def get_strategy_totals(strategy_agg, label):
     }
 
 
+def get_yll(df_agg):
+    '''
+    df_agg: output of aggregate_status wit age groups
+    yll: accessed from life_expectancy.csv, a local constants file 
+    '''
+    yll_csv = pd.read_csv(f'{project_root}/Life_expectancy.csv')
+    death_by_age = df_agg['D'].groupby('ages').sum()
+    yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'YLL'].values * death_by_age.values
+    return yll_nb.sum()

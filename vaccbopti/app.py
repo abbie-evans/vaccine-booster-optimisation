@@ -4,7 +4,7 @@ from shiny import reactive, render, ui
 from shiny.express import input, render, ui
 from run_simulation import Simulation
 
-from make_plots import load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from make_plots import get_yll, load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 
 #update
 from shinywidgets import render_plotly
@@ -141,6 +141,16 @@ with ui.navset_card_pill(id="main_tabs"):
                                 agg = all_strategy_agg()
                                 totals = get_strategy_totals(agg, input.strategy())
                                 return f"{totals['total_hospitalised']:,.0f}"
+                        
+                        with ui.value_box(showcase=icon("hourglass-half"), theme="blue"):
+                            " Total years of life lost"
+
+                            @render.text
+                            def total_yll_text():
+                                agg = all_strategy_agg_by_age()
+                                df_agg = agg[input.strategy()]
+                                yll = get_yll(df_agg)
+                                return f"{yll:,.0f}"
 
             with ui.nav_panel("Age dynamics"):
                 with ui.card():
@@ -227,4 +237,14 @@ def all_strategy_agg():
         sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
         df_sum, _ = load_status_data(sum_path)
         result[label] = aggregate_status(df_sum, group_cols=['t'])
+    return result
+
+## ADDED THIS (add to APP! when done)
+@reactive.calc
+def all_strategy_agg_by_age():
+    result = {}
+    for label in strategy_labels:
+        sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+        df_sum, _ = load_status_data(sum_path)
+        result[label] = aggregate_status(df_sum, group_cols=['t', 'ages'])
     return result
