@@ -19,7 +19,9 @@ setup(name='vaccbopti',
                         'pandas',
                         'matplotlib',
                         'scipy',
-                        'shiny'],
+                        'shiny',
+                        'plotly',
+                        'shinywidgets'],
       extras_require={'docs': ['sphinx>=1.5, !=1.7.3',  # Sphinx for doc generation (v.1.7.3 has a bug)
                                'sphinx_rtd_theme'],  # Nice theme for docs
                       'dev': ['flake8>=3',  # Flake8 for code style checking
