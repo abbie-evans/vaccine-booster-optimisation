@@ -55,6 +55,11 @@ class Simulation:
         """Runs the simulation! :)
         Parameters:
             progress (optional): a shiny.ui.Progress object which will be used to send progress updates"""
+        # Initialise set up
+        if (progress is not None):
+            progress.set(0,
+                         message="Initialising simulation...",
+                         detail="Setting up people, updating susceptibilities...")
         # Start loop for each run
         for r in range(self.number_runs):
             # Initialise people for the simulation
@@ -70,7 +75,7 @@ class Simulation:
                 timesteps.increment_people(infectioncount)  # update people
                 timesteps.append_daily_nbs_outputdf(t, infectioncount)  # updates overall dataframe
                 # Shiny progress update
-                if (progress is not None) and ((r + 1) * t % 10 == 0 or t == 1):
+                if (progress is not None) and (t % 2 == 0 or t == 1):
                     progress.set((r + 1) * t,
                                  message=f"Performing step {(r + 1) * t}/{self.number_runs*self.sim_length}",
                                  detail=f"Run: {r + 1}/{self.number_runs}; Timestep: {t}/{self.sim_length}")
@@ -85,5 +90,5 @@ class Simulation:
         # create a dataframe that computes the SD already collapsed across groups 
     def save_csv(self):
         """Saves the csvs"""
-        self.statusDF_mean.to_csv(f'{project_root}/outputs/output_mean_strategy_{self.vacc_strat}.csv')  # save mean
-        self.statusDF_std.to_csv(f'{project_root}/outputs/output_std_strategy_{self.vacc_strat}.csv')  # save std
+        self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # save mean
+        self.statusDF_std.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std.csv')  # save std

@@ -1,29 +1,35 @@
 # Import useful modules
 import os
-import glob
 import re
 import pandas as pd
 from run_simulation import Simulation
-
-#update
 from shinywidgets import render_plotly
-from shiny import ui, reactive, render
+from shiny import reactive
+from shiny.express import input, render, ui
+from shiny.types import FileInfo
 from make_plots import get_yll, load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
 from faicons import icon_svg as icon
 
-from shiny.express import input, render, ui
-from shiny.types import FileInfo
 
 # File paths
 project_root = os.path.dirname(os.path.dirname(__file__))
 strategy_dir = f'{project_root}/outputs'
-mean_files = sorted(glob.glob(f'{strategy_dir}/output_mean_strategy_*.csv'))
-strategy_labels = [re.search(r'strategy_(.+)\.csv', f).group(1) for f in mean_files]
+files = [f for f in os.listdir(strategy_dir) if f.endswith('.csv')]
+examples = [f for f in files if 'mean' in f]
+examples = [f.split('_mean')[0] for f in examples]
+# to get rid of once integrated values
+mean_files = [f for f in files if 'mean' in f]
+strategy_labels = [re.search(r'model_example_strategy_(.+)_mean\.csv', f).group(1) for f in mean_files]
 
-# Create a list of each of the outputs of subsequent runs
+# Create a list of each of the outputs of runs (example and subsequent)
 sim_runs_means = {}
+for f in examples:
+    sim_runs_means.update({f: pd.read_csv(f'{strategy_dir}/{f}_mean.csv')})
 sim_runs_stds = {}
+for f in examples:
+    if os.path.isfile(f'{strategy_dir}/{f}_std.csv'):
+        sim_runs_stds.update({f: pd.read_csv(f'{strategy_dir}/{f}_std.csv')})
 
 # Plot layouts
 VIVID = px.colors.qualitative.Vivid  # colour scheme
@@ -50,15 +56,15 @@ with ui.sidebar(position="left"):
                 "The number of times you want to run a simulation."
             # Simulation Length
             with ui.tooltip(id="sim_length_tooltip", placement="right"):
-                ui.input_numeric("sim_length", "Simulation Timesteps", 100, min=5, step=1)
+                ui.input_numeric("sim_length", "Simulation Timesteps", 365, min=5, step=1)
                 "The number of timesteps (days) each simulation will run for."
             # Number of people
             with ui.tooltip(id="num_people_tooltip", placement="right"):
-                ui.input_numeric("num_people", "Number of People", 100, min=10, step=1)
+                ui.input_numeric("num_people", "Number of People", 100000, min=10, step=1)
                 "The number of people to have in the simulation."
             # Number of Infected
             with ui.tooltip(id="n_infec_tooltip", placement="right"):
-                ui.input_numeric("n_infec", "Initially Infected People", 40, min=0, max=100, step=1)
+                ui.input_numeric("n_infec", "Initially Infected People", 100, min=0, max=100, step=1)
                 "The number of people who start the simulation exposed to the new variant."
             @reactive.effect  # dynamically changes the max limit to be limited by total number of people
             def _():
@@ -84,11 +90,11 @@ with ui.sidebar(position="left"):
                 "Which booster vaccine administration strategy to use - see the introduction for more details."
             # Number of Vaccines to Give Out
             with ui.tooltip(id="vacc_amount_tooltip", placement="right"):
-                ui.input_numeric("vacc_amount", "Number of Boosters Admistered Per Day", 10, min=1)
+                ui.input_numeric("vacc_amount", "Number of Boosters Admistered Per Day", 2000, min=1)
                 "The number of booster vaccines to administer per day."
             # New Vaccine Availability
             with ui.tooltip(id="t_newvacc_avail_tooltip", placement="right"):
-                ui.input_numeric("t_newvacc_avail", "New Vaccine Availability", 10, min=1)
+                ui.input_numeric("t_newvacc_avail", "New Vaccine Availability", 40, min=1)
                 "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
             # R_e
             with ui.tooltip(id="R_e_tooltip", placement="right"):
@@ -100,10 +106,10 @@ with ui.sidebar(position="left"):
             @reactive.event(input.run)
             def run_simulation():
                 sim = calc_simulation()  # run simulation 
-                sim_runs_means.update({f"Run {len(sim_runs_means) + 1}": sim.statusDF_mean})  # add mean dataframe to list of runs
-                sim_runs_stds.update({f"Run {len(sim_runs_means) + 1}": sim.statusDF_std})  # add std dataframe to list of runs
+                sim_runs_means.update({f"run_{len(sim_runs_means) + 1}": sim.statusDF_mean})  # add mean dataframe to list of runs
+                sim_runs_stds.update({f"run_{len(sim_runs_means) + 1}": sim.statusDF_std})  # add std dataframe to list of runs
                 ui.update_navs("main_tabs", selected="Outputs")  # switch to outputs tab!
-                return f"Saved run {len(sim_runs_means)} of the session! :)"  # visible output so know it's worked
+                return f"Saved run {len([c for c in list(sim_runs_means.keys()) if 'run' in c])} of the session! :)"  # list number of runs only to confirm it worked
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
@@ -111,10 +117,11 @@ with ui.sidebar(position="left"):
             # Save uploaded csv to file
             @render.text
             def add_uploaded_to_dict():
-                means, stds = parsed_file()
-                sim_runs_means.update(means)  # add means dataframe to list of runs
-                sim_runs_stds.update(stds)  # add stds dataframe to list of runs
-                return f'Added {len(means)} mean data file(s) and {len(stds)} stds data file(s) for analysis! Now {len(sim_runs_means)} simulations to analyse.'
+                files = parsed_file()
+                if files is not None:
+                    sim_runs_means.update(files[0])  # add means dataframe to list of runs
+                    sim_runs_stds.update(files[1])  # add stds dataframe to list of runs
+                    return f'Added {len(files[0])} mean data file(s) and {len(files[1])} stds data file(s) for analysis! Now {len(sim_runs_means)} simulations to analyse.'
 
 # Main outputs panels
 with ui.navset_card_pill(id="main_tabs"):
@@ -276,8 +283,8 @@ def parsed_file():
 @reactive.calc
 def agg_data():
     label = input.strategy()
-    sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
-    sd_path = f'{strategy_dir}/output_std_strategy_{label}.csv'
+    sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
+    sd_path = f'{strategy_dir}/model_example_strategy_{label}_std.csv'
     df_sum, df_sd = load_status_data(sum_path, sd_path)
     df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
     df_sd_agg = aggregate_status_sd(df_sd, group_cols=['t', 'vacc_status'])
@@ -287,7 +294,7 @@ def agg_data():
 @reactive.calc
 def age_agg_data():
     label = input.strategy_age()
-    sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+    sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
     df_sum, _ = load_status_data(sum_path)
     return aggregate_status(df_sum, group_cols=['t', 'ages'])
 
@@ -296,17 +303,17 @@ def age_agg_data():
 def all_strategy_agg():
     result = {}
     for label in strategy_labels:
-        sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+        sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
         df_sum, _ = load_status_data(sum_path)
         result[label] = aggregate_status(df_sum, group_cols=['t'])
     return result
 
-## ADDED THIS (add to APP! when done)
+## Compare strategies by age
 @reactive.calc
 def all_strategy_agg_by_age():
     result = {}
     for label in strategy_labels:
-        sum_path = f'{strategy_dir}/output_mean_strategy_{label}.csv'
+        sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
         df_sum, _ = load_status_data(sum_path)
         result[label] = aggregate_status(df_sum, group_cols=['t', 'ages'])
     return result
