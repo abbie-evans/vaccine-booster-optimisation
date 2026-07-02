@@ -7,7 +7,7 @@ from shinywidgets import render_plotly
 from shiny import reactive
 from shiny.express import expressify, input, render, ui
 from shiny.types import FileInfo
-from make_plots import get_yll, load_status_data, aggregate_status, load_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from make_plots import get_yll, load_status_data, aggregate_status, format_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
 from faicons import icon_svg as icon
 
@@ -320,8 +320,9 @@ def parsed_file():
 @reactive.calc
 def agg_data():
     label = input.strategy()
-    df_sum, df_sd_agg = load_data(label)
+    df_sum, df_sd = load_data(label)
     df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
+    df_sd_agg = format_combined_sd(df_sd)
     return df_agg, df_sd_agg
 
 # Aggregate data based on age groups

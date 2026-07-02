@@ -41,13 +41,12 @@ def aggregate_status(df_sum, group_cols, pool_vacc=True):
     )
 
 
-def load_combined_sd(sd_combined_path):
+def format_combined_sd(df_sd):
     """ 
-    run_simulation creates a csv of the pooled sd (combined agegroups)
-    format to time and vacc stat, rename olumns to S, AS, H, D
+    load df from std.csv
+    set index to time and vaccstatus, and rename columns
     """
-    df = pd.read_csv(sd_combined_path)
-    df = df.set_index(['t', 'vacc_status'])
+    df = df_sd.set_index(['t', 'vacc_status'])
     return df.rename(columns=RENAME)
 
 
