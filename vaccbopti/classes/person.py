@@ -130,9 +130,6 @@ class Person:
 
     def change_status(self, infectioncount):
         """Decision tree to determine a person's status at each time step."""
-        # If dead - removed from the population
-        if self.status == 'dead' and self.death_t_i == -1:
-            return
         # Check vaccine status and set to add to index
         if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':
             vaccine = 'unvaccinated'
@@ -140,16 +137,19 @@ class Person:
             vaccine = 'old_vaccine'
         if self.vacc_status_t_i == 'new_vacc':
             vaccine = 'new_vaccine'
-        # If infected in any condition, then count down until recovered and back to susceptible population or removed
-        if (self.status == 'symptomatic' or self.status == 'asymptomatic'
-           or self.status == 'hospitalised' or self.status == 'dead'):
-            self.infect_t_i -= 1  # count down infection time
-            if self.status == 'dead':  # count down death time
+        # If dead - consideration is seperate from the rest of the popluation
+        if self.status == 'dead':
+            if self.death_t_i == -1:
+                return
+            else:
                 self.death_t_i -= 1
                 if self.death_t_i == -1:  # death time over
                     infectioncount.loc[(self.age_group, vaccine), 'dead'] += 1  # ...and time over, add to dead
                     infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1  # ...and remove from hospital
                     return
+        # If infected in any condition, then count down until recovered and back to susceptible population or removed
+        if (self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised'):
+            self.infect_t_i -= 1  # count down infection time
             if self.infect_t_i == -1:  # if infection time is over
                 if self.status == 'symptomatic':
                     infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] -= 1
