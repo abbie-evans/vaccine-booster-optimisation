@@ -1,15 +1,11 @@
-from shiny.express import input
 import pandas as pd
 import plotly.graph_objects as go
 import os
-
-## setup
 import plotly.express as px
 
 VIVID = px.colors.qualitative.Vivid
 
 project_root = os.path.dirname(os.path.dirname(__file__))
-
 
 #to rename them
 STATUS_COLS = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
@@ -20,6 +16,7 @@ VACC_MAP = {
     'unvaccinated': 'unvaccinated',
     'old_vaccine': 'vaccinated',
     'new_vaccine': 'vaccinated'}
+
 
 def load_status_data(sum_path, sd_path=None):
     df_sum = pd.read_csv(sum_path)
@@ -43,6 +40,7 @@ def aggregate_status(df_sum, group_cols, pool_vacc=True):
         .rename(columns=RENAME)
     )
 
+
 def aggregate_status_sd(df_sd, group_cols, pool_vacc=True):
     """
     Same grouping as aggregate_status, but correctly pools SD by
@@ -62,6 +60,7 @@ def aggregate_status_sd(df_sd, group_cols, pool_vacc=True):
         .pow(0.5)
         .rename(columns=RENAME)
     )
+
 
 def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
     df_plot = df_agg.unstack('vacc_status')
@@ -118,9 +117,7 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
     )
     return fig
 
-# PLOT 2: looking at different age groups
-# input: which strategy + drop-down menu of which var (AS,S,H,D)
-# clickable legend of age groups
+
 def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     """
     df_agg: output of aggregate_status with group_cols=['t', 'ages']
@@ -154,10 +151,7 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     )
     return fig
 
-# PLOT 3: comparing different strategies
-# pooled across vacc/unvacc
-# input: select which strategies
-# clickable legend: subheader (strat 1; AS,S,D,H, strat2: ...)
+
 def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=None):
     """
     strategy_agg: dict {strategy_label: df_agg}, df_agg indexed by t with columns S/AS/H/D
@@ -194,9 +188,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     )
     return fig
 
-# VIS 4: numbers across strategies
-# select a strategy, then display the total deaths and hospitalisations for that strategy
-# input: which strategy
+
 def get_strategy_totals(strategy_agg, label):
     """
     strategy_agg: dict {strategy_label: df_agg}, df_agg indexed by t with columns S/AS/H/D
@@ -213,7 +205,7 @@ def get_strategy_totals(strategy_agg, label):
 def get_yll(df_agg):
     '''
     df_agg: output of aggregate_status wit age groups
-    yll: accessed from life_expectancy.csv, a local constants file 
+    yll: accessed from life_expectancy.csv, a local constants file
     '''
     yll_csv = pd.read_csv(f'{project_root}/vaccbopti/life_expectancy.csv')
     death_by_age = df_agg['D'].groupby('ages').sum()
