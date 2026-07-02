@@ -87,8 +87,21 @@ class Simulation:
                              - (self.statusDF_sum / self.number_runs) ** 2)
         self.statusDF_std = np.sqrt(self.statusDF_std)
         self.statusDF_mean = self.statusDF_sum / self.number_runs  # get mean over runs
+        # create a dataframe that computes the SD already collapsed across groups 
+        # combine new and old vacc
+        vacc_map = {'unvaccinated': 'unvaccinated', 'old_vaccine': 'vaccinated', 'new_vaccine': 'vaccinated'}
+        # reset index to temporarily undo the mutli index
+        std_combined = self.statusDF_std.reset_index()
+        std_combined['vacc_status'] = std_combined['vacc_status'].map(vacc_map)
+        std_combined = std_combined.set_index(['t', 'ages', 'vacc_status'])
+
+        # now convert from SD into variance for pooling
+        var_combined = std_combined ** 2
+        self.statusDF_std_combined = (var_combined.groupby(['t', 'vacc_status']).sum().pow(0.5))
+
 
     def save_csv(self):
         """Saves the csvs"""
-        self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # mean
-        self.statusDF_std.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std.csv')  # std
+        self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # save mean
+        self.statusDF_std.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std.csv')  # save std
+        self.statusDF_std_combined.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std_combined.csv')  # save std combined

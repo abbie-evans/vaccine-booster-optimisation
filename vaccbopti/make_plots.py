@@ -41,25 +41,14 @@ def aggregate_status(df_sum, group_cols, pool_vacc=True):
     )
 
 
-def aggregate_status_sd(df_sd, group_cols, pool_vacc=True):
+def load_combined_sd(sd_combined_path):
+    """ 
+    run_simulation creates a csv of the pooled sd (combined agegroups)
+    format to time and vacc stat, rename olumns to S, AS, H, D
     """
-    Same grouping as aggregate_status, but correctly pools SD by
-    converting to variance, summing, then converting back: sqrt(sum(sd^2))
-    """
-    df = df_sd.copy()
-
-    if pool_vacc and 'vacc_status' in df.columns:
-        df['vacc_status'] = df['vacc_status'].map(VACC_MAP)
-
-    var_df = df.copy()
-    var_df[STATUS_COLS] = df[STATUS_COLS] ** 2
-
-    return (
-        var_df.groupby(list(group_cols))[STATUS_COLS]
-        .sum()
-        .pow(0.5)
-        .rename(columns=RENAME)
-    )
+    df = pd.read_csv(sd_combined_path)
+    df = df.set_index(['t', 'vacc_status'])
+    return df.rename(columns=RENAME)
 
 
 def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
