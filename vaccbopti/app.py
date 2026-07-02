@@ -8,7 +8,7 @@ from shinywidgets import render_plotly
 from shiny import reactive
 from shiny.express import expressify, input, render, ui
 from shiny.types import FileInfo
-from make_plots import get_yll, load_status_data, aggregate_status, format_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from make_plots import get_yll, aggregate_status, format_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
 from faicons import icon_svg as icon
 
@@ -39,7 +39,7 @@ def choose_simulation_run(id):
     ui.input_select(id, "Select simulation", dict(zip(sim_runs_means.keys(), sim_runs_means.keys())))
     @reactive.effect  # dynamically changes the list for each of the runs or uploads
     def _():
-        ui.update_select(id, choices=dict(zip(run_names(), run_names())))
+        ui.update_select(id, choices=dict(zip(run_names(), run_names())), selected=run_names()[-1])
 @expressify
 def choose_multiple_simulations(id):
     global sim_runs_means
@@ -283,7 +283,11 @@ with ui.navset_card_pill(id="main_tabs"):
                     choose_simulation_run('strategy_age')
                 with ui.card():
                     ui.card_header("Dynamics within age groups")
-                    ui.input_select("age_status", "Select status", choices=['S', 'AS', 'H', 'D'])
+                    ui.input_select("age_status", "Select status",
+                                    choices={'AS': "asymptomatic",
+                                             'S': "symptomatic",
+                                             'H': "hospitalised",
+                                             'D': "dead"})
                     @render_plotly
                     def age_plot():
                         df_agg = age_agg_data()
@@ -293,13 +297,18 @@ with ui.navset_card_pill(id="main_tabs"):
             # Comparing different Simulations
             with ui.nav_panel("Comparing Different Simulations"):
                 with ui.card():
-                    ui.input_select("strategy_status", "Select status", choices=['S', 'AS', 'H', 'D'])
+                    ui.input_select("strategy_status", "Select status",
+                                    choices={'AS': "asymptomatic",
+                                             'S': "symptomatic",
+                                             'H': "hospitalised",
+                                             'D': "dead"})
                     choose_multiple_simulations("strategies_to_compare")
                     @render_plotly
                     def strategy_plot():
                         agg = all_strategy_agg()
                         selected = list(input.strategies_to_compare())
                         return plot_strategy_comparison_plotly(agg, input.strategy_status(), strategies_to_plot=selected)
+                    ui.markdown(f"*{LEGEND_CAPTION}*")
 
 
 # --- FUNCTIONS TO RUN THE GUI ---

@@ -47,7 +47,7 @@ def format_combined_sd(df_sd):
     load df from std.csv
     set index to time and vaccstatus, and rename columns
     """
-    df = df_sd.set_index(['t', 'vacc_status'])
+    df = df_sd.reset_index().set_index(['t', 'vacc_status'])
     return df.rename(columns=RENAME)
 
 
