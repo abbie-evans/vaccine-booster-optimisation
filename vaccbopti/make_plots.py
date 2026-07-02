@@ -43,7 +43,7 @@ def aggregate_status(df_sum, group_cols, pool_vacc=True):
 
 
 def format_combined_sd(df_sd):
-    """ 
+    """
     load df from std.csv
     set index to time and vaccstatus, and rename columns
     """
