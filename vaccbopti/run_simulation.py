@@ -87,8 +87,8 @@ class Simulation:
                              - (self.statusDF_sum / self.number_runs) ** 2)
         self.statusDF_std = np.sqrt(self.statusDF_std)
         self.statusDF_mean = self.statusDF_sum / self.number_runs  # get mean over runs
- 
+
     def save_csv(self):
         """Saves the csvs"""
-        self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # save mean
-        self.statusDF_std.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std.csv')  # save std
+        self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # mean
+        self.statusDF_std.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std.csv')  # std

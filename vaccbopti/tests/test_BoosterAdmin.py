@@ -90,7 +90,7 @@ class testBoosterAdmin(TestCase):
         for person in vaccinated_before:
             self.assertIn(person.age_group, params.old_groups)
         # Check that there are still eligible people for the new vaccine
-        new_eligible = [p for p in self.People if p.vacc_status == 'unvacc'and p.age_group in params.young_groups]
+        new_eligible = [p for p in self.People if p.vacc_status == 'unvacc' and p.age_group in params.young_groups]
         self.assertGreater(len(new_eligible), 0)
         # Run strategy 3 after vaccine availability (t > t_newvacc_avail) on population
         self.admin.vacc_strat_3(self.People, 80, t=15, t_newvacc_avail=t_newvacc_avail)
@@ -126,7 +126,7 @@ class testBoosterAdmin(TestCase):
         # Run strategy 4 after vaccine availability (t > t_newvacc_avail) on population
         self.admin.vacc_strat_4(self.People, 80, t=15, t_newvacc_avail=t_newvacc_avail)
         # Check that all eligible people have been vaccinated
-        new_eligible = [p for p in self.People if p.vacc_status == 'unvacc'and p.age_group in params.old_groups]
+        new_eligible = [p for p in self.People if p.vacc_status == 'unvacc' and p.age_group in params.old_groups]
         self.assertEqual(len(new_eligible), 0)
         # Get People vaccinated after availability (those now vaccinated but not in vaccinated_before)
         vaccinated_after = [p for p in self.People if p.vacc_status == 'new_vacc' and p not in vaccinated_before]
