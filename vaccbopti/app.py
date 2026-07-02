@@ -174,7 +174,8 @@ with ui.navset_card_pill(id="main_tabs"):
             As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update existing vaccines.
             <br><br>
             This app allows you to run a **stochastic, individual-based outbreak simulation** model that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay). Our model allows you to compare the outputs of **6 different booster administration strategies**.
-            <br><br>""")
+            <br><br>
+            You can run your own simulation and look at the outputs, upload previous .csv files you have created to look at, or look at and compare the outputs of our example runs!""")
         # More details
         with ui.accordion(id='model_info', open=['Model Overview', 'Booster Administration Strategies']):
             with ui.accordion_panel('Model Overview'):
@@ -319,10 +320,8 @@ def parsed_file():
 @reactive.calc
 def agg_data():
     label = input.strategy()
-    sd_path = f'{strategy_dir}/model_example_strategy_{label}_std_combined.csv'
-    df_sum, df_sd = load_data(label)
+    df_sum, df_sd_agg = load_data(label)
     df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
-    df_sd_agg = load_combined_sd(sd_path)
     return df_agg, df_sd_agg
 
 # Aggregate data based on age groups
