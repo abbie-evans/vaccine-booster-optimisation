@@ -5,9 +5,9 @@ import pandas as pd
 from run_simulation import Simulation
 from shinywidgets import render_plotly
 from shiny import reactive
-from shiny.express import input, render, ui
+from shiny.express import expressify, input, render, ui
 from shiny.types import FileInfo
-from make_plots import get_yll, load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from make_plots import get_yll, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
 from faicons import icon_svg as icon
 
@@ -18,29 +18,52 @@ strategy_dir = f'{project_root}/outputs'
 files = [f for f in os.listdir(strategy_dir) if f.endswith('.csv')]
 examples = [f for f in files if 'mean' in f]
 examples = [f.split('_mean')[0] for f in examples]
-# to get rid of once integrated values
-mean_files = [f for f in files if 'mean' in f]
-strategy_labels = [re.search(r'model_example_strategy_(.+)_mean\.csv', f).group(1) for f in mean_files]
 
-# Create a list of each of the outputs of runs (example and subsequent)
+# Create a dictionary of each of the mean outputs of runs (example and subsequent)
 sim_runs_means = {}
 for f in examples:
     sim_runs_means.update({f: pd.read_csv(f'{strategy_dir}/{f}_mean.csv')})
+
+# Create a dictionary of each of the std ouputs of runs (example and subsequent)
 sim_runs_stds = {}
 for f in examples:
     if os.path.isfile(f'{strategy_dir}/{f}_std.csv'):
         sim_runs_stds.update({f: pd.read_csv(f'{strategy_dir}/{f}_std.csv')})
 
+# Create a reactive value to update simulation choice
+run_names = reactive.value(list(sim_runs_means.keys()))
+@expressify
+def choose_simulation_run(id):
+    global sim_runs_means
+    ui.input_select(id, "Select simulation", dict(zip(sim_runs_means.keys(), sim_runs_means.keys())))
+    @reactive.effect  # dynamically changes the list for each of the runs or uploads
+    def _():
+        ui.update_select(id, choices=dict(zip(run_names(), run_names())))
+@expressify
+def choose_multiple_simulations(id):
+    global sim_runs_means
+    ui.input_selectize(id, "Select simulations", dict(zip(sim_runs_means.keys(), sim_runs_means.keys())), multiple=True, selected=sim_runs_means.keys())
+    @reactive.effect  # dynamically changes the list for each of the runs or uploads
+    def _():
+        ui.update_selectize(id, choices=dict(zip(run_names(), run_names())), selected=run_names())
+
+# Load data
+def load_data(label):
+    global sim_runs_means, sim_runs_stds
+    df_sum = sim_runs_means[label]
+    df_sd = sim_runs_stds[label]
+    return df_sum, df_sd
+
 # Plot layouts
 VIVID = px.colors.qualitative.Vivid  # colour scheme
 LEGEND_CAPTION = "S = symptomatic · AS = asymptomatic · H = hospitalised · D = dead"
 
-# --- THE GUI OF THE PAGE --
 
-# Title
+# --- THE GUI OF THE PAGE ---
 ui.page_opts(title="Optimising Vaccine Booster Implementation", fillable=True)
 
-# Sidebar to hold all the user inputs
+
+# --- SIDEBAR TO HAVE ALL THE USER INPUTS ---
 with ui.sidebar(position="left"):
 
     # Dark Mode
@@ -92,10 +115,24 @@ with ui.sidebar(position="left"):
             with ui.tooltip(id="vacc_amount_tooltip", placement="right"):
                 ui.input_numeric("vacc_amount", "Number of Boosters Admistered Per Day", 2000, min=1)
                 "The number of booster vaccines to administer per day."
+            @reactive.effect  # dynamically changes the max limit to be limited by total number of people
+            def _():
+                vacc_amount = input.vacc_amount()
+                if (input.num_people() is not None) & (vacc_amount is not None):
+                    if vacc_amount > input.num_people():
+                        vacc_amount = input.num_people()
+                    ui.update_numeric("vacc_amount", value=vacc_amount, max=input.num_people())
             # New Vaccine Availability
             with ui.tooltip(id="t_newvacc_avail_tooltip", placement="right"):
                 ui.input_numeric("t_newvacc_avail", "New Vaccine Availability", 40, min=1)
                 "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
+            @reactive.effect  # dynamically changes the max limit to be limited by total number of days
+            def _():
+                t_newvacc_avail = input.t_newvacc_avail()
+                if (input.sim_length() is not None) & (t_newvacc_avail is not None):
+                    if t_newvacc_avail > input.sim_length():
+                        t_newvacc_avail = input.sim_length()
+                    ui.update_numeric("t_newvacc_avail", value=t_newvacc_avail, max=input.sim_length())
             # R_e
             with ui.tooltip(id="R_e_tooltip", placement="right"):
                 ui.input_numeric("R_e", "Transmissability of New Variant", 1.5, min=0.1, step=0.01)
@@ -106,10 +143,11 @@ with ui.sidebar(position="left"):
             @reactive.event(input.run)
             def run_simulation():
                 sim = calc_simulation()  # run simulation 
-                sim_runs_means.update({f"run_{len(sim_runs_means) + 1}": sim.statusDF_mean})  # add mean dataframe to list of runs
-                sim_runs_stds.update({f"run_{len(sim_runs_means) + 1}": sim.statusDF_std})  # add std dataframe to list of runs
+                sim_runs_means.update({f"run_{len([c for c in run_names() if 'run' in c]) + 1}": sim.statusDF_mean})  # add mean dataframe to list of runs
+                sim_runs_stds.update({f"run_{len([c for c in run_names() if 'run' in c]) + 1}": sim.statusDF_std})  # add std dataframe to list of runs
                 ui.update_navs("main_tabs", selected="Outputs")  # switch to outputs tab!
-                return f"Saved run {len([c for c in list(sim_runs_means.keys()) if 'run' in c])} of the session! :)"  # list number of runs only to confirm it worked
+                run_names.set(list(sim_runs_means.keys()))
+                return f"Saved run {len([c for c in run_names() if 'run' in c])} of the session! :)"  # list number of runs only to confirm it worked
 
         # Load other csvs
         with ui.accordion_panel('Load inputs'):
@@ -121,9 +159,11 @@ with ui.sidebar(position="left"):
                 if files is not None:
                     sim_runs_means.update(files[0])  # add means dataframe to list of runs
                     sim_runs_stds.update(files[1])  # add stds dataframe to list of runs
-                    return f'Added {len(files[0])} mean data file(s) and {len(files[1])} stds data file(s) for analysis! Now {len(sim_runs_means)} simulations to analyse.'
+                    run_names.set(list(sim_runs_means.keys()))
+                    return f'Added {len(files[0])} mean data file(s) and {len(files[1])} stds data file(s) for analysis! Now {len(run_names())} simulations to analyse.'
 
-# Main outputs panels
+
+# --- MAIN OUTPUTS PANEL
 with ui.navset_card_pill(id="main_tabs"):
 
     # Introduction text to model
@@ -171,44 +211,42 @@ with ui.navset_card_pill(id="main_tabs"):
 
     # Output panels
     with ui.nav_panel("Outputs"):
-        # need a second nested structure
+
+        # Nested panel for individual graph titles
         with ui.navset_tab(id="outputs_tabs"):
-            with ui.nav_panel("Within-strategy dynamics"):
+
+            # Within Simulation Overview
+            with ui.nav_panel("Simulation Overview"):
+                # Choice
                 with ui.card():
-                    ui.input_select("strategy", "Select strategy", choices=strategy_labels)
+                    choose_simulation_run('strategy')
                 with ui.layout_columns(col_widths=[8, 4]):
+                    # Graph
                     with ui.card():
                         ui.card_header("Status over time")
-
                         @render_plotly
                         def status_plot():
                             df_agg, df_sd_agg = agg_data()
                             return plot_track_status_plotly(df_agg, df_sd_agg)
-
                         ui.markdown(f"*{LEGEND_CAPTION}*")
-                    
+                    # Status overview
                     with ui.layout_columns(col_widths=[12, 12]):
                         with ui.value_box(showcase=icon("skull"), theme="red"):
                             "Total deaths"
-
                             @render.text
                             def total_deaths_text():
                                 agg = all_strategy_agg()
                                 totals = get_strategy_totals(agg, input.strategy())
                                 return f"{totals['total_deaths']:,.0f}"
-
                         with ui.value_box(showcase=icon("hospital"), theme="orange"):
                             "Total hospitalisations"
-
                             @render.text
                             def total_hosp_text():
                                 agg = all_strategy_agg()
                                 totals = get_strategy_totals(agg, input.strategy())
                                 return f"{totals['total_hospitalised']:,.0f}"
-                        
                         with ui.value_box(showcase=icon("hourglass-half"), theme="blue"):
                             " Total years of life lost"
-
                             @render.text
                             def total_yll_text():
                                 agg = all_strategy_agg_by_age()
@@ -216,35 +254,31 @@ with ui.navset_card_pill(id="main_tabs"):
                                 yll = get_yll(df_agg)
                                 return f"{yll:,.0f}"
 
-            with ui.nav_panel("Age dynamics"):
+            # Comparing across age
+            with ui.nav_panel("Simulation Age Dynamics"):
                 with ui.card():
-                    ui.input_select("strategy_age", "Select strategy", choices=strategy_labels)
+                    choose_simulation_run('strategy_age')
                 with ui.card():
                     ui.card_header("Dynamics within age groups")
-                    ui.input_select("age_status", "Select variable", choices=['S', 'AS', 'H', 'D'])
-
+                    ui.input_select("age_status", "Select status", choices=['S', 'AS', 'H', 'D'])
                     @render_plotly
                     def age_plot():
                         df_agg = age_agg_data()
                         return plot_age_dynamics_plotly(df_agg, input.age_status())
-
                     ui.markdown(f"*{LEGEND_CAPTION}*")
 
-            with ui.nav_panel("Strategy comparison"):
+            # Comparing different Simulations
+            with ui.nav_panel("Comparing Different Simulations"):
                 with ui.card():
-                    ui.card_header("Comparing strategies")
-                    ui.input_select("strategy_status", "Select variable", choices=['S', 'AS', 'H', 'D'])
-                    ui.input_selectize(
-                        "strategies_to_compare", "Select strategies",
-                        choices=strategy_labels, multiple=True,
-                        selected=strategy_labels
-                    )
-
+                    ui.card_header("Comparing different simulations")
+                    ui.input_select("strategy_status", "Select status", choices=['S', 'AS', 'H', 'D'])
+                    choose_multiple_simulations("strategies_to_compare")
                     @render_plotly
                     def strategy_plot():
                         agg = all_strategy_agg()
                         selected = list(input.strategies_to_compare())
                         return plot_strategy_comparison_plotly(agg, input.strategy_status(), strategies_to_plot=selected)
+
 
 # --- FUNCTIONS TO RUN THE GUI ---
 
@@ -262,7 +296,7 @@ def calc_simulation():
                         t_newvacc_avail=input.t_newvacc_avail())
     with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
         sim.run(progress=p)
-        sim.save_csv()
+        #sim.save_csv()
     return sim
 
 # Upload csv
@@ -274,18 +308,18 @@ def parsed_file():
         stds = {}
         for file in files:
             if 'mean' in file['name']:
-                means.update({file['name']: pd.read_csv(file["datapath"])})
+                name = file['name'].split('_mean')[0]
+                means.update({name: pd.read_csv(file["datapath"])})
             elif 'std' in file['name']:
-                stds.update({file['name']: pd.read_csv(file["datapath"])})
+                name = file['name'].split('_std')[0]
+                stds.update({name: pd.read_csv(file["datapath"])})
         return means, stds
 
 # Aggregate data based on vaccine status
 @reactive.calc
 def agg_data():
     label = input.strategy()
-    sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
-    sd_path = f'{strategy_dir}/model_example_strategy_{label}_std.csv'
-    df_sum, df_sd = load_status_data(sum_path, sd_path)
+    df_sum, df_sd = load_data(label)
     df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
     df_sd_agg = aggregate_status_sd(df_sd, group_cols=['t', 'vacc_status'])
     return df_agg, df_sd_agg
@@ -294,17 +328,15 @@ def agg_data():
 @reactive.calc
 def age_agg_data():
     label = input.strategy_age()
-    sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
-    df_sum, _ = load_status_data(sum_path)
+    df_sum, _ = load_data(label)
     return aggregate_status(df_sum, group_cols=['t', 'ages'])
 
 # Compare all strategy data
 @reactive.calc
 def all_strategy_agg():
     result = {}
-    for label in strategy_labels:
-        sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
-        df_sum, _ = load_status_data(sum_path)
+    for label in run_names():
+        df_sum, _ = load_data(label)
         result[label] = aggregate_status(df_sum, group_cols=['t'])
     return result
 
@@ -312,8 +344,7 @@ def all_strategy_agg():
 @reactive.calc
 def all_strategy_agg_by_age():
     result = {}
-    for label in strategy_labels:
-        sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
-        df_sum, _ = load_status_data(sum_path)
+    for label in run_names():
+        df_sum, _ = load_data(label)
         result[label] = aggregate_status(df_sum, group_cols=['t', 'ages'])
     return result

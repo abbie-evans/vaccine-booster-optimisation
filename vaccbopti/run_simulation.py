@@ -87,7 +87,7 @@ class Simulation:
                              - (self.statusDF_sum / self.number_runs) ** 2)
         self.statusDF_std = np.sqrt(self.statusDF_std)
         self.statusDF_mean = self.statusDF_sum / self.number_runs  # get mean over runs
-        # create a dataframe that computes the SD already collapsed across groups 
+ 
     def save_csv(self):
         """Saves the csvs"""
         self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # save mean
