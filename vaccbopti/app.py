@@ -1,4 +1,5 @@
 # Import useful modules
+from fileinput import filename
 import os
 import re
 import pandas as pd
@@ -175,7 +176,8 @@ with ui.navset_card_pill(id="main_tabs"):
             <br><br>
             This app allows you to run a **stochastic, individual-based outbreak simulation** model that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay). Our model allows you to compare the outputs of **6 different booster administration strategies**.
             <br><br>
-            You can run your own simulation and look at the outputs, upload previous .csv files you have created to look at, or look at and compare the outputs of our example runs!""")
+            You can run your own simulation and look at the outputs, upload previous .csv files you have created to look at, or look at and compare the outputs of our example runs!
+            <br><br>""")
         # More details
         with ui.accordion(id='model_info', open=['Model Overview', 'Booster Administration Strategies']):
             with ui.accordion_panel('Model Overview'):
@@ -254,6 +256,26 @@ with ui.navset_card_pill(id="main_tabs"):
                                 df_agg = agg[input.strategy()]
                                 yll = get_yll(df_agg)
                                 return f"{yll:,.0f}"
+                # Download button
+                ui.markdown("""##### Download a .csv of a run""")
+                with ui.layout_columns():
+                    with ui.card():
+                        choose_simulation_run('sim_to_download')
+                        ui.input_text("download_filename", 'Enter name to save file as:')
+                    with ui.card():
+                        @reactive.effect
+                        def set_filename():
+                            global filename
+                            filename = str(input.download_filename())
+                        @render.download(label="Download the mean .csv files", filename=f"{str(filename)}_mean.csv")
+                        def mean_files():
+                            mean, _ = get_file_for_download()
+                            yield mean.to_csv()
+                        @render.download(label="Download the std .csv files", filename=f"{str(filename)}_std.csv")
+                        def std_files():
+                            _, std = get_file_for_download()
+                            yield std.to_csv()
+                ui.markdown("""<br><br>""")
 
             # Comparing across age
             with ui.nav_panel("Simulation Age Dynamics"):
@@ -271,7 +293,6 @@ with ui.navset_card_pill(id="main_tabs"):
             # Comparing different Simulations
             with ui.nav_panel("Comparing Different Simulations"):
                 with ui.card():
-                    ui.card_header("Comparing different simulations")
                     ui.input_select("strategy_status", "Select status", choices=['S', 'AS', 'H', 'D'])
                     choose_multiple_simulations("strategies_to_compare")
                     @render_plotly
@@ -315,6 +336,11 @@ def parsed_file():
                 name = file['name'].split('_std')[0]
                 stds.update({name: pd.read_csv(file["datapath"])})
         return means, stds
+
+# Download csv
+@reactive.calc
+def get_file_for_download():
+    return sim_runs_means[input.sim_to_download()], sim_runs_stds[input.sim_to_download()]
 
 # Aggregate data based on vaccine status
 @reactive.calc
