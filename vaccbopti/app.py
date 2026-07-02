@@ -7,7 +7,7 @@ from shinywidgets import render_plotly
 from shiny import reactive
 from shiny.express import input, render, ui
 from shiny.types import FileInfo
-from make_plots import get_yll, load_status_data, aggregate_status, aggregate_status_sd, plot_track_status_plotly, aggregate_status_sd, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from make_plots import get_yll, load_status_data, aggregate_status, load_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
 import plotly.express as px
 from faicons import icon_svg as icon
 
@@ -284,10 +284,10 @@ def parsed_file():
 def agg_data():
     label = input.strategy()
     sum_path = f'{strategy_dir}/model_example_strategy_{label}_mean.csv'
-    sd_path = f'{strategy_dir}/model_example_strategy_{label}_std.csv'
+    sd_path = f'{strategy_dir}/model_example_strategy_{label}_std_combined.csv'
     df_sum, df_sd = load_status_data(sum_path, sd_path)
     df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
-    df_sd_agg = aggregate_status_sd(df_sd, group_cols=['t', 'vacc_status'])
+    df_sd_agg = load_combined_sd(sd_path)
     return df_agg, df_sd_agg
 
 # Aggregate data based on age groups
