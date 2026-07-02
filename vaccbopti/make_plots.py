@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import os
 import plotly.express as px
+from natsort import natsorted
 
 VIVID = px.colors.qualitative.Vivid
 
@@ -114,7 +115,7 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     """
     df_plot = df_agg[status].unstack('ages')
 
-    all_ages = list(df_plot.columns)
+    all_ages = natsorted(df_plot.columns)
     if ages_to_plot is None:
         ages_to_plot = all_ages
 
