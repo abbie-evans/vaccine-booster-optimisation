@@ -42,7 +42,7 @@ def aggregate_status(df_sum, group_cols, pool_vacc=True):
 
 
 def load_combined_sd(sd_combined_path):
-    """ 
+    """
     run_simulation creates a csv of the pooled sd (combined agegroups)
     format to time and vacc stat, rename olumns to S, AS, H, D
     """

@@ -322,6 +322,7 @@ def agg_data():
     label = input.strategy()
     df_sum, df_sd_agg = load_data(label)
     df_agg = aggregate_status(df_sum, group_cols=['t', 'vacc_status'])
+    df_sd_agg = df_sd_agg.set_index(['t', 'vacc_status'])
     return df_agg, df_sd_agg
 
 # Aggregate data based on age groups
