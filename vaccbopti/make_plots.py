@@ -62,6 +62,8 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
     fig = go.Figure()
     colors = {'S': VIVID[0], 'AS': VIVID[1], 'H': VIVID[2], 'D': VIVID[3]}
 
+    # add a line to show when the new vaccine is available
+    
     for status, vacc in lines_to_plot:
         if (status, vacc) not in df_plot.columns:
             continue

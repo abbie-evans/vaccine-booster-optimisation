@@ -177,9 +177,10 @@ with ui.navset_card_pill(id="main_tabs"):
             This app allows you to run a **stochastic, individual-based outbreak simulation** model that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay). Our model allows you to compare the outputs of **6 different booster administration strategies**.
             <br><br>
             You can run your own simulation and look at the outputs, upload previous .csv files you have created to look at, or look at and compare the outputs of our example runs!
-            <br><br>""")
+            <br><br>
+                    """)
         # More details
-        with ui.accordion(id='model_info', open=['Model Overview', 'Booster Administration Strategies']):
+        with ui.accordion(id='model_info'):
             with ui.accordion_panel('Model Overview'):
                 ui.markdown("""This is a stochastic individual-based model, the simulation is repeated as the number of runs set by the user over the number of timesteps, which represents days in the simulation. The mean and standard deviation of these simulations are presented in the outputs. Each simulation represents the dynamics over a given period such that one wave of the outbreak occurs. 
                             <br><br>

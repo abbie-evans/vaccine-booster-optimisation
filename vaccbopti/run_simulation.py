@@ -38,7 +38,7 @@ class Simulation:
         self.n_infec = n_infec
         self.n_ineligible = n_ineligible
         self.R_e = R_e
-        self.vacc_strat = vacc_strat
+        self.vacc_strat = int(vacc_strat)
         self.vacc_amount = vacc_amount
         self.t_newvacc_avail = t_newvacc_avail
         # Create overall output dataframes
