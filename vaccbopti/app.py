@@ -267,17 +267,12 @@ with ui.navset_card_pill(id="main_tabs"):
                         @reactive.effect  # dynamically changes the selected choice if the age choice is changed
                         def _():
                             ui.update_selectize('sim_to_download', selected=input.strategy())
-                        ui.input_text("download_filename", 'Enter name to save file as:')
                     with ui.card():
-                        @reactive.effect
-                        def set_filename():
-                            global filename
-                            filename = str(input.download_filename())
-                        @render.download(label="Download the mean .csv files", filename=f"{str(filename)}_mean.csv")
+                        @render.download(label="Download the mean .csv files", filename="mean.csv")
                         def mean_files():
                             mean, _ = get_file_for_download()
                             yield mean.to_csv()
-                        @render.download(label="Download the std .csv files", filename=f"{str(filename)}_std.csv")
+                        @render.download(label="Download the std .csv files", filename="std.csv")
                         def std_files():
                             _, std = get_file_for_download()
                             yield std.to_csv()
