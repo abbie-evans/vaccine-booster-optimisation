@@ -50,19 +50,19 @@ class test_person(TestCase):
         self.testPerson.calc_susceptibility()
         self.assertAlmostEqual(self.testPerson.susceptibility, 1 - params.f_exvacc[5])
         self.assertAlmostEqual(self.testPerson.susceptibility_H,
-                               (1 - params.f_exvacc_hosp[5])/self.testPerson.susceptibility,
+                               (1 - params.f_exvacc_hosp[5]) / self.testPerson.susceptibility,
                                places=1)
         self.testPerson.immunity_time_newvacc = 3
         self.testPerson.calc_susceptibility()
         self.assertAlmostEqual(self.testPerson.susceptibility, 1 - params.f_newvacc[3])
         self.assertAlmostEqual(self.testPerson.susceptibility_H,
-                               (1 - params.f_newvacc_hosp[3])/self.testPerson.susceptibility,
+                               (1 - params.f_newvacc_hosp[3]) / self.testPerson.susceptibility,
                                places=1)
         self.testPerson.immunity_time_infec = 0
         self.testPerson.calc_susceptibility()
         self.assertAlmostEqual(self.testPerson.susceptibility, 1 - params.f_infec[0])
         self.assertAlmostEqual(self.testPerson.susceptibility_H,
-                                (1 - params.f_infec_hosp[0])/self.testPerson.susceptibility,
+                               (1 - params.f_infec_hosp[0]) / self.testPerson.susceptibility,
                                places=1)
 
     def test_calc_prob_exposed(self):
