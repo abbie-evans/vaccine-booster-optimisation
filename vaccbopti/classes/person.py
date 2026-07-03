@@ -46,6 +46,7 @@ class Person:
         self.vacc_status = 'unvacc'
         self.vacc_status_t_i = 'unvacc'
         self.susceptibility = 0
+        self.susceptibility_H = 0
         self.prob_exposed = 0.01
         self.latent_t_i = -1
         self.infect_t_i = -1
@@ -71,18 +72,25 @@ class Person:
             immunity_exvacc = 0
         else:
             immunity_exvacc = params.f_exvacc[self.immunity_time_exvacc]
+            immunity_exvacc_H = params.f_exvacc_hosp[self.immunity_time_exvacc]
         if self.immunity_time_newvacc < 0:
             immunity_newvacc = 0
         else:
             immunity_newvacc = params.f_newvacc[self.immunity_time_newvacc]
+            immunity_newvacc_H = params.f_newvacc_hosp[self.immunity_time_exvacc]
         if self.immunity_time_infec < 0:
             immunity_infec = 0
         else:
             immunity_infec = params.f_infec[self.immunity_time_infec]
+            immunity_infec_H = params.f_infec_hosp[self.immunity_time_exvacc]
         susceptibility = 1 - max(immunity_exvacc,
                                  immunity_newvacc,
                                  immunity_infec)
+        susceptibility_H = 1 - max(immunity_exvacc_H,
+                                   immunity_newvacc_H,
+                                   immunity_infec_H)
         self.susceptibility = susceptibility
+        self.susceptibility_H = susceptibility_H / susceptibility
 
     def calc_prob_exposed(self, force_infection):
         """Calculates the probability a person's status changes from susceptible to exposed."""
@@ -163,7 +171,7 @@ class Person:
                     infectioncount.loc[(self.age_group, vaccine), 'asymptomatic'] += 1
                 if self.status == 'symptomatic':  # if symptomatic
                     self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
-                                                 params.p_nv_IH)
+                                                 params.p_nv_IH * self.susceptibility_H)
                     if self.status != 'hospitalised':  # if not hospitalised
                         infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] += 1  # set symptomatic count
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital

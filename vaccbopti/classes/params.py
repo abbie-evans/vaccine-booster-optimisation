@@ -86,6 +86,9 @@ class Params:
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
             self.f_newvacc = self.calc_fx(self.n0_newvacc, self.n50_ag_infec)
             self.f_infec = self.calc_fx(self.n0_infec, self.n50_ag_infec)
+            self.f_exvacc_hosp = self.calc_fx(self.n0_exvacc, self.n50_ag_hd)
+            self.f_newvacc_hosp = self.calc_fx(self.n0_newvacc, self.n50_ag_hd)
+            self.f_infec_hosp = self.calc_fx(self.n0_infec, self.n50_ag_hd)
 
         def integration(self, k, dist, parameters):
             "Define the integration function"
