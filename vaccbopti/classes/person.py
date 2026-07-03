@@ -121,7 +121,8 @@ class Person:
             probability (float or list): a float of probability or list of probabilities per age group
         """
         if type(probability) is list:
-            status = np.random.choice(statuses, size=1, p=[probability[self.age_group_index], 1 - probability[self.age_group_index]])
+            status = np.random.choice(statuses, size=1, p=[probability[self.age_group_index],
+                                                           1 - probability[self.age_group_index]])
         else:
             status = np.random.choice(statuses, size=1, p=[probability, 1 - probability])
         self.status = str(status[0])
