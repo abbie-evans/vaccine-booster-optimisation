@@ -25,16 +25,14 @@ def load_status_data(sum_path, sd_path=None):
     return df_sum, df_sd
 
 
-def aggregate_status(df_sum, group_cols, pool_vacc=True):
+def aggregate_status(df_sum, group_cols, pool_vacc=True, VACC_MAP=VACC_MAP):
     """
     group_cols: list of columns to keep, e.g. ['t', 'vacc_status']
     pool_vacc: if True, collapses old_vaccine/new_vaccine into 'vaccinated'
     """
-    df = df_sum.copy()
-
+    df = df_sum.copy().reset_index()
     if pool_vacc and 'vacc_status' in df.columns:
         df['vacc_status'] = df['vacc_status'].map(VACC_MAP)
-
     return (
         df.groupby(list(group_cols))[STATUS_COLS]
         .sum()
