@@ -244,6 +244,7 @@ with ui.navset_card_pill(id="main_tabs"):
                                 agg = all_strategy_agg()
                                 totals = get_strategy_totals(agg, input.strategy())
                                 return f"{totals['total_deaths']:,.1f}"
+                            "average"
                         with ui.value_box(showcase=icon("hospital"), theme="orange"):
                             "Total hospitalisations"
                             @render.text
