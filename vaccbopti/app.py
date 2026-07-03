@@ -223,6 +223,9 @@ with ui.navset_card_pill(id="main_tabs"):
                 # Choice
                 with ui.card():
                     choose_simulation_run('strategy')
+                    @reactive.effect  # dynamically changes the selected choice if the age choice is changed
+                    def _():
+                        ui.update_selectize('strategy', selected=input.strategy_age())
                 with ui.layout_columns(col_widths=[8, 4]):
                     # Graph
                     with ui.card():
@@ -240,14 +243,14 @@ with ui.navset_card_pill(id="main_tabs"):
                             def total_deaths_text():
                                 agg = all_strategy_agg()
                                 totals = get_strategy_totals(agg, input.strategy())
-                                return f"{totals['total_deaths']:,.0f}"
+                                return f"{totals['total_deaths']:,.1f}"
                         with ui.value_box(showcase=icon("hospital"), theme="orange"):
                             "Total hospitalisations"
                             @render.text
                             def total_hosp_text():
                                 agg = all_strategy_agg()
                                 totals = get_strategy_totals(agg, input.strategy())
-                                return f"{totals['total_hospitalised']:,.0f}"
+                                return f"{totals['total_hospitalised']:,.1f}"
                         with ui.value_box(showcase=icon("hourglass-half"), theme="blue"):
                             " Total years of life lost"
                             @render.text
@@ -255,12 +258,15 @@ with ui.navset_card_pill(id="main_tabs"):
                                 agg = all_strategy_agg_by_age()
                                 df_agg = agg[input.strategy()]
                                 yll = get_yll(df_agg)
-                                return f"{yll:,.0f}"
+                                return f"{yll:,.1f}"
                 # Download button
                 ui.markdown("""##### Download a .csv of a run""")
                 with ui.layout_columns():
                     with ui.card():
                         choose_simulation_run('sim_to_download')
+                        @reactive.effect  # dynamically changes the selected choice if the age choice is changed
+                        def _():
+                            ui.update_selectize('sim_to_download', selected=input.strategy())
                         ui.input_text("download_filename", 'Enter name to save file as:')
                     with ui.card():
                         @reactive.effect
@@ -281,8 +287,11 @@ with ui.navset_card_pill(id="main_tabs"):
             with ui.nav_panel("Simulation Age Dynamics"):
                 with ui.card():
                     choose_simulation_run('strategy_age')
+                    @reactive.effect  # dynamically changes the selected choice if the age choice is changed
+                    def _():
+                        ui.update_selectize('strategy_age', selected=input.strategy())
                 with ui.card():
-                    ui.card_header("Number of People Changing Status Per Day Within Each Age group")
+                    ui.card_header("Number of People Changing Status Per Day Within Each Age Group")
                     ui.input_select("age_status", "Select status",
                                     choices={'AS': "asymptomatic",
                                              'S': "symptomatic",
