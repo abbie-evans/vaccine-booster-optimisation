@@ -226,7 +226,7 @@ with ui.navset_card_pill(id="main_tabs"):
                 with ui.layout_columns(col_widths=[8, 4]):
                     # Graph
                     with ui.card():
-                        ui.card_header("Status over time")
+                        ui.card_header("Number of People Entering Each Status Per Day")
                         @render_plotly
                         def status_plot():
                             df_agg, df_sd_agg = agg_data()
@@ -282,7 +282,7 @@ with ui.navset_card_pill(id="main_tabs"):
                 with ui.card():
                     choose_simulation_run('strategy_age')
                 with ui.card():
-                    ui.card_header("Dynamics within age groups")
+                    ui.card_header("Number of People Changing Status Per Day Within Each Age group")
                     ui.input_select("age_status", "Select status",
                                     choices={'AS': "asymptomatic",
                                              'S': "symptomatic",

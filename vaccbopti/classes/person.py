@@ -144,19 +144,12 @@ class Person:
             else:
                 self.death_t_i -= 1
                 if self.death_t_i == -1:  # death time over
-                    infectioncount.loc[(self.age_group, vaccine), 'dead'] += 1  # ...and time over, add to dead
-                    infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1  # ...and remove from hospital
+                    infectioncount.loc[(self.age_group, vaccine), 'dead'] += 1  # ...and time over, add to dead for t
                     return
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
         if (self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised'):
             self.infect_t_i -= 1  # count down infection time
             if self.infect_t_i == -1:  # if infection time is over
-                if self.status == 'symptomatic':
-                    infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] -= 1
-                if self.status == 'hospitalised':
-                    infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] -= 1
-                if self.status == 'asymptomatic':  # if was asymptomatic, remove from count
-                    infectioncount.loc[(self.age_group, vaccine), "asymptomatic"] -= 1
                 self.status = 'susceptible'  # back to susceptible
             return
         # If exposed, count down until latent period is finished and then determine response to infection

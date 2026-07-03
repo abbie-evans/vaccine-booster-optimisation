@@ -100,11 +100,11 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     def test_change_status_asymptomatic(self):
         """Test that the status change decision tree works correctly on the asymptomatic branch."""
-        infectioncount = InfectionCount().count_df
         self.testPerson.get_age_group(4)
         # Checking the switch from susceptible to exposed and ensure that latent time is added.
         self.testPerson.status = 'susceptible'
         self.testPerson.vacc_status = 'new_vacc'
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.prob_exposed = 0
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.status, 'susceptible')
@@ -114,6 +114,7 @@ class test_person(TestCase):
         self.assertIsNot(self.testPerson.latent_t_i, -1)
         self.testPerson.latent_t_i = 0
         # Checking the switch from exposed to asymptomatic.
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
@@ -122,6 +123,7 @@ class test_person(TestCase):
                                              'new_vaccine'), 'asymptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from asymptomatic to susceptible.
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, 0)
         self.assertEqual(self.testPerson.status, 'asymptomatic')
@@ -136,11 +138,11 @@ class test_person(TestCase):
     def test_change_status_symptomatic_fine(self):
         """Test that the status change decision tree works correctly on the symptomatic/unhospitalised branch."""
         self.testPerson.get_age_group(4)
-        infectioncount = InfectionCount().count_df
         # Checking the switch from exposed to symptomatic (not hospitalised or dead).
         self.testPerson.vacc_status = 'old_vacc'
         self.testPerson.vacc_status_t_i = 'old_vacc'
         self.testPerson.status = 'exposed'
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.latent_t_i = 0
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.latent_t_i, -1)
@@ -150,6 +152,7 @@ class test_person(TestCase):
                                              'old_vaccine'), 'symptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from symptomatic to susceptible.
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, 0)
         self.assertEqual(self.testPerson.status, 'symptomatic')
@@ -165,8 +168,8 @@ class test_person(TestCase):
     def test_change_status_symptomatic_hospitalised(self):
         """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
         self.testPerson.get_age_group(4)
-        infectioncount = InfectionCount().count_df
         # Checking the switch from exposed to symptomatic/hospitalised (not dead).
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0
         self.testPerson.change_status(infectioncount)
@@ -178,6 +181,7 @@ class test_person(TestCase):
                                              'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from hospitalised to susceptible.
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, 0)
         self.assertEqual(self.testPerson.status, 'hospitalised')
@@ -193,10 +197,10 @@ class test_person(TestCase):
     def test_change_status_symptomatic_dead(self):
         """Test that the status change decision tree works correctly on the symptomatic/dead branch."""
         self.testPerson.get_age_group(4)
-        infectioncount = InfectionCount().count_df
         # Checking the switch from exposed to symptomatic/dead.
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.latent_t_i, -1)
         self.assertEqual(self.testPerson.status, 'dead')
@@ -207,9 +211,11 @@ class test_person(TestCase):
                                              'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.death_t_i = 1
         # Checking the person stays dead after the dead period is over.
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.death_t_i, 0)
         self.assertEqual(self.testPerson.status, 'dead')
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.death_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
@@ -217,7 +223,7 @@ class test_person(TestCase):
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
                                              'unvaccinated'), 'dead'], 1)
         self.assertEqual(self.testPerson.status, 'dead')
-        self.testPerson.change_status(infectioncount)
+        infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.assertEqual(self.testPerson.status, 'dead')
 
 

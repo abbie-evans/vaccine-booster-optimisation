@@ -8,7 +8,6 @@ from vaccbopti.classes import InfectionCount
 from vaccbopti.classes import InfectionForce
 from vaccbopti.classes import Timesteps
 params = Params.instance()
-infectioncount = InfectionCount().count_df
 infection_force = InfectionForce()
 project_root = os.path.dirname(os.path.dirname(__file__))
 
@@ -67,17 +66,20 @@ class Simulation:
             timesteps.initialise_people(self.n_infec, n_ineligible=self.n_ineligible)  # set immunity and infections
             timesteps.get_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
             infec_rate_param = timesteps.calculate_new_beta()  # get a new beta based on these initial values
+            infectioncount = InfectionCount().count_df  # initialise infectioncount per timepoint
             # Loop through timesteps
             for t in range(1, self.sim_length):
                 infection_force.all_lambda(infectioncount, infec_rate_param, num_people=self.num_people)  # F_infec
                 timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
                 timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
+                infectioncount = InfectionCount().count_df  # reset infectioncount for number of status changes per t
                 timesteps.increment_people(infectioncount)  # update people
                 timesteps.append_daily_nbs_outputdf(t, infectioncount)  # updates overall dataframe
                 # Shiny progress update
                 if (progress is not None) and (t % 2 == 0 or t == 1):
-                    progress.set((r + 1) * t,
-                                 message=f"Performing step {(r + 1) * t}/{self.number_runs*self.sim_length}",
+                    p = (r * self.sim_length) + t
+                    progress.set(p,
+                                 message=f"Performing step {p}/{self.number_runs*self.sim_length}",
                                  detail=f"Run: {r + 1}/{self.number_runs}; Timestep: {t}/{self.sim_length}")
             # Update overall dataframes
             self.statusDF_sum = self.statusDF_sum.add(timesteps.statusDF)  # summing each run (divide to get average)
