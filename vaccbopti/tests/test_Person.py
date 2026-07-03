@@ -48,17 +48,31 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.susceptibility, 1)
         self.testPerson.immunity_time_exvacc = 5
         self.testPerson.calc_susceptibility()
-        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - 0.22898922)
+        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - params.f_exvacc[5])
+        self.assertAlmostEqual(self.testPerson.susceptibility_H,
+                               (1 - params.f_exvacc_hosp[5]) / self.testPerson.susceptibility,
+                               places=1)
         self.testPerson.immunity_time_newvacc = 3
         self.testPerson.calc_susceptibility()
-        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - 0.24318079419781505)
+        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - params.f_newvacc[3])
+        self.assertAlmostEqual(self.testPerson.susceptibility_H,
+                               (1 - params.f_newvacc_hosp[3]) / self.testPerson.susceptibility,
+                               places=1)
+        self.testPerson.immunity_time_infec = 0
+        self.testPerson.calc_susceptibility()
+        self.assertAlmostEqual(self.testPerson.susceptibility, 1 - params.f_infec[0])
+        self.assertAlmostEqual(self.testPerson.susceptibility_H,
+                               (1 - params.f_infec_hosp[0]) / self.testPerson.susceptibility,
+                               places=1)
 
     def test_calc_prob_exposed(self):
         """Ensure that the calculation occurs correctly."""
         self.testPerson.immunity_time_exvacc = 5
         self.testPerson.calc_susceptibility()
         self.testPerson.calc_prob_exposed(1)
-        self.assertAlmostEqual(self.testPerson.prob_exposed, 0.5374546996)
+        test_val = 1 - params.f_exvacc[5]
+        test_val = np.exp(-test_val * 1)
+        self.assertAlmostEqual(self.testPerson.prob_exposed, 1 - test_val)
 
     def test_pick_distr_prob(self):
         """Test that a number is correctly picked from a probability distribution."""
@@ -170,6 +184,7 @@ class test_person(TestCase):
         self.testPerson.get_age_group(4)
         # Checking the switch from exposed to symptomatic/hospitalised (not dead).
         infectioncount = InfectionCount().count_df  # new infectioncount for each day
+        self.testPerson.susceptibility_H = 1
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0
         self.testPerson.change_status(infectioncount)
@@ -197,6 +212,7 @@ class test_person(TestCase):
     def test_change_status_symptomatic_dead(self):
         """Test that the status change decision tree works correctly on the symptomatic/dead branch."""
         self.testPerson.get_age_group(4)
+        self.testPerson.susceptibility_H = 1
         # Checking the switch from exposed to symptomatic/dead.
         self.testPerson.status = 'exposed'
         self.testPerson.latent_t_i = 0

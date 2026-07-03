@@ -88,7 +88,7 @@ class BoosterAdmin:
         """This vaccine strategy vaccinates everyone starting at the oldest age group and descending,
         when the updated vaccine becomes available.
         """
-        if t > t_newvacc_avail:
+        if t >= t_newvacc_avail:
             self.vaccine_administration(People, vacc_amount,
                                         vaccine_choice='new_vacc', direction='descend', age_targets='everyone')
 
@@ -104,7 +104,7 @@ class BoosterAdmin:
         if t < t_newvacc_avail:
             self.vaccine_administration(People, vacc_amount,
                                         vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
-        elif t > t_newvacc_avail:
+        elif t >= t_newvacc_avail:
             new_eligible = [p for p in People if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.young_groups]
@@ -127,7 +127,7 @@ class BoosterAdmin:
         if t < t_newvacc_avail:
             self.vaccine_administration(People, vacc_amount,
                                         vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
-        elif t > t_newvacc_avail:
+        elif t >= t_newvacc_avail:
             new_eligible = [p for p in People if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.old_groups]
@@ -149,7 +149,7 @@ class BoosterAdmin:
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
         """
-        if t > t_newvacc_avail:
+        if t >= t_newvacc_avail:
             self.vaccine_administration(People, vacc_amount,
                                         vaccine_choice='new_vacc', direction='random', age_targets='everyone')
 
