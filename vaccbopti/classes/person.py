@@ -70,16 +70,19 @@ class Person:
         """
         if self.immunity_time_exvacc < 0:
             immunity_exvacc = 0
+            immunity_exvacc_H = 0
         else:
             immunity_exvacc = params.f_exvacc[self.immunity_time_exvacc]
             immunity_exvacc_H = params.f_exvacc_hosp[self.immunity_time_exvacc]
         if self.immunity_time_newvacc < 0:
             immunity_newvacc = 0
+            immunity_newvacc_H = 0
         else:
             immunity_newvacc = params.f_newvacc[self.immunity_time_newvacc]
             immunity_newvacc_H = params.f_newvacc_hosp[self.immunity_time_exvacc]
         if self.immunity_time_infec < 0:
             immunity_infec = 0
+            immunity_infec_H = 0
         else:
             immunity_infec = params.f_infec[self.immunity_time_infec]
             immunity_infec_H = params.f_infec_hosp[self.immunity_time_exvacc]
