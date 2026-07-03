@@ -25,6 +25,7 @@ class Person:
         Parameters:
             id (int): a unique ID for each person
             age_group (str): the age group the person belongs to (16 different classes, seen in parameter file)
+            age_group_index (int): the index of the age group in the list of age groups
             status (str): person's status relative to the infection
                           susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
             vacc_status (str): person's vaccination status
@@ -42,6 +43,7 @@ class Person:
         """
         self.id = next(self.id_iter)
         self.age_group = None
+        self.age_group_index = None
         self.status = 'susceptible'
         self.vacc_status = 'unvacc'
         self.vacc_status_t_i = 'unvacc'
@@ -62,6 +64,7 @@ class Person:
             n (int): index for a specific age group from array of age groups
         """
         self.age_group = str(params.age_groups[n])
+        self.age_group_index = n
 
     def calc_susceptibility(self):
         """Calculates the relative susceptibility, v(t), of an individual.
@@ -70,16 +73,19 @@ class Person:
         """
         if self.immunity_time_exvacc < 0:
             immunity_exvacc = 0
+            immunity_exvacc_H = 0
         else:
             immunity_exvacc = params.f_exvacc[self.immunity_time_exvacc]
             immunity_exvacc_H = params.f_exvacc_hosp[self.immunity_time_exvacc]
         if self.immunity_time_newvacc < 0:
             immunity_newvacc = 0
+            immunity_newvacc_H = 0
         else:
             immunity_newvacc = params.f_newvacc[self.immunity_time_newvacc]
             immunity_newvacc_H = params.f_newvacc_hosp[self.immunity_time_exvacc]
         if self.immunity_time_infec < 0:
             immunity_infec = 0
+            immunity_infec_H = 0
         else:
             immunity_infec = params.f_infec[self.immunity_time_infec]
             immunity_infec_H = params.f_infec_hosp[self.immunity_time_exvacc]
@@ -115,8 +121,8 @@ class Person:
             probability (float or list): a float of probability or list of probabilities per age group
         """
         if type(probability) is list:
-            index = np.where(np.array(params.age_groups) == self.age_group)[0][0]
-            status = np.random.choice(statuses, size=1, p=[probability[index], 1 - probability[index]])
+            status = np.random.choice(statuses, size=1, p=[probability[self.age_group_index],
+                                                           1 - probability[self.age_group_index]])
         else:
             status = np.random.choice(statuses, size=1, p=[probability, 1 - probability])
         self.status = str(status[0])
@@ -171,13 +177,13 @@ class Person:
                     infectioncount.loc[(self.age_group, vaccine), 'asymptomatic'] += 1
                 if self.status == 'symptomatic':  # if symptomatic
                     self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
-                                                 params.p_nv_IH * self.susceptibility_H)
+                                                 params.p_nv_IH[self.age_group_index] * self.susceptibility_H)
                     if self.status != 'hospitalised':  # if not hospitalised
                         infectioncount.loc[(self.age_group, vaccine), 'symptomatic'] += 1  # set symptomatic count
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)
                         self.determine_status_change(['dead', 'hospitalised'],  # check if they die
-                                                     params.p_nv_HD)
+                                                     params.p_nv_HD[self.age_group_index])
                         infectioncount.loc[(self.age_group, vaccine), 'hospitalised'] += 1  # add to hospitalised count
                         if self.status == 'dead':  # if they die, calculate how long it takes
                             self.death_t_i = self.hosp_t_i + self.pick_distr_prob(params.death_t)
