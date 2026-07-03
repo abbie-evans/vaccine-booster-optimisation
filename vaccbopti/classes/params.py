@@ -38,7 +38,7 @@ class Params:
                                      0.215, 0.233, 0.272, 0.305,
                                      0.318, 0.397, 0.422, 0.430]
             self.infec_asymp = 0.255  # infectiousness of an asymptomatic relative to symptomatic
-            self.shape_param = 0.25  # shape parameter linking immunity to infection level
+            self.shape_param = 2.5  # shape parameter linking immunity to infection level
             self.n50_ag_infec = 0.091  # 50% immunity level against infection n50_1
             self.n50_ag_hd = 0.021  # 50% immunity level against hospitalistion/death n50_2
             self.decay_switch = 75  # switch slow and fast decays (days)
