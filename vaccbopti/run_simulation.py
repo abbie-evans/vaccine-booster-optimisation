@@ -63,7 +63,7 @@ class Simulation:
         for r in range(self.number_runs):
             # Initialise people for the simulation
             timesteps = Timesteps(self.num_people, self.sim_length, self.R_e)  # initialise people
-            timesteps.initialise_people(self.n_infec, prop_ineligible=self.prop_ineligible)  # set immunity and infections
+            timesteps.initialise_people(self.n_infec, prop_ineligible=self.prop_ineligible)  # set immunity & infections
             timesteps.set_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
             infec_rate_params = timesteps.calculate_new_beta()  # get a new beta based on these initial values
             infection_count = InfectionCount().count_df  # initialise infection_count per timepoint
