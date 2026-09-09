@@ -34,9 +34,9 @@ class Params:
                                0.101, 0.125, 0.193, 0.261,
                                0.293, 0.539, 0.633, 0.678]
             self.infec_rate_params = [0.186, 0.108, 0.122, 0.131,  # infection rate beta(a)
-                                     0.185, 0.213, 0.217, 0.210,
-                                     0.215, 0.233, 0.272, 0.305,
-                                     0.318, 0.397, 0.422, 0.430]
+                                      0.185, 0.213, 0.217, 0.210,
+                                      0.215, 0.233, 0.272, 0.305,
+                                      0.318, 0.397, 0.422, 0.430]
             self.infec_asymp = 0.255  # infectiousness of an asymptomatic relative to symptomatic
             self.shape_param = 2.5  # shape parameter linking immunity to infection level
             self.n50_ag_infec = 0.091  # 50% immunity level against infection n50_1
@@ -50,15 +50,15 @@ class Params:
             self.mean_latent = 5  # mean latent period (days)
             self.mean_infec = 9  # mean infectious period (days)
             self.p_nv_IH_list = [0.011, 0.011, 0.006, 0.005,  # probability they are hospitalised
-                            0.004, 0.003, 0.004, 0.006,
-                            0.008, 0.011, 0.011, 0.01,
-                            0.014, 0.016, 0.016, 0.017]
+                                 0.004, 0.003, 0.004, 0.006,
+                                 0.008, 0.011, 0.011, 0.01,
+                                 0.014, 0.016, 0.016, 0.017]
             self.mean_hosp = 7.75  # mean hospitalisation time (days)
             self.sd_hosp = 5.57  # s.d. of hospitalisation time (days)
             self.p_nv_HD_list = [0.001, 0.001, 0.014, 0.008,  # probability of death
-                            0.009, 0.019, 0.017, 0.019,
-                            0.028, 0.031, 0.047, 0.085,
-                            0.146, 0.137, 0.246, 0.445]
+                                 0.009, 0.019, 0.017, 0.019,
+                                 0.028, 0.031, 0.047, 0.085,
+                                 0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
             self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
