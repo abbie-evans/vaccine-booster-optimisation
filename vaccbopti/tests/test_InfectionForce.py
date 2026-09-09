@@ -2,7 +2,7 @@
 
 # Import useful modules
 import unittest
-from unittest import TestCase
+from unittest import TestCase, mock
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectionforce import InfectionForce
 from vaccbopti.classes.infectioncount import InfectionCount
@@ -25,6 +25,13 @@ class TestInfectionForce(TestCase):
 
     def test_calc_z(self):
         """Test that the formula to calculate z correctly by replacing the values by 2."""
+        # Check N_a is calculated correctly
+        test_num_people = 125
+        test_sum_Na = 0
+        for a in range(len(parameters.prop_indivs_a)):
+            test_N_a = int(round(parameters.prop_indivs_a[a] * test_num_people))
+            test_sum_Na += test_N_a
+        self.assertEqual(test_sum_Na, test_num_people)
         # Define the test values and compute manually
         self.infection_count.count_df = self.infection_count.count_df.replace(0, 2)
         test_I_b = 12
@@ -39,11 +46,11 @@ class TestInfectionForce(TestCase):
 
     def test_calc_lambda(self):
         """Tests that the calculation for overall lambda is correct."""
-        test_function, test_nb = self.testInfectionForce.calc_lambda(1, self.infection_count.count_df)
         self.test_nb = float(1.1)
-        loop_times = 16
-        self.assertEqual(loop_times, test_nb)  # the function should run over 16 age groups
-        self.assertEqual(type(test_function), type(self.test_nb))  # output value should be correct
+        with mock.patch.object(self.testInfectionForce, "calc_z", wraps=self.testInfectionForce.calc_z) as mock_calc_z:
+            test_function = self.testInfectionForce.calc_lambda(1, self.infection_count.count_df)
+            self.assertEqual(mock_calc_z.call_count, 16)  # checks calc_z called 16 times
+            self.assertEqual(type(test_function), type(self.test_nb))  # output value should be correct
 
     def test_set_lambda_list(self):
         """Tests that the function to add all lambda to the list is correct."""
