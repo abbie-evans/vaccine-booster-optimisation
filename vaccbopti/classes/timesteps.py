@@ -24,7 +24,7 @@ class Timesteps:
             R_e (float): effective reproduction number/transmissibility of the novel variant
         Parameters:
             indices (list): all the indices for all people
-            People (array): all the people in the simulation
+            people (array): all the people in the simulation
             IDs (array): all the IDs of each of the people
             rho_age_groups (list): the indices for the ranges of people in each age group
             statusDF (pd.DataFrame): will contain the values of each of the statuses for each group at each timepoint
@@ -33,15 +33,15 @@ class Timesteps:
         self.R_e = R_e
         self.num_people = num_people
         self.indices = list(np.linspace(0, num_people - 1, num_people))
-        self.People = np.array([Person() for p in range(num_people)])
-        self.IDs = np.array([p.id for p in self.People])
+        self.people = np.array([Person() for p in range(num_people)])
+        self.IDs = np.array([p.id for p in self.people])
         rho_age_groups = np.array(params.prop_indivs_a) * num_people
         rho_age_groups = [int(round(n)) for n in rho_age_groups[0:-1]]
         rho_age_groups = np.cumsum([0] + rho_age_groups)
         self.rho_age_groups = np.append(rho_age_groups, num_people)
         # Create output dataframes
         timepoints = list(range(0, self.sim_length))
-        vaccine = ['unvaccinated', 'old_vaccine', 'new_vaccine']
+        vaccine = ['unvaccinated', 'ex_vaccine', 'new_vaccine']
         df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
         index = list(itertools.product(*[timepoints, params.age_groups, vaccine]))
         index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])
@@ -61,16 +61,16 @@ class Timesteps:
         # Assign age groups
         for n in range(len(self.rho_age_groups) - 1):
             for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
-                self.People[p].get_age_group(n)
-                self.People[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
+                self.people[p].get_age_group(n)
+                self.people[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
         # Ineligible for booster group
         inelig_group = random.sample(self.indices, int(round(n_ineligible * self.num_people)))
         for p in inelig_group:
-            self.People[int(p)].vacc_status = 'ineligible'
+            self.people[int(p)].vacc_status = 'ineligible'
         # Randomly infected group
         infect_group = random.sample(self.indices, n_infec)
         for p in infect_group:
-            self.People[int(p)].initialise_infection()
+            self.people[int(p)].initialise_infection()
 
     def get_p_exposed(self, force_infection):
         """Gets the probability that a person is exposed.
@@ -78,13 +78,13 @@ class Timesteps:
             force_infection (float): the force of infection calcuated"""
         for n in range(len(self.rho_age_groups) - 1):
             for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
-                self.People[p].calc_susceptibility()
-                self.People[p].calc_prob_exposed(force_infection[n])
+                self.people[p].calc_susceptibility()
+                self.people[p].calc_prob_exposed(force_infection[n])
 
     def calculate_average_susceptibility(self):
         """Calculate the average of the susceptibility of the population."""
         susceptibility_sum = 0
-        for p in self.People:
+        for p in self.people:
             susceptibility_sum += p.susceptibility
         average_susceptibility = susceptibility_sum / self.num_people
         return average_susceptibility
@@ -127,23 +127,23 @@ class Timesteps:
         if vacc_strat == 0:
             return
         if vacc_strat == 1:
-            boosters.vacc_strat_1(self.People, vacc_amount)
+            boosters.vacc_strat_1(self.people, vacc_amount)
         if vacc_strat == 2:
-            boosters.vacc_strat_2(self.People, vacc_amount, t, t_newvacc_avail)
+            boosters.vacc_strat_2(self.people, vacc_amount, t, t_newvacc_avail)
         if vacc_strat == 3:
-            boosters.vacc_strat_3(self.People, vacc_amount, t, t_newvacc_avail)
+            boosters.vacc_strat_3(self.people, vacc_amount, t, t_newvacc_avail)
         if vacc_strat == 4:
-            boosters.vacc_strat_4(self.People, vacc_amount, t, t_newvacc_avail)
+            boosters.vacc_strat_4(self.people, vacc_amount, t, t_newvacc_avail)
         if vacc_strat == 5:
-            boosters.vacc_strat_5(self.People, vacc_amount)
+            boosters.vacc_strat_5(self.people, vacc_amount)
         if vacc_strat == 6:
-            boosters.vacc_strat_6(self.People, vacc_amount, t, t_newvacc_avail)
+            boosters.vacc_strat_6(self.people, vacc_amount, t, t_newvacc_avail)
 
     def increment_people(self, infectioncount):
         """Increases immunity times by 1 and changes status.
         Parameters:
             infectioncount (pd.DataFrame): the dataframe containing the day's data"""
-        for p in self.People:
+        for p in self.people:
             p.change_status(infectioncount)
             p.increment_immunity_time()
 

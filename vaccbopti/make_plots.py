@@ -15,7 +15,7 @@ RENAME = {'symptomatic': 'I', 'asymptomatic': 'A', 'hospitalised': 'H', 'dead': 
 #to pool vacc status
 VACC_MAP = {
     'unvaccinated': 'unvaccinated',
-    'old_vaccine': 'vaccinated',
+    'ex_vaccine': 'vaccinated',
     'new_vaccine': 'vaccinated'}
 
 
@@ -28,7 +28,7 @@ def load_status_data(sum_path, sd_path=None):
 def aggregate_status(df_sum, group_cols, pool_vacc=True, VACC_MAP=VACC_MAP):
     """
     group_cols: list of columns to keep, e.g. ['t', 'vacc_status']
-    pool_vacc: if True, collapses old_vaccine/new_vaccine into 'vaccinated'
+    pool_vacc: if True, collapses ex_vaccine/new_vaccine into 'vaccinated'
     """
     df = df_sum.copy().reset_index()
     if pool_vacc and 'vacc_status' in df.columns:

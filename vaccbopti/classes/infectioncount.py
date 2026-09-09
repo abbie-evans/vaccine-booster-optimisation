@@ -16,7 +16,7 @@ class InfectionCount:
         Parameters:
             df_status (list): statuses that need to be included in the dataframe
             count_df (df): the dataframe of counts"""
-        self.vaccinated = ['unvaccinated', 'old_vaccine', 'new_vaccine']
+        self.vaccinated = ['unvaccinated', 'ex_vaccine', 'new_vaccine']
         self.df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
         self.index = list(itertools.product(*[params.age_groups, self.vaccinated]))
         self.index = pd.MultiIndex.from_tuples(self.index, names=["ages", "vacc_status"])

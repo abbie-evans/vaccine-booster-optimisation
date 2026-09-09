@@ -61,7 +61,7 @@ class test_run_simulation(TestCase):
         statusDF_std = ((testRunSim.statusDF_sum_squares / self.number_runs)
                         - (testRunSim.statusDF_sum / self.number_runs) ** 2)
         statusDF_std = np.sqrt(statusDF_std)
-        vacc_map = {'unvaccinated': 'unvaccinated', 'old_vaccine': 'vaccinated', 'new_vaccine': 'vaccinated'}
+        vacc_map = {'unvaccinated': 'unvaccinated', 'ex_vaccine': 'vaccinated', 'new_vaccine': 'vaccinated'}
         std_combined = statusDF_std.reset_index()
         std_combined['vacc_status'] = std_combined['vacc_status'].map(vacc_map)
         std_combined = std_combined.set_index(['t', 'ages', 'vacc_status'])

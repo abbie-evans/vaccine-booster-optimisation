@@ -24,10 +24,10 @@ class TestInfectionCount(TestCase):
 
     def test_amend_df(self):
         """Ensures the dataframe is ammended correctly."""
-        self.testTable.count_df.loc[(ageNbs[2], 'old_vaccine'), 'symptomatic'] = 5
+        self.testTable.count_df.loc[(ageNbs[2], 'ex_vaccine'), 'symptomatic'] = 5
         self.testTable.count_df.loc[(ageNbs[6], 'new_vaccine'), 'symptomatic'] = 13
         self.testTable.count_df.loc[(ageNbs[15], 'unvaccinated'), 'asymptomatic'] = 17
-        self.assertEqual(self.testTable.count_df.loc[(ageNbs[2], 'old_vaccine'), 'symptomatic'], 5)
+        self.assertEqual(self.testTable.count_df.loc[(ageNbs[2], 'ex_vaccine'), 'symptomatic'], 5)
         self.assertEqual(self.testTable.count_df.loc[(ageNbs[6], 'new_vaccine'), 'symptomatic'], 13)
         self.assertEqual(self.testTable.count_df.loc[(ageNbs[15], 'unvaccinated'), 'asymptomatic'], 17)
 

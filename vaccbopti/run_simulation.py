@@ -43,7 +43,7 @@ class Simulation:
         self.t_newvacc_avail = t_newvacc_avail
         # Create overall output dataframes
         self.timepoints = list(range(0, self.sim_length))
-        self.vaccine = ['unvaccinated', 'old_vaccine', 'new_vaccine']
+        self.vaccine = ['unvaccinated', 'ex_vaccine', 'new_vaccine']
         self.df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
         index = list(itertools.product(*[self.timepoints, params.age_groups, self.vaccine]))
         index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])
@@ -91,7 +91,7 @@ class Simulation:
                              - (self.statusDF_sum / self.number_runs) ** 2)
         self.statusDF_std = np.sqrt(self.statusDF_std)
         # Reset index to temporarily undo the mutli index and combine across groups
-        vacc_map = {'unvaccinated': 'unvaccinated', 'old_vaccine': 'vaccinated', 'new_vaccine': 'vaccinated'}
+        vacc_map = {'unvaccinated': 'unvaccinated', 'ex_vaccine': 'vaccinated', 'new_vaccine': 'vaccinated'}
         std_combined = self.statusDF_std.reset_index()
         std_combined['vacc_status'] = std_combined['vacc_status'].map(vacc_map)
         std_combined = std_combined.set_index(['t', 'ages', 'vacc_status'])

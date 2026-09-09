@@ -20,17 +20,18 @@ class BoosterAdmin:
         """Vaccinates an individual (vacc_status to 'vacc' - old or new) and updates their immunity time (set to 0).
         This implies they will not be included in the list of people eligible for vaccination.
         Parameters:
-            vaccine_choice: 'old_vacc' (existing vaccine) or 'new_vacc' (updated vaccine when it becomes available)
+            vaccine_choice: 'ex_vacc' (existing vaccine) or 'new_vacc' (updated vaccine when it becomes available)
                             this will affect which immunity time variable is updated
+            person: the individual who is receiving the vaccine (and who's immunity should be updated)
         """
-        if vaccine_choice == 'old_vacc':
+        if vaccine_choice == 'ex_vacc':
             person.immunity_time_exvacc = 0
-            person.vacc_status = 'old_vacc'
+            person.vacc_status = 'ex_vacc'
         elif vaccine_choice == 'new_vacc':
             person.immunity_time_newvacc = 0
             person.vacc_status = 'new_vacc'
 
-    def vaccine_administration(self, People, vacc_amount, vaccine_choice, direction, age_targets):
+    def vaccine_administration(self, people, vacc_amount, vaccine_choice, direction, age_targets):
         """Administers a vaccine to the population.
         - a list is created of all eligible individuals to be vaccinated
             - those who are not symptomatic, hospitalised, dead, vaccinated,
@@ -47,9 +48,17 @@ class BoosterAdmin:
         - the eligible to-be-vaccinated individuals are randomly selected, from 1000 per day to the remaining
           amount of individuals in the list available
         - finally, the vacc_status is changed using the update_susceptibility function.
+        Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep
+            vaccine_choice: the vaccine type to administer to the population 'ex_vacc' (existing vaccine) or
+                            'new_vacc' (updated vaccine when it becomes available)
+            direction: whether to vaccinate people going oldest to youngest 'descend', youngest to oldest 'ascend'
+                        or randomly regardless of age 'random'
+            age_targets: whether there is a subpopulation of age-groups that should be targeted by the vaccine first
         """
         # Step one - randomised list of eligible individuals
-        self.vacc_list = [p for p in People
+        self.vacc_list = [p for p in people
                           if p.status not in ['symptomatic', 'hospitalised', 'dead']
                           and p.vacc_status == 'unvacc']
         random.shuffle(self.vacc_list)  # shuffle the list
@@ -73,84 +82,102 @@ class BoosterAdmin:
         limit = min(vacc_amount, len(self.vacc_list))
         self.vacc_indices = [self.vacc_list[i].id for i in range(limit)]
         # Step 5 - 'give vaccine' and update status
-        for p in People:
+        for p in people:
             if p.id in self.vacc_indices:
                 self.update_susceptibility(vaccine_choice, p)
 
-    def vacc_strat_1(self, People, vacc_amount):
+    def vacc_strat_1(self, people, vacc_amount):
         """This vaccine strategy vaccinates everyone starting at the oldest age group and descending,
-        not taking into account the availability of the updated vaccine.
+        not taking into account the availability of an updated vaccine (this strategy only uses the
+        vaccine for the old variant).
+        Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep
         """
-        self.vaccine_administration(People, vacc_amount,
-                                    vaccine_choice='old_vacc', direction='descend', age_targets='everyone')
+        self.vaccine_administration(people, vacc_amount,
+                                    vaccine_choice='ex_vacc', direction='descend', age_targets='everyone')
 
-    def vacc_strat_2(self, People, vacc_amount, t, t_newvacc_avail):
+    def vacc_strat_2(self, people, vacc_amount, t, t_newvacc_avail):
         """This vaccine strategy vaccinates everyone starting at the oldest age group and descending,
         when the updated vaccine becomes available.
+        Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep
+            t : time (in days)
+            t_newvacc_avail : time when updated vaccine becomes available
         """
         if t >= t_newvacc_avail:
-            self.vaccine_administration(People, vacc_amount,
+            self.vaccine_administration(people, vacc_amount,
                                         vaccine_choice='new_vacc', direction='descend', age_targets='everyone')
 
-    def vacc_strat_3(self, People, vacc_amount, t, t_newvacc_avail):
+    def vacc_strat_3(self, people, vacc_amount, t, t_newvacc_avail):
         """The third strategy starts vaccinating with the existing vaccine from the oldest age groups and descending
         (from 75+ down), until the updated vaccine becomes available. At this point, vaccination with the updated
         vaccine starting at the middle age groups is prioritised in a descending way (from 49 down). When all the
         updated vaccines have been administered, vaccination with the existing vaccine is continued in the
         older age groups.
         Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
         """
         if t < t_newvacc_avail:
-            self.vaccine_administration(People, vacc_amount,
-                                        vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
+            self.vaccine_administration(people, vacc_amount,
+                                        vaccine_choice='ex_vacc', direction='descend', age_targets='mid-old')
         elif t >= t_newvacc_avail:
-            new_eligible = [p for p in People if p.status not in ['symptomatic', 'hospitalised', 'dead']
+            new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.young_groups]
             if len(new_eligible) != 0:
-                self.vaccine_administration(People, vacc_amount,
+                self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
             elif len(new_eligible) == 0:
-                self.vaccine_administration(People, vacc_amount,
-                                            vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
+                self.vaccine_administration(people, vacc_amount,
+                                            vaccine_choice='ex_vacc', direction='descend', age_targets='mid-old')
 
-    def vacc_strat_4(self, People, vacc_amount, t, t_newvacc_avail):
+    def vacc_strat_4(self, people, vacc_amount, t, t_newvacc_avail):
         """The fourth strategy starts vaccinating with the existing vaccine to the youngest age groups ascending (0+ up)
         and switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
         updated vaccine. It then switches back to vaccinating the remaining individuals in the young age groups with the
         existing vaccine.
         Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
         """
         if t < t_newvacc_avail:
-            self.vaccine_administration(People, vacc_amount,
-                                        vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
+            self.vaccine_administration(people, vacc_amount,
+                                        vaccine_choice='ex_vacc', direction='ascend', age_targets='mid-young')
         elif t >= t_newvacc_avail:
-            new_eligible = [p for p in People if p.status not in ['symptomatic', 'hospitalised', 'dead']
+            new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.old_groups]
             if len(new_eligible) != 0:
-                self.vaccine_administration(People, vacc_amount,
+                self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
             elif len(new_eligible) == 0:
-                self.vaccine_administration(People, vacc_amount,
-                                            vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
+                self.vaccine_administration(people, vacc_amount,
+                                            vaccine_choice='ex_vacc', direction='ascend', age_targets='mid-young')
 
-    def vacc_strat_5(self, People, vacc_amount):
-        """The existing vaccine is administered randomly to anyone within the population."""
-        self.vaccine_administration(People, vacc_amount,
-                                    vaccine_choice='old_vacc', direction='random', age_targets='everyone')
+    def vacc_strat_5(self, people, vacc_amount):
+        """The existing vaccine is administered randomly to anyone within the population.
+        Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep"""
+        self.vaccine_administration(people, vacc_amount,
+                                    vaccine_choice='ex_vacc', direction='random', age_targets='everyone')
 
-    def vacc_strat_6(self, People, vacc_amount, t, t_newvacc_avail):
+    def vacc_strat_6(self, people, vacc_amount, t, t_newvacc_avail):
         """The updated vaccine is administered randomly to anyone within the population when it becomes available.
         Parameters:
+            people: the list of all people in the simulation population
+            vacc_amount: the number of vaccines to administer per timestep
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
         """
         if t >= t_newvacc_avail:
-            self.vaccine_administration(People, vacc_amount,
+            self.vaccine_administration(people, vacc_amount,
                                         vaccine_choice='new_vacc', direction='random', age_targets='everyone')
 

@@ -28,8 +28,8 @@ class test_person(TestCase):
 
     def test_IDs(self):
         """Ensures that when people are initiated, each ID is unique."""
-        People = [Person() for p in range(20)]
-        ids = [P.id for P in People]
+        people = [Person() for p in range(20)]
+        ids = [P.id for P in people]
         unique = np.unique(ids)
         self.assertTrue(set(ids) == set(unique))
         anotherPerson = Person()
@@ -153,8 +153,8 @@ class test_person(TestCase):
         """Test that the status change decision tree works correctly on the symptomatic/unhospitalised branch."""
         self.testPerson.get_age_group(4)
         # Checking the switch from exposed to symptomatic (not hospitalised or dead).
-        self.testPerson.vacc_status = 'old_vacc'
-        self.testPerson.vacc_status_t_i = 'old_vacc'
+        self.testPerson.vacc_status = 'ex_vacc'
+        self.testPerson.vacc_status_t_i = 'ex_vacc'
         self.testPerson.status = 'exposed'
         infectioncount = InfectionCount().count_df  # new infectioncount for each day
         self.testPerson.latent_t_i = 0
@@ -163,7 +163,7 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.status, 'symptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
-                                             'old_vaccine'), 'symptomatic'], 1)
+                                             'ex_vaccine'), 'symptomatic'], 1)
         self.testPerson.infect_t_i = 1
         # Checking the switch back from symptomatic to susceptible.
         infectioncount = InfectionCount().count_df  # new infectioncount for each day
@@ -173,7 +173,7 @@ class test_person(TestCase):
         self.testPerson.change_status(infectioncount)
         self.assertEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(infectioncount.loc[(self.testPerson.age_group,
-                                             'old_vaccine'), 'symptomatic'], 0)
+                                             'ex_vaccine'), 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
