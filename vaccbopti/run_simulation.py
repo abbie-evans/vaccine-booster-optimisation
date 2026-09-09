@@ -66,15 +66,15 @@ class Simulation:
             timesteps.initialise_people(self.n_infec, n_ineligible=self.n_ineligible)  # set immunity and infections
             timesteps.get_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
             infec_rate_param = timesteps.calculate_new_beta()  # get a new beta based on these initial values
-            infectioncount = InfectionCount().count_df  # initialise infectioncount per timepoint
+            infection_count = InfectionCount().count_df  # initialise infection_count per timepoint
             # Loop through timesteps
             for t in range(1, self.sim_length):
-                infection_force.all_lambda(infectioncount, infec_rate_param, num_people=self.num_people)  # F_infec
+                infection_force.set_lambda_list(infection_count, infec_rate_param, num_people=self.num_people)  # F_infec
                 timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
                 timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
-                infectioncount = InfectionCount().count_df  # reset infectioncount for number of status changes per t
-                timesteps.increment_people(infectioncount)  # update people
-                timesteps.append_daily_nbs_outputdf(t, infectioncount)  # updates overall dataframe
+                infection_count = InfectionCount().count_df  # reset infection_count for number of status changes per t
+                timesteps.increment_people(infection_count)  # update people
+                timesteps.append_daily_nbs_outputdf(t, infection_count)  # updates overall dataframe
                 # Shiny progress update
                 if (progress is not None) and (t % 2 == 0 or t == 1):
                     p = (r * self.sim_length) + t

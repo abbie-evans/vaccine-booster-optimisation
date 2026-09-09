@@ -6,12 +6,12 @@ from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
-from vaccbopti.classes.infectioncount import InfectionCount
+from vaccbopti.classes.infection_count import InfectionCount
 from vaccbopti.classes.timesteps import Timesteps
 params = Params.instance()
 infection_force = InfectionForce()
-infectioncount = InfectionCount().count_df
-infection_force.all_lambda(infectioncount)
+infection_count = InfectionCount().count_df
+infection_force.set_lambda_list(infection_count)
 
 
 # Define testing class
@@ -198,7 +198,7 @@ class test_timesteps(TestCase):
         """Tests that the increments occur correctly."""
         self.testTimesteps.initialise_people(self.n_infec)
         exvacc_times_old = [p.immunity_time_exvacc for p in self.testTimesteps.people]
-        self.testTimesteps.increment_people(infectioncount)
+        self.testTimesteps.increment_people(infection_count)
         exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.people]
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
@@ -208,7 +208,7 @@ class test_timesteps(TestCase):
         # Initialize people and set up the output dataframe
         self.testTimesteps.initialise_people(self.n_infec)
         for t in range(self.sim_length):
-            self.testTimesteps.append_daily_nbs_outputdf(t, infectioncount)
+            self.testTimesteps.append_daily_nbs_outputdf(t, infection_count)
         # Check that the dataframe has the correct number of rows (one per timestep)
         num_rows = self.testTimesteps.statusDF.shape[0]
         self.assertEqual(num_rows, self.sim_length * len(params.age_groups) * 3)
