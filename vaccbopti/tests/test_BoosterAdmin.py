@@ -39,6 +39,8 @@ class testBoosterAdmin(TestCase):
         self.assertEqual(person.immunity_time_exvacc, -1)
         self.assertEqual(person.immunity_time_newvacc, 0)
         self.assertEqual(person.vacc_status, 'new_vacc')
+        with self.assertRaises(ValueError):
+            self.admin.update_susceptibility('weird_vacc', person)
 
     def test_vaccine_administration(self):
         """Test that after vaccine administration, no eligible self.people remain unvaccinated."""

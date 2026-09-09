@@ -30,6 +30,8 @@ class BoosterAdmin:
         elif vaccine_choice == 'new_vacc':
             person.immunity_time_newvacc = 0
             person.vacc_status = 'new_vacc'
+        else:
+            raise ValueError('This is not a valid vaccine type.')
 
     def vaccine_administration(self, people, vacc_amount, vaccine_choice, direction, age_targets):
         """Administers a vaccine to the population.
