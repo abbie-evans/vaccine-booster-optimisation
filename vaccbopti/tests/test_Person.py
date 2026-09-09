@@ -35,9 +35,9 @@ class test_person(TestCase):
         anotherPerson = Person()
         self.assertNotIn(anotherPerson.id, ids)
 
-    def test_get_age_group(self):
+    def test_set_age_group(self):
         """Test that the ages are called correctly and can be reindexed correctly."""
-        self.testPerson.get_age_group(4)
+        self.testPerson.set_age_group(4)
         self.assertEqual(self.testPerson.age_group, "20-24")
         index = np.where(np.array(params.age_groups) == self.testPerson.age_group)[0][0]
         self.assertEqual(index, 4)
@@ -82,7 +82,7 @@ class test_person(TestCase):
 
     def test_determine_status_change(self):
         """Test that the status change with probabilities are correct."""
-        self.testPerson.get_age_group(4)
+        self.testPerson.set_age_group(4)
         self.testPerson.determine_status_change(['symptomatic', 'asymptomatic'], 1)
         self.assertEqual(self.testPerson.status, 'symptomatic')
         probs = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
@@ -114,7 +114,7 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     def test_change_status_asymptomatic(self):
         """Test that the status change decision tree works correctly on the asymptomatic branch."""
-        self.testPerson.get_age_group(4)
+        self.testPerson.set_age_group(4)
         # Checking the switch from susceptible to exposed and ensure that latent time is added.
         self.testPerson.status = 'susceptible'
         self.testPerson.vacc_status = 'new_vacc'
@@ -151,7 +151,7 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_nv_HD_list', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     def test_change_status_symptomatic_fine(self):
         """Test that the status change decision tree works correctly on the symptomatic/unhospitalised branch."""
-        self.testPerson.get_age_group(4)
+        self.testPerson.set_age_group(4)
         # Checking the switch from exposed to symptomatic (not hospitalised or dead).
         self.testPerson.vacc_status = 'ex_vacc'
         self.testPerson.vacc_status_t_i = 'ex_vacc'
@@ -181,7 +181,7 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_nv_HD_list', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     def test_change_status_symptomatic_hospitalised(self):
         """Test that the status change decision tree works correctly on the symptomatic/hospitalised branch."""
-        self.testPerson.get_age_group(4)
+        self.testPerson.set_age_group(4)
         # Checking the switch from exposed to symptomatic/hospitalised (not dead).
         infection_count = InfectionCount().count_df  # new infection_count for each day
         self.testPerson.susceptibility_H = 1
@@ -211,7 +211,7 @@ class test_person(TestCase):
     @patch.object(person.params, 'p_nv_HD_list', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     def test_change_status_symptomatic_dead(self):
         """Test that the status change decision tree works correctly on the symptomatic/dead branch."""
-        self.testPerson.get_age_group(4)
+        self.testPerson.set_age_group(4)
         self.testPerson.susceptibility_H = 1
         # Checking the switch from exposed to symptomatic/dead.
         self.testPerson.status = 'exposed'

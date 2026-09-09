@@ -34,12 +34,19 @@ class Person:
             susceptibility (float): susceptibility, v(t), of an individual
             prob_exposed (float): probability an individual will become infected
             latent_t_i (int): time left in the latent period once exposed
+                              if -1, then the person is not currently in a latent period
             infect_t_i (int): time left in infectious period once infectious (symptomatic or asymptomatic)
+                              if -1, then the person is not currently in an infectious period
             hosp_t_i (int): time spent in hospital
+                            if -1, then the person is not currently in a hospital
             death_t_i (int): time at death from hospitalisation
+                             if -1, then the person is not currently in the 'dead' status
             immunity_time_exvacc (int): time since given last vaccination/infection from previous variant
+                                        if -1, then the person has not received a pre-existing vaccine
             immunity_time_newvacc (int): time since last variant-adapted vaccine
+                                         if -1, then the person has not received a new vaccine
             immunity_time_infec (int): time since infection with novel variant
+                                       if -1, then the person has not been infected
         """
         self.id = next(self.id_iter)
         self.age_group = None
@@ -58,7 +65,7 @@ class Person:
         self.immunity_time_newvacc = -1
         self.immunity_time_infec = -1
 
-    def get_age_group(self, n):
+    def set_age_group(self, n):
         """Assign individual a specific age-group.
         Params:
             n (int): index for a specific age group from array of age groups
@@ -71,19 +78,19 @@ class Person:
         Returns:
             susceptibility (float): level of susceptibility is determined by their immune status
         """
-        if self.immunity_time_exvacc < 0:
+        if self.immunity_time_exvacc == -1:
             immunity_exvacc = 0
             immunity_exvacc_H = 0
         else:
             immunity_exvacc = params.f_exvacc[self.immunity_time_exvacc]
             immunity_exvacc_H = params.f_exvacc_hosp[self.immunity_time_exvacc]
-        if self.immunity_time_newvacc < 0:
+        if self.immunity_time_newvacc == -1:
             immunity_newvacc = 0
             immunity_newvacc_H = 0
         else:
             immunity_newvacc = params.f_newvacc[self.immunity_time_newvacc]
             immunity_newvacc_H = params.f_newvacc_hosp[self.immunity_time_exvacc]
-        if self.immunity_time_infec < 0:
+        if self.immunity_time_infec == -1:
             immunity_infec = 0
             immunity_infec_H = 0
         else:
@@ -146,19 +153,19 @@ class Person:
         """Decision tree to determine a person's status at each time step."""
         # Check vaccine status and set to add to index
         if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':
-            vaccine = 'unvaccinated'
+            vacc_status = 'unvaccinated'
         if self.vacc_status_t_i == 'ex_vacc':
-            vaccine = 'ex_vaccine'
+            vacc_status = 'ex_vaccine'
         if self.vacc_status_t_i == 'new_vacc':
-            vaccine = 'new_vaccine'
-        # If dead - consideration is seperate from the rest of the popluation
+            vacc_status = 'new_vaccine'
+        # If dead - consideration is seperate from the rest of the population
         if self.status == 'dead':
             if self.death_t_i == -1:
                 return
             else:
                 self.death_t_i -= 1
                 if self.death_t_i == -1:  # death time over
-                    infection_count.loc[(self.age_group, vaccine), 'dead'] += 1  # ...and time over, add to dead for t
+                    infection_count.loc[(self.age_group, vacc_status), 'dead'] += 1  # and time over, add to dead at t
                     return
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
         if (self.status == 'symptomatic' or self.status == 'asymptomatic' or self.status == 'hospitalised'):
@@ -174,17 +181,17 @@ class Person:
                                              params.p_v_symp_a)
                 self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time
                 if self.status == 'asymptomatic':
-                    infection_count.loc[(self.age_group, vaccine), 'asymptomatic'] += 1
+                    infection_count.loc[(self.age_group, vacc_status), 'asymptomatic'] += 1
                 if self.status == 'symptomatic':  # if symptomatic
                     self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
                                                  params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H)
                     if self.status != 'hospitalised':  # if not hospitalised
-                        infection_count.loc[(self.age_group, vaccine), 'symptomatic'] += 1  # set symptomatic count
+                        infection_count.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # add to symptomatic
                     if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)
                         self.determine_status_change(['dead', 'hospitalised'],  # check if they die
                                                      params.p_nv_HD_list[self.age_group_index])
-                        infection_count.loc[(self.age_group, vaccine), 'hospitalised'] += 1  # add to hospitalised count
+                        infection_count.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # add to hospitalised
                         if self.status == 'dead':  # if they die, calculate how long it takes
                             self.death_t_i = self.hosp_t_i + self.pick_distr_prob(params.death_t)
             return

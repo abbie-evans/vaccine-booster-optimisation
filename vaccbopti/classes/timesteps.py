@@ -61,7 +61,7 @@ class Timesteps:
         # Assign age groups
         for n in range(len(self.rho_age_groups) - 1):
             for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
-                self.people[p].get_age_group(n)
+                self.people[p].set_age_group(n)
                 self.people[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
         # Ineligible for booster group
         inelig_group = random.sample(self.indices, int(round(n_ineligible * self.num_people)))
