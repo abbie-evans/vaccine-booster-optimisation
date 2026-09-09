@@ -139,7 +139,7 @@ class Timesteps:
         if vacc_strat == 6:
             boosters.vacc_strat_6(self.people, vacc_amount, t, t_newvacc_avail)
 
-    def increment_people(self, infection_count):
+    def update_people(self, infection_count):
         """Increases immunity times by 1 and changes status.
         Parameters:
             infection_count (pd.DataFrame): the dataframe containing the day's data"""

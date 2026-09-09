@@ -24,7 +24,7 @@ class Params:
                                '40-44', '45-49', '50-54', '55-59',
                                '60-64', '65-69', '70-74', '75+']
             self.old_groups = self.age_groups[10:]
-            self.young_groups = self.age_groups[:7]
+            self.young_groups = self.age_groups[:10]
             self.prop_indivs_a = [0.05758, 0.06112, 0.05849, 0.05413,  # proportion of individual in age groups
                                   0.06011, 0.06698, 0.06828, 0.06691,
                                   0.06424, 0.06311, 0.06889, 0.06696,

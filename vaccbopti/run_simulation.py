@@ -75,7 +75,7 @@ class Simulation:
                 timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
                 timesteps.set_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
                 infection_count = InfectionCount().count_df  # reset infection_count for number of status changes per t
-                timesteps.increment_people(infection_count)  # update people
+                timesteps.update_people(infection_count)  # update people
                 timesteps.append_daily_nbs_outputdf(t, infection_count)  # updates overall dataframe
                 # Shiny progress update
                 if (progress is not None) and (t % 2 == 0 or t == 1):

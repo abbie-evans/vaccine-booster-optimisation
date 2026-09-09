@@ -194,11 +194,11 @@ class test_timesteps(TestCase):
         self.assertListEqual(new_it_exvacc, new_new_it_exvacc)
         self.assertNotEqual(old_it_newvacc, new_it_newvacc)
 
-    def test_increment_people(self):
+    def test_update_people(self):
         """Tests that the increments occur correctly."""
         self.testTimesteps.initialise_people(self.n_infec)
         exvacc_times_old = [p.immunity_time_exvacc for p in self.testTimesteps.people]
-        self.testTimesteps.increment_people(infection_count)
+        self.testTimesteps.update_people(infection_count)
         exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.people]
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
