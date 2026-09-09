@@ -3,7 +3,7 @@
 # Import useful modules
 import unittest
 from unittest import TestCase
-from vaccbopti.classes.infection_count import InfectionCount
+from vaccbopti.classes.infectioncount import InfectionCount
 from vaccbopti.classes.params import Params
 ageNbs = Params.instance().age_groups
 

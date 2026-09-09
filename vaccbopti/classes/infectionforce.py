@@ -34,7 +34,7 @@ class InfectionForce:
         self.lambda_list = np.zeros(16)
 
     def calc_z(self, a, b, infection_count, num_people=100000):
-        """Accesses the counts of infected people and calculates what we define as z. 
+        """Accesses the counts of infected people and calculates what we define as z.
         Defined as: transmission to age group a from b, based on the proportion of interactions people in age group a
         have with age group b (from the contact matrix) and the number of people who are currently infected in each.
         z = [contactmatrix_ab/n of indiv in a] * [n of infected indiv in b +
@@ -64,7 +64,7 @@ class InfectionForce:
             a (int): fixed age group for which lambda will be calculated
             infec_rate_param (list): the infection rate parameter, beta
             num_people (int): the total number of people in the simulation
-        Returns: 
+        Returns:
             lambda_a: the overall transmission to age group a
         """
         sum_z = 0  # holds the sum of z

@@ -8,7 +8,7 @@ from unittest.mock import patch
 import vaccbopti.classes.person as person
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.params import Params
-from vaccbopti.classes.infection_count import InfectionCount
+from vaccbopti.classes.infectioncount import InfectionCount
 params = Params.instance()
 
 

@@ -5,7 +5,7 @@ import unittest
 from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.infectionforce import InfectionForce
-from vaccbopti.classes.infection_count import InfectionCount
+from vaccbopti.classes.infectioncount import InfectionCount
 parameters = Params.instance()
 
 

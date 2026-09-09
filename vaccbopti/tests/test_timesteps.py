@@ -6,7 +6,7 @@ from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
-from vaccbopti.classes.infection_count import InfectionCount
+from vaccbopti.classes.infectioncount import InfectionCount
 from vaccbopti.classes.timesteps import Timesteps
 params = Params.instance()
 infection_force = InfectionForce()

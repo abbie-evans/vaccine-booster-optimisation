@@ -1,6 +1,6 @@
 # here note down all the functions that are included in the package
 from .booster_admin import BoosterAdmin
-from .infection_count import InfectionCount
+from . import InfectionCount
 from .infectionforce import InfectionForce
 from .params import Params
 from .person import Person
