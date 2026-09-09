@@ -22,7 +22,8 @@ class InfectionForce:
     - prop_indivs_a: proportion of individuals in age group a
     - num_people: total number of people in the simulation
     - count_df: dataframe describing number of asymptomatic and symptomatically infected individuals in age group
-    - infec_asymp: [constant] infectiousness of asymptomatic infected individuals, relative to symptomatic infected individuals
+    - infec_asymp: [constant] infectiousness of asymptomatic infected individuals, relative to symptomatic infected
+                    individuals
     """
 
     def __init__(self):

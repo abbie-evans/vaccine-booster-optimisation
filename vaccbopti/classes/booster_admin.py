@@ -94,9 +94,10 @@ class BoosterAdmin:
 
     def vacc_strat_3(self, People, vacc_amount, t, t_newvacc_avail):
         """The third strategy starts vaccinating with the existing vaccine from the oldest age groups and descending
-        (from 75+ down), until the updated vaccine becomes available. At this point, vaccination with the updated vaccine starting at
-        the middle age groups is prioritised in a descending way (from 49 down). When all the updated vaccines
-        have been administered, vaccination with the existing vaccine is continued in the older age groups.
+        (from 75+ down), until the updated vaccine becomes available. At this point, vaccination with the updated
+        vaccine starting at the middle age groups is prioritised in a descending way (from 49 down). When all the
+        updated vaccines have been administered, vaccination with the existing vaccine is continued in the
+        older age groups.
         Parameters:
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
@@ -116,7 +117,7 @@ class BoosterAdmin:
                                             vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
 
     def vacc_strat_4(self, People, vacc_amount, t, t_newvacc_avail):
-        """The fourth strategy starts vaccinating with the existing vaccine to the youngest age groups ascending (0+ up),
+        """The fourth strategy starts vaccinating with the existing vaccine to the youngest age groups ascending (0+ up)
         and switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
         updated vaccine. It then switches back to vaccinating the remaining individuals in the young age groups with the
         existing vaccine.
