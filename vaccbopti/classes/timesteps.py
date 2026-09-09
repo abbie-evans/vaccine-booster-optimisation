@@ -120,10 +120,10 @@ class Timesteps:
                       vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
                       updated vaccine. It then switches back to vaccinating the remaining individuals in the young
                       age groups with the old vaccine.
-        - strategy 5: the old vaccine is administered randomnly to anyone within the population
-        - strategy 6: updated vaccine administered randomnly to anyone within population when it becomes available
+        - strategy 5: the old vaccine is administered randomly to anyone within the population
+        - strategy 6: updated vaccine administered randomly to anyone within the population when it becomes available
         Parameteters:
-            vacc_strat (int): which number vaccine strategy we're using"""
+            vacc_strat (int): which numbered vaccine strategy is being used"""
         if vacc_strat == 0:
             return
         if vacc_strat == 1:

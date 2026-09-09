@@ -16,13 +16,13 @@ class InfectionForce:
                                                 (p(being asymptomatically infected) * asymptomatic indiv in b)] }
 
     Parameters
-    - infec_rate_param : infection rate parameter, reflecting susceptibility of indivs in age group a
-    - age_groups:age group of indiv
-    - contactmatrix: mean daily number of contacts that an indiv in age group b has with an indiv in age group a
+    - infec_rate_param : infection rate parameter, reflecting susceptibility of individuals in age group a
+    - age_groups: age group of individuals
+    - contactmatrix: mean daily number of contacts that an individual in age group b has with individuals in age group a
     - prop_indivs_a: proportion of individuals in age group a
     - num_people: total number of people in the simulation
-    - count_df: dataframe describing number of asymptomatic and symptomatically infected indivs in age group
-    - infec_asymp: [constant] infectiousness of asymptomatic infected indiv, relative to symptomatic infectd individual
+    - count_df: dataframe describing number of asymptomatic and symptomatically infected individuals in age group
+    - infec_asymp: [constant] infectiousness of asymptomatic infected individuals, relative to symptomatic infected individuals
     """
 
     def __init__(self):

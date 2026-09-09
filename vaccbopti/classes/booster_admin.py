@@ -8,12 +8,12 @@ params = Params.instance()
 
 # Define BoosterAdmin class
 class BoosterAdmin:
-    """A class representing how we'll administer vaccines to the popluation."""
+    """A class representing how booster vaccines are administered to the population."""
 
     def __init__(self):
         """Initialise the BoosterAdmin class.
         Params:
-            vacc_list (list): a lit of the people to be vaccinated"""
+            vacc_list (list): a list of the people to be vaccinated"""
         self.vacc_list = []
 
     def update_susceptibility(self, vaccine_choice, person):
@@ -60,7 +60,7 @@ class BoosterAdmin:
             self.vacc_list.sort(key=lambda p: params.age_groups.index(p.age_group))
         elif direction == 'random':  # in case we don't want to sort by age
             self.vacc_list = self.vacc_list
-        # Step 3 - decide targets, eg. use all, 50+ (old groups), or 0-49 (young groups)
+        # Step 3 - decide targets, e.g. use all, 50+ (old groups), or 0-49 (young groups)
         if age_targets == 'everyone':
             self.vacc_list = self.vacc_list
         elif age_targets == 'mid-young':
@@ -93,10 +93,10 @@ class BoosterAdmin:
                                         vaccine_choice='new_vacc', direction='descend', age_targets='everyone')
 
     def vacc_strat_3(self, People, vacc_amount, t, t_newvacc_avail):
-        """The third strategy starts vaccinating with the old vaccine from the oldest age groups and descending
-        (from 75+ down), until the new vaccine becomes available. At this point, the new vaccine starting at
+        """The third strategy starts vaccinating with the existing vaccine from the oldest age groups and descending
+        (from 75+ down), until the updated vaccine becomes available. At this point, vaccination with the updated vaccine starting at
         the middle age groups is prioritised in a descending way (from 49 down). When all the updated vaccines
-        have been administered, the old vaccination is continued in the older age groups.
+        have been administered, vaccination with the existing vaccine is continued in the older age groups.
         Parameters:
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
@@ -116,10 +116,10 @@ class BoosterAdmin:
                                             vaccine_choice='old_vacc', direction='descend', age_targets='mid-old')
 
     def vacc_strat_4(self, People, vacc_amount, t, t_newvacc_avail):
-        """The fourth strategy starts vaccinating with the old vaccine to the youngest age groups ascending (0+ up),
+        """The fourth strategy starts vaccinating with the existing vaccine to the youngest age groups ascending (0+ up),
         and switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
         updated vaccine. It then switches back to vaccinating the remaining individuals in the young age groups with the
-        old vaccine.
+        existing vaccine.
         Parameters:
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available
@@ -139,12 +139,12 @@ class BoosterAdmin:
                                             vaccine_choice='old_vacc', direction='ascend', age_targets='mid-young')
 
     def vacc_strat_5(self, People, vacc_amount):
-        """The old vaccine is administered randomnly to anyone within the population."""
+        """The existing vaccine is administered randomly to anyone within the population."""
         self.vaccine_administration(People, vacc_amount,
                                     vaccine_choice='old_vacc', direction='random', age_targets='everyone')
 
     def vacc_strat_6(self, People, vacc_amount, t, t_newvacc_avail):
-        """The updated vaccine is administered randomnly to anyone within the population when it becomes available.
+        """The updated vaccine is administered randomly to anyone within the population when it becomes available.
         Parameters:
             t : time (in days)
             t_newvacc_avail : time when updated vaccine becomes available

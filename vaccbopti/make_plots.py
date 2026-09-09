@@ -10,7 +10,7 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 
 #to rename them
 STATUS_COLS = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
-RENAME = {'symptomatic': 'S', 'asymptomatic': 'AS', 'hospitalised': 'H', 'dead': 'D'}
+RENAME = {'symptomatic': 'I', 'asymptomatic': 'A', 'hospitalised': 'H', 'dead': 'D'}
 
 #to pool vacc status
 VACC_MAP = {
@@ -53,14 +53,14 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
     df_plot = df_agg.unstack('vacc_status')
     df_sd_plot = df_sd_agg.unstack('vacc_status') if df_sd_agg is not None else None
 
-    all_statuses = ['S', 'AS', 'H', 'D']
+    all_statuses = ['I', 'A', 'H', 'D']
     all_vacc = df_plot.columns.get_level_values('vacc_status').unique()
 
     if lines_to_plot is None:
         lines_to_plot = [(status, vacc) for status in all_statuses for vacc in all_vacc]
 
     fig = go.Figure()
-    colors = {'S': VIVID[0], 'AS': VIVID[1], 'H': VIVID[2], 'D': VIVID[3]}
+    colors = {'I': VIVID[0], 'A': VIVID[1], 'H': VIVID[2], 'D': VIVID[3]}
 
     # add a line to show when the new vaccine is available
     for status, vacc in lines_to_plot:
@@ -109,7 +109,7 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
 def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     """
     df_agg: output of aggregate_status with group_cols=['t', 'ages']
-    status: one of 'S', 'AS', 'H', 'D'
+    status: one of 'I', 'A', 'H', 'D'
     ages_to_plot: list of age-group labels to include; None = all
     """
     df_plot = df_agg[status].unstack('ages')
@@ -142,8 +142,8 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
 
 def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=None):
     """
-    strategy_agg: dict {strategy_label: df_agg}, df_agg indexed by t with columns S/AS/H/D
-    status: one of 'S', 'AS', 'H', 'D'
+    strategy_agg: dict {strategy_label: df_agg}, df_agg indexed by t with columns I/A/H/D
+    status: one of 'I', 'A', 'H', 'D'
     strategies_to_plot: list of strategy labels to include; None = all
     """
     labels = strategies_to_plot if strategies_to_plot is not None else list(strategy_agg.keys())
@@ -179,7 +179,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
 
 def get_strategy_totals(strategy_agg, label):
     """
-    strategy_agg: dict {strategy_label: df_agg}, df_agg indexed by t with columns S/AS/H/D
+    strategy_agg: dict {strategy_label: df_agg}, df_agg indexed by t with columns I/A/H/D
     label: which strategy to summarise
     Returns dict with total deaths and hospitalisations across the whole trial
     """

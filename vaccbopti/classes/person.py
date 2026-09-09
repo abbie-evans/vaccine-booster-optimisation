@@ -37,9 +37,9 @@ class Person:
             infect_t_i (int): time left in infectious period once infectious (symptomatic or asymptomatic)
             hosp_t_i (int): time spent in hospital
             death_t_i (int): time at death from hospitalisation
-            immunity_time_exvacc (int): time since given last vaccination/sickness from previous strain
-            immunity_time_newvacc (int): time since given since strain-adapted vaccine
-            immunity_time_infec (int): time since infection with novel strain
+            immunity_time_exvacc (int): time since given last vaccination/infection from previous variant
+            immunity_time_newvacc (int): time since last variant-adapted vaccine
+            immunity_time_infec (int): time since infection with novel variant
         """
         self.id = next(self.id_iter)
         self.age_group = None
@@ -104,7 +104,7 @@ class Person:
         self.prob_exposed = 1 - exp_val
 
     def pick_distr_prob(self, distribution):
-        """Determines the number of days a person is in a status, dependent on the probabiltiy distribution.
+        """Determines the number of days a person is in a status, dependent on the probability distribution.
         Params:
             distribution (array): the probability distribution for different days
         Returns:
@@ -115,7 +115,7 @@ class Person:
         return days
 
     def determine_status_change(self, statuses, probability):
-        """Determines if the person's status, based on probability.
+        """Determines if the person's status will change, based on probability.
         Params:
             statuses (list): a list of the two possible statuses
             probability (float or list): a float of probability or list of probabilities per age group
