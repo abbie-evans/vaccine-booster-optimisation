@@ -57,7 +57,7 @@ def load_data(label):
 
 # Plot layouts
 VIVID = px.colors.qualitative.Vivid  # colour scheme
-LEGEND_CAPTION = "S = symptomatic · AS = asymptomatic · H = hospitalised · D = dead"
+LEGEND_CAPTION = "I = symptomatic · A = asymptomatic · H = hospitalised · D = dead"
 
 
 # --- THE GUI OF THE PAGE ---
@@ -89,7 +89,7 @@ with ui.sidebar(position="left"):
             # Number of Infected
             with ui.tooltip(id="n_infec_tooltip", placement="right"):
                 ui.input_numeric("n_infec", "Initially Infected People", 100, min=0, max=100, step=1)
-                "The number of people who start the simulation exposed to the new variant."
+                "The number of people who start the simulation exposed to the novel variant."
             @reactive.effect  # dynamically changes the max limit to be limited by total number of people
             def _():
                 n_infec = input.n_infec()
@@ -125,8 +125,8 @@ with ui.sidebar(position="left"):
                     ui.update_numeric("vacc_amount", value=vacc_amount, max=input.num_people())
             # New Vaccine Availability
             with ui.tooltip(id="t_newvacc_avail_tooltip", placement="right"):
-                ui.input_numeric("t_newvacc_avail", "New Vaccine Availability", 40, min=1)
-                "Which day the new booster vaccine (for the new variant) is available to be administered. Only a vaccine for an old variant (which is less effective) is available before this."
+                ui.input_numeric("t_newvacc_avail", "Variant-adapted Vaccine Availability", 40, min=1)
+                "Which day the variant-adapted booster vaccine (for the novel variant) is available to be administered. Only a vaccine for an existing variant (which is less effective) is available before this."
             @reactive.effect  # dynamically changes the max limit to be limited by total number of days
             def _():
                 t_newvacc_avail = input.t_newvacc_avail()
@@ -136,8 +136,8 @@ with ui.sidebar(position="left"):
                     ui.update_numeric("t_newvacc_avail", value=t_newvacc_avail, max=input.sim_length())
             # R_e
             with ui.tooltip(id="R_e_tooltip", placement="right"):
-                ui.input_numeric("R_e", "Transmissability of New Variant", 1.5, min=0.1, step=0.01)
-                "The transmissability, R_e, of the novel varient."
+                ui.input_numeric("R_e", "Effective Reproduction Number of Novel Variant", 1.5, min=0.1, step=0.01)
+                "R_e, a measure of the transmissibility of the novel variant."
             # Run simulation Button
             ui.input_action_button("run", "Run simulation")
             @render.text
@@ -174,7 +174,7 @@ with ui.navset_card_pill(id="main_tabs"):
             # Overview
             As observed during the COVID-19 pandemic, the emergence of new variants during infectious disease outbreaks has the potential to have devastating consequences, particularly if existing vaccines then offer reduced protection. When a variant of concern emerges, a crucial question for public health policy makers is whether to administer booster doses of the current vaccine (which was designed with an earlier variant in mind) or wait until an updated vaccine becomes available before deploying booster doses. Relatedly, pharmaceutical companies and vaccine manufacturers must decide whether it is worthwhile to update existing vaccines.
             <br><br>
-            This app allows you to run a **stochastic, individual-based outbreak simulation** model that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-specific vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay). Our model allows you to compare the outputs of **6 different booster administration strategies**.
+            This app allows you to run a **stochastic, individual-based outbreak simulation** model that can be used to project numbers of cases and deaths during an outbreak of a novel variant of SARS-CoV-2 under different vaccination strategies. This can be used to investigate scenarios in which it is beneficial to wait to update a variant-adapted vaccine before undertaking booster vaccination and when it is instead preferable to use an existing vaccine (without a development delay). Our model allows you to compare the outputs of **6 different booster administration strategies**.
             <br><br>
             You can run your own simulation and look at the outputs, upload previous .csv files you have created to look at, or look at and compare the outputs of our example runs!
             <br><br>
@@ -192,25 +192,25 @@ with ui.navset_card_pill(id="main_tabs"):
             with ui.accordion_panel('Booster Administration Strategies'):
                 ui.markdown("""
                             <u>No Booster Administration</u><br>
-                            No new or old boosters are administered to population.
+                            No existing or updated boosters are administered to the population.
                             <br><br>
                             <u>Strategy 1</u><br>
-                            Old vaccine is administered to everyone starting with the oldest age group and proceeding in descending (oldest to youngest) order. No new (updated) vaccine is administrated.
+                            The existing vaccine is administered to individuals starting with the oldest age group and proceeding in descending (oldest to youngest) order. No updated vaccine is administered.
                             <br><br>
                             <u>Strategy 2</u><br>
-                            Once available new (updated) vaccine is administered to everyone starting with oldest age group and proceeding in descending (oldest to youngest) order. No old vaccine is administered.
+                            Once available, the updated vaccine is administered to individuals starting with the oldest age group and proceeding in descending (oldest to youngest) order. No existing vaccine is administered.
                             <br><br>
                             <u>Strategy 3</u><br>
-                            Before the updated vaccine becomes available, the original vaccine is administered to the oldest eligible age groups proceeding in descending age order (oldest to youngest). Once the updated vaccine becomes available, vaccination switches to the updated vaccine, which is administered to individuals aged _49 years and younger_, again in descending age order. After all eligible individuals in the younger age groups have received the updated vaccine, vaccination resumes in the older age groups that have not yet been vaccinated, using the old vaccine.
+                            Before the updated vaccine becomes available, the existing vaccine is administered to the oldest eligible age groups proceeding in descending age order (oldest to youngest). Once the updated vaccine becomes available, vaccination switches to the updated vaccine, which is administered to individuals aged _49 years and younger_, again in descending age order. After all eligible individuals in the younger age groups have received the updated vaccine, vaccination resumes in the older age groups that have not yet been vaccinated, using the existing vaccine.
                             <br><br>
                             <u>Strategy 4</u><br>
-                            Before the updated vaccine becomes available, the original vaccine is administered to the youngest eligible age groups proceeding in ascending age order (youngest to oldest). Once the updated vaccine becomes available, vaccination switches to the updated vaccine, which is administered to individuals aged _50 years and above_, again in ascending age order. After all eligible individuals in the older age groups have received the updated vaccine, vaccination resumes in the youngest age groups that have not yet been vaccinated, using the old vaccine.
+                            Before the updated vaccine becomes available, the existing vaccine is administered to the youngest eligible age groups proceeding in ascending age order (youngest to oldest). Once the updated vaccine becomes available, vaccination switches to the updated vaccine, which is administered to individuals aged _50 years and above_, again in ascending age order. After all eligible individuals in the older age groups have received the updated vaccine, vaccination resumes in the youngest age groups that have not yet been vaccinated, using the existing vaccine.
                             <br><br>
                             <u>Strategy 5</u><br>
-                            The old vaccine is administered randomly to anyone eligible in the population
+                            The existing vaccine is administered randomly to eligible individuals in the population.
                             <br><br>
                             <u>Strategy 6</u><br>
-                            Once the new vaccine is available the updated vaccine is administered randomly to anyone eligible in the population.
+                            Once the variant-adapted vaccine is available the updated vaccine is administered randomly to eligible individuals in the population.
                             """)
 
     # Output panels
@@ -290,8 +290,8 @@ with ui.navset_card_pill(id="main_tabs"):
                 with ui.card():
                     ui.card_header("Number of People Changing Status Per Day Within Each Age Group")
                     ui.input_select("age_status", "Select status",
-                                    choices={'AS': "asymptomatic",
-                                             'S': "symptomatic",
+                                    choices={'A': "asymptomatic",
+                                             'I': "symptomatic",
                                              'H': "hospitalised",
                                              'D': "dead"})
                     @render_plotly
@@ -304,8 +304,8 @@ with ui.navset_card_pill(id="main_tabs"):
             with ui.nav_panel("Comparing Different Simulations"):
                 with ui.card():
                     ui.input_select("strategy_status", "Select status",
-                                    choices={'AS': "asymptomatic",
-                                             'S': "symptomatic",
+                                    choices={'A': "asymptomatic",
+                                             'I': "symptomatic",
                                              'H': "hospitalised",
                                              'D': "dead"})
                     choose_multiple_simulations("strategies_to_compare")

@@ -1,4 +1,4 @@
-# FILE FOR TESTING THE PERSON CLASS
+# FILE FOR TESTING THE TIMESTEPS CLASS
 
 # Import useful modules
 import unittest

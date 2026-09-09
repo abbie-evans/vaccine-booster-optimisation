@@ -94,11 +94,11 @@ class Timesteps:
         R_a_b = np.zeros(params.contactmatrix.shape)
         for a in range(len(params.contactmatrix)):
             for b in range(len(params.contactmatrix)):
-                R_a_b[a][b] = ((params.p_v_symp_a[a] + params.infec_asymp * (1 - params.p_v_symp_a[a]))
-                               * (1 / params.mean_infec * self.calculate_average_susceptibility()
+                R_a_b[a][b] = ((params.p_v_symp_a[b] + params.infec_asymp * (1 - params.p_v_symp_a[b]))
+                               * (params.mean_infec * self.calculate_average_susceptibility()
                                * params.infec_rate_param[a] * params.contactmatrix[a][b]))
         calc_R_e = np.linalg.eigvals(R_a_b)
-        calc_R_e = float(np.array([n.real for n in calc_R_e if n.imag == 0]).max())
+        calc_R_e = np.real(max(eigenvalues))
         if calc_R_e == 0:
             calc_R_e = 1e-12  # to avoid a divide by 0 error
         new_beta_factor = self.R_e / calc_R_e
@@ -120,10 +120,10 @@ class Timesteps:
                       vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
                       updated vaccine. It then switches back to vaccinating the remaining individuals in the young
                       age groups with the old vaccine.
-        - strategy 5: the old vaccine is administered randomnly to anyone within the population
-        - strategy 6: updated vaccine administered randomnly to anyone within population when it becomes available
+        - strategy 5: the old vaccine is administered randomly to anyone within the population
+        - strategy 6: updated vaccine administered randomly to anyone within the population when it becomes available
         Parameteters:
-            vacc_strat (int): which number vaccine strategy we're using"""
+            vacc_strat (int): which numbered vaccine strategy is being used"""
         if vacc_strat == 0:
             return
         if vacc_strat == 1:

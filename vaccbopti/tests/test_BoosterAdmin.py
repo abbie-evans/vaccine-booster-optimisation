@@ -11,7 +11,7 @@ params = Params.instance()
 
 # Define testing class
 class testBoosterAdmin(TestCase):
-    """A class to test that the BoosteAdmin class is set up and runs correctly."""
+    """A class to test that the BoosterAdmin class is set up and runs correctly."""
 
     def setUp(self):
         """Create a dummy population with mixed statuses"""
