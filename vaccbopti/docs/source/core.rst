@@ -4,20 +4,28 @@ Core
 
 Overview:
 
-- :class:`Person`
 - :class:`Params`
-- :class:`InfectionForce`
+- :class:`Person`
 - :class:`InfectionCount`
+- :class:`InfectionForce`
+- :class:`BoosterAdmin`
+- :class:`Timesteps`
 
+
+.. autoclass:: Params
+    :members:
 
 .. autoclass:: Person
     :members:
 
-.. autoclass:: Params
+.. autoclass:: InfectionCount
     :members:
 
 .. autoclass:: InfectionForce
     :members:
 
-.. autoclass:: InfectionCount
+.. autoclass:: BoosterAdmin
+    :members:
+
+.. autoclass:: Timesteps
     :members:

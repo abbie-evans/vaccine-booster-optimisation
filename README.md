@@ -13,7 +13,7 @@
 1. Download all the files in this repository to your local machine.
 2. Open in the terminal the folder `vaccine-booster-optimisation` and ensure you have your Python virtual environment running
 3. Run `pip install .`
-4. Run `python vaccbopti/main.py`
+4. Run `python vaccbopti/app.py`
 
 ## Background
 
