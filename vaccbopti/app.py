@@ -146,7 +146,7 @@ with ui.sidebar(position="left"):
                 sim = calc_simulation()  # run simulation 
                 sim_runs_means.update({f"run_{len([c for c in run_names() if 'run' in c]) + 1}": sim.statusDF_mean})  # add mean dataframe to list of runs
                 sim_runs_stds.update({f"run_{len([c for c in run_names() if 'run' in c]) + 1}": sim.statusDF_std})  # add std dataframe to list of runs
-                ui.update_navs("main_tabs", selected="Outputs")  # switch to outputs tab!
+                ui.update_navset("main_tabs", selected="Outputs")  # switch to outputs tab!
                 run_names.set(list(sim_runs_means.keys()))
                 return f"Saved run {len([c for c in run_names() if 'run' in c])} of the session! :)"  # list number of runs only to confirm it worked
 
@@ -270,11 +270,11 @@ with ui.navset_card_pill(id="main_tabs"):
                         def _():
                             ui.update_selectize('sim_to_download', selected=input.strategy())
                     with ui.card():
-                        @render.download(label="Download the mean .csv files", filename="mean.csv")
+                        @render.download_button(label="Download the mean .csv files", filename="mean.csv")
                         def mean_files():
                             mean, _ = get_file_for_download()
                             yield mean.to_csv()
-                        @render.download(label="Download the std .csv files", filename="std.csv")
+                        @render.download_button(label="Download the std .csv files", filename="std.csv")
                         def std_files():
                             _, std = get_file_for_download()
                             yield std.to_csv()
