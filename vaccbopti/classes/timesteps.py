@@ -91,18 +91,18 @@ class Timesteps:
 
     def calculate_new_beta(self):
         """Calcuates a new beta, the infection rate parameter based on R_e (changes based on sim time)."""
-        R_a_b = np.zeros(params.contactmatrix.shape)
-        for a in range(len(params.contactmatrix)):
-            for b in range(len(params.contactmatrix)):
+        R_a_b = np.zeros(params.contact_matrix.shape)
+        for a in range(len(params.contact_matrix)):
+            for b in range(len(params.contact_matrix)):
                 R_a_b[a][b] = ((params.p_v_symp_a[b] + params.infec_asymp * (1 - params.p_v_symp_a[b]))
                                * (params.mean_infec * self.calculate_average_susceptibility()
-                               * params.infec_rate_param[a] * params.contactmatrix[a][b]))
+                               * params.infec_rate_params[a] * params.contact_matrix[a][b]))
         eigenvalues = np.linalg.eigvals(R_a_b)
         calc_R_e = np.real(max(eigenvalues))
         if calc_R_e == 0:
             calc_R_e = 1e-12  # to avoid a divide by 0 error
         new_beta_factor = self.R_e / calc_R_e
-        new_beta = new_beta_factor * np.array(params.infec_rate_param)
+        new_beta = new_beta_factor * np.array(params.infec_rate_params)
         return new_beta.tolist()
 
     def administer_booster(self, vacc_strat, t_newvacc_avail, t, vacc_amount=2000):

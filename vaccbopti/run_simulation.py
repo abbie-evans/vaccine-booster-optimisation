@@ -65,11 +65,11 @@ class Simulation:
             timesteps = Timesteps(self.num_people, self.sim_length, self.R_e)  # initialise people
             timesteps.initialise_people(self.n_infec, n_ineligible=self.n_ineligible)  # set immunity and infections
             timesteps.get_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
-            infec_rate_param = timesteps.calculate_new_beta()  # get a new beta based on these initial values
+            infec_rate_params = timesteps.calculate_new_beta()  # get a new beta based on these initial values
             infection_count = InfectionCount().count_df  # initialise infection_count per timepoint
             # Loop through timesteps
             for t in range(1, self.sim_length):
-                infection_force.set_lambda_list(infection_count, infec_rate_param, num_people=self.num_people)  # F_inf
+                infection_force.set_lambda_list(infection_count, infec_rate_params, num_people=self.num_people)  # F_inf
                 timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
                 timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
                 infection_count = InfectionCount().count_df  # reset infection_count for number of status changes per t

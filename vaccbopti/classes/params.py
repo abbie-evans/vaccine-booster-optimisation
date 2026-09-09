@@ -18,7 +18,7 @@ class Params:
         def __init__(self):
             """Initialises all of the parameters to be accessed by other functions and model."""
             self.project_root = os.path.dirname(os.path.dirname(__file__))
-            self.contactmatrix = pd.read_csv(f'{self.project_root}/classes/UK_Contacts.csv', header=None)
+            self.contact_matrix = pd.read_csv(f'{self.project_root}/classes/UK_Contacts.csv', header=None)
             self.age_groups = ['0-4', '5-9', '10-14', '15-19',  # age groups set up
                                '20-24', '25-29', '30-34', '35-39',
                                '40-44', '45-49', '50-54', '55-59',
@@ -33,7 +33,7 @@ class Params:
                                0.067, 0.098, 0.104, 0.094,
                                0.101, 0.125, 0.193, 0.261,
                                0.293, 0.539, 0.633, 0.678]
-            self.infec_rate_param = [0.186, 0.108, 0.122, 0.131,  # infection rate beta(a)
+            self.infec_rate_params = [0.186, 0.108, 0.122, 0.131,  # infection rate beta(a)
                                      0.185, 0.213, 0.217, 0.210,
                                      0.215, 0.233, 0.272, 0.305,
                                      0.318, 0.397, 0.422, 0.430]
@@ -49,21 +49,20 @@ class Params:
             self.n0_infec = 0.66  # max immunie recognition following infection
             self.mean_latent = 5  # mean latent period (days)
             self.mean_infec = 9  # mean infectious period (days)
-            self.p_nv_IH = [0.011, 0.011, 0.006, 0.005,  # probability they are hospitalised
+            self.p_nv_IH_list = [0.011, 0.011, 0.006, 0.005,  # probability they are hospitalised
                             0.004, 0.003, 0.004, 0.006,
                             0.008, 0.011, 0.011, 0.01,
                             0.014, 0.016, 0.016, 0.017]
             self.mean_hosp = 7.75  # mean hospitalisation time (days)
             self.sd_hosp = 5.57  # s.d. of hospitalisation time (days)
-            self.p_nv_HD = [0.001, 0.001, 0.014, 0.008,  # probability of death
+            self.p_nv_HD_list = [0.001, 0.001, 0.014, 0.008,  # probability of death
                             0.009, 0.019, 0.017, 0.019,
                             0.028, 0.031, 0.047, 0.085,
                             0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
             self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
-
-            """Shape and scale parameters for gamma and weibull distribution for periods."""
+            # Shape and scale parameters for gamma and weibull distribution for periods
             self.shape = 3.0
             self.scale_latent_t = self.mean_latent / self.shape
             self.scale_infec_t = self.mean_infec / self.shape
@@ -71,8 +70,7 @@ class Params:
             self.scale_death_t = (self.sd_death**2) / self.mean_death
             self.k = 1.4
             self.lam = 8.4
-
-            """Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled."""
+            # Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled
             self.latent_t = self.integral_probabilities_array("gamma",
                                                               [self.shape, self.scale_latent_t])
             self.infec_t = self.integral_probabilities_array("gamma",
@@ -81,26 +79,41 @@ class Params:
                                                             [self.k, self.lam])
             self.death_t = self.integral_probabilities_array("gamma",
                                                              [self.shape_death_t, self.scale_death_t])
-
-            """Tau curves to access under each condition"""
+            # Tau curves for immunity to access under each vaccine type - discretised function for the decrease in
+            # immunity as time passes (conferred by each vaccine type)
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
             self.f_newvacc = self.calc_fx(self.n0_newvacc, self.n50_ag_infec)
             self.f_infec = self.calc_fx(self.n0_infec, self.n50_ag_infec)
+            # Tau curves for hospitalisation to access under each vaccine type - discretised function for the
+            # likelihood of being hospitalised as time passes (conferred by each vaccine type)
             self.f_exvacc_hosp = self.calc_fx(self.n0_exvacc, self.n50_ag_hd)
             self.f_newvacc_hosp = self.calc_fx(self.n0_newvacc, self.n50_ag_hd)
             self.f_infec_hosp = self.calc_fx(self.n0_infec, self.n50_ag_hd)
 
         def integration(self, k, dist, parameters):
-            "Define the integration function"
-            integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
-            integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0], scale=parameters[1])
+            """The integration function to get a discrete probability from a given distribution,
+            based on days after the infection.
+            Parameters:
+                k: the days after the infection
+                dist: the distribution to use - either a 'gamma' or a 'weibull' distribution
+                parameters: array of the shape and scale of the distribution
+            Returns:
+                integrate.quad: the discrete probability returned from the distribution function"""
             if dist == "gamma":
+                integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
             else:
+                integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0], scale=parameters[1])
                 return integrate.quad(integrand_weibull, k - 1, k + 1)
 
         def integral_of_density_probability(self, dist, parameters):
-            """Run for each k in values (one Lk)"""
+            """Run for each day, k, in the total number of days a simulation could last to get a probability
+            for each day and add to an array.
+            Parameters:
+                dist: the distribution to use - either a 'gamma' or a 'weibull' distribution
+                parameters: array of the shape and scale of the distribution
+            Returns:
+                prob: an array of the probability drawn from the distribution for each day"""
             prob = []
             for k in self.days_samples[1:]:
                 result = self.integration(k, dist, parameters)
@@ -108,7 +121,13 @@ class Params:
             return prob
 
         def integral_probabilities_array(self, dist, parameters):
-            """Ensure that the probabilities sum to 1"""
+            """Ensure that the probabilities sum to 1, and adds a '0' value to the start of the probability array -
+            as at the day of infection, an event is 100% likely to not occur.
+            Parameters:
+                dist: the distribution to use - either a 'gamma' or a 'weibull' distribution
+                parameters:  array of the shape and scale of the distribution
+            Returns:
+                lk: an array of the probability drawn from the distribution for each day, with 0 added to the start"""
             lk1 = 1 - sum(self.integral_of_density_probability(dist, parameters))
             # final array for the probabilities of each Lk
             lk = [lk1] + self.integral_of_density_probability(dist, parameters)

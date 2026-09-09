@@ -90,7 +90,7 @@ class test_timesteps(TestCase):
         self.testTimesteps.initialise_people(self.n_infec)
         self.testTimesteps.get_p_exposed(infection_force.lambda_list)
         beta = self.testTimesteps.calculate_new_beta()
-        self.assertIs(len(beta), len(params.infec_rate_param))
+        self.assertIs(len(beta), len(params.infec_rate_params))
         for b in beta:
             self.assertIsNotNone(b)
 
