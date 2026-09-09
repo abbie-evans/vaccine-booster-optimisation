@@ -47,7 +47,7 @@ class Timesteps:
         index = pd.MultiIndex.from_tuples(index, names=["t", "ages", "vacc_status"])
         self.statusDF = pd.DataFrame(0, index=index, columns=df_status)
 
-    def initialise_people(self, n_infec, n_ineligible=0.2):
+    def initialise_people(self, n_infec, prop_ineligible=0.2):
         """Ensure people have all information necessary after initialisation:
            - assigned age groups,
            - have been infected/vaccinated with a previous variant at some point
@@ -56,7 +56,7 @@ class Timesteps:
            - updates their susceptibility based on these infection times
         Parameters:
             n_infec (int): number of people to be randomly infected
-            n_ineligible (float): percent of overall population that will not receive the vaccine
+            prop_ineligible (float): percent of overall population that will not receive the vaccine
             """
         # Assign age groups
         for n in range(len(self.rho_age_groups) - 1):
@@ -64,7 +64,7 @@ class Timesteps:
                 self.people[p].set_age_group(n)
                 self.people[p].immunity_time_exvacc = np.random.choice(365 * 2 + 1)
         # Ineligible for booster group
-        inelig_group = random.sample(self.indices, int(round(n_ineligible * self.num_people)))
+        inelig_group = random.sample(self.indices, int(round(prop_ineligible * self.num_people)))
         for p in inelig_group:
             self.people[int(p)].vacc_status = 'ineligible'
         # Randomly infected group
@@ -72,7 +72,7 @@ class Timesteps:
         for p in infect_group:
             self.people[int(p)].initialise_infection()
 
-    def get_p_exposed(self, force_infection):
+    def set_p_exposed(self, force_infection):
         """Gets the probability that a person is exposed.
         Parameters:
             force_infection (float): the force of infection calcuated"""

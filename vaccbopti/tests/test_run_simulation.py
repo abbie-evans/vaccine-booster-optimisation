@@ -19,7 +19,7 @@ class test_run_simulation(TestCase):
         self.sim_length = 5
         self.num_people = 32
         self.n_infec = 5
-        self.n_ineligible = 0.2
+        self.prop_ineligible = 0.2
         self.R_e = 1.5
         self.vacc_amount = 10
         self.t_newvacc_avail = 2
@@ -28,13 +28,13 @@ class test_run_simulation(TestCase):
         """Ensure that Simulation class is set up with correct defaults."""
         testRunSim = run_simulation.Simulation(number_runs=self.number_runs, sim_length=self.sim_length,
                                                num_people=self.num_people, n_infec=self.n_infec,
-                                               n_ineligible=self.n_ineligible, R_e=self.R_e, vacc_strat=0,
+                                               prop_ineligible=self.prop_ineligible, R_e=self.R_e, vacc_strat=0,
                                                vacc_amount=self.vacc_amount, t_newvacc_avail=self.t_newvacc_avail)
         self.assertEqual(testRunSim.number_runs, self.number_runs)
         self.assertEqual(testRunSim.sim_length, self.sim_length)
         self.assertEqual(testRunSim.num_people, self.num_people)
         self.assertEqual(testRunSim.n_infec, self.n_infec)
-        self.assertEqual(testRunSim.n_ineligible, self.n_ineligible)
+        self.assertEqual(testRunSim.prop_ineligible, self.prop_ineligible)
         self.assertEqual(testRunSim.R_e, self.R_e)
         self.assertEqual(testRunSim.vacc_amount, self.vacc_amount)
         self.assertEqual(testRunSim.t_newvacc_avail, self.t_newvacc_avail)
@@ -51,7 +51,7 @@ class test_run_simulation(TestCase):
         """Test that the simulation run works correctly."""
         testRunSim = run_simulation.Simulation(number_runs=self.number_runs, sim_length=self.sim_length,
                                                num_people=self.num_people, n_infec=self.n_infec,
-                                               n_ineligible=self.n_ineligible, R_e=self.R_e, vacc_strat=0,
+                                               prop_ineligible=self.prop_ineligible, R_e=self.R_e, vacc_strat=0,
                                                vacc_amount=self.vacc_amount, t_newvacc_avail=self.t_newvacc_avail)
         testRunSim.run()
         # Check mean output

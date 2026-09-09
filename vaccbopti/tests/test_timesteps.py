@@ -72,7 +72,7 @@ class test_timesteps(TestCase):
     def test_get_p_exposed(self):
         """Tests that people are accurately given susceptibilities and p(exposure) once initialised."""
         self.testTimesteps.initialise_people(self.n_infec)
-        self.testTimesteps.get_p_exposed(infection_force.lambda_list)
+        self.testTimesteps.set_p_exposed(infection_force.lambda_list)
         # Ensures every person now has an updated susceptibility and probability of exposure
         for p in self.testTimesteps.people:
             self.assertIsNot(p.susceptibility, 0)
@@ -81,14 +81,14 @@ class test_timesteps(TestCase):
     def test_calculate_average_susceptibility(self):
         """Tests average susceptibility calculation occurs and gives a value."""
         self.testTimesteps.initialise_people(self.n_infec)
-        self.testTimesteps.get_p_exposed(infection_force.lambda_list)
+        self.testTimesteps.set_p_exposed(infection_force.lambda_list)
         self.assertIsNotNone(self.testTimesteps.calculate_average_susceptibility())
         self.assertIsNot(self.testTimesteps.calculate_average_susceptibility(), 0)
 
     def test_calculate_new_beta(self):
         """Tests that a new beta is outputted once people have updated susceptibility."""
         self.testTimesteps.initialise_people(self.n_infec)
-        self.testTimesteps.get_p_exposed(infection_force.lambda_list)
+        self.testTimesteps.set_p_exposed(infection_force.lambda_list)
         beta = self.testTimesteps.calculate_new_beta()
         self.assertIs(len(beta), len(params.infec_rate_params))
         for b in beta:

@@ -99,7 +99,7 @@ with ui.sidebar(position="left"):
                     ui.update_numeric("n_infec", value=n_infec, max=input.num_people())
             # Percentage of people that will not recieve the vaccine
             with ui.tooltip(id="n_ineligible_tooltip", placement="right"):
-                ui.input_numeric("n_ineligible", "% of Population Ineligable for Vaccine", 0.2, min=0, max=1, step=0.01)
+                ui.input_numeric("prop_ineligible", "% of Population Ineligable for Vaccine", 0.2, min=0, max=1, step=0.01)
                 "The percentage of people that will not be vaccinated, due to being immunocompromised or vaccine-hesitant."
             # Vaccine Strategy
             with ui.tooltip(id="vacc_strat_tooltip", placement="right"):
@@ -326,7 +326,7 @@ def calc_simulation():
                         sim_length=input.sim_length(),
                         num_people=input.num_people(),
                         n_infec=input.n_infec(),
-                        n_ineligible=input.n_ineligible(),
+                        prop_ineligible=input.prop_ineligible(),
                         R_e=input.R_e(),
                         vacc_strat=input.vacc_strat(),
                         vacc_amount=input.vacc_amount(),

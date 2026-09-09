@@ -17,7 +17,7 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 class Simulation:
     """The class that will be used to run a simulation."""
 
-    def __init__(self, number_runs=2, sim_length=100, num_people=100, n_infec=60, n_ineligible=0.2,
+    def __init__(self, number_runs=2, sim_length=100, num_people=100, n_infec=60, prop_ineligible=0.2,
                  R_e=1.5, vacc_strat=0, vacc_amount=10, t_newvacc_avail=5):
         """Initialise the simulation with the user inputs.
         User inputs:
@@ -25,7 +25,7 @@ class Simulation:
             sim_length (int): the timesteps (days) the simulation runs
             num_people (int): number of people in the simulation
             n_infec = 60 (int): initial number of people exposed to new variant
-            n_ineligible (float): percent of population that won't receive vaccine
+            prop_ineligible (float): percent of population that won't receive vaccine
             R_e (float): transmissibility of the novel variant
             vacc_strat (int): vaccination strategy used
             vacc_amount (int): change this for varying number of boosters administered per day
@@ -36,7 +36,7 @@ class Simulation:
         self.sim_length = sim_length
         self.num_people = num_people
         self.n_infec = n_infec
-        self.n_ineligible = n_ineligible
+        self.prop_ineligible = prop_ineligible
         self.R_e = R_e
         self.vacc_strat = int(vacc_strat)
         self.vacc_amount = vacc_amount
@@ -63,15 +63,15 @@ class Simulation:
         for r in range(self.number_runs):
             # Initialise people for the simulation
             timesteps = Timesteps(self.num_people, self.sim_length, self.R_e)  # initialise people
-            timesteps.initialise_people(self.n_infec, n_ineligible=self.n_ineligible)  # set immunity and infections
-            timesteps.get_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
+            timesteps.initialise_people(self.n_infec, prop_ineligible=self.prop_ineligible)  # set immunity and infections
+            timesteps.set_p_exposed(infection_force.lambda_list)  # update suceptibilities/prob exposed
             infec_rate_params = timesteps.calculate_new_beta()  # get a new beta based on these initial values
             infection_count = InfectionCount().count_df  # initialise infection_count per timepoint
             # Loop through timesteps
             for t in range(1, self.sim_length):
                 infection_force.set_lambda_list(infection_count, infec_rate_params, num_people=self.num_people)  # F_inf
                 timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
-                timesteps.get_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
+                timesteps.set_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
                 infection_count = InfectionCount().count_df  # reset infection_count for number of status changes per t
                 timesteps.increment_people(infection_count)  # update people
                 timesteps.append_daily_nbs_outputdf(t, infection_count)  # updates overall dataframe
