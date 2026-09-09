@@ -18,7 +18,7 @@ class InfectionForce:
     Parameters
     - infec_rate_params : infection rate parameter, reflecting susceptibility of individuals in age group a
     - age_groups: age group of individuals
-    - contact_matrix: mean daily number of contacts that an individual in age group b has with individuals in age group a
+    - contact_matrix: mean daily number of contacts that an individual in age group b has w/ individuals in age group a
     - prop_indivs_a: proportion of individuals in age group a
     - num_people: total number of people in the simulation
     - count_df: dataframe describing number of asymptomatic and symptomatically infected individuals in age group
