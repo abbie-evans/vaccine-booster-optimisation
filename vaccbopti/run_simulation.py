@@ -3,6 +3,7 @@ import os
 import itertools
 import numpy as np
 import pandas as pd
+import random
 from vaccbopti.classes import Params
 from vaccbopti.classes import InfectionCount
 from vaccbopti.classes import InfectionForce
@@ -55,6 +56,7 @@ class Simulation:
         Parameters:
             progress (optional): a shiny.ui.Progress object which will be used to send progress updates"""
         # Initialise set up
+        random.seed(42)
         if (progress is not None):
             progress.set(0,
                          message="Initialising simulation...",
@@ -97,7 +99,7 @@ class Simulation:
         std_combined = std_combined.set_index(['t', 'ages', 'vacc_status'])
         # Now convert from SD into variance for pooling
         var_combined = std_combined ** 2
-        self.statusDF_std = (var_combined.groupby(['t', 'vacc_status']).sum().pow(0.5))
+        self.statusDF_std = np.sqrt(var_combined.groupby(['t', 'vacc_status']).sum())
 
     def save_csv(self):
         """Saves the csvs"""
