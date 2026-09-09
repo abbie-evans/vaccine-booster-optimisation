@@ -123,8 +123,8 @@ class Params:
                 f_x: tau_x curves to be indexed
             """
             exp_val = (- self.shape_param
-                       * np.log10(self.calc_nx(n0_x))
-                       - np.log10(n50_m))  # susceptibility M=1 or hospitalisation M=2
+                       * (np.log10(self.calc_nx(n0_x))
+                       - np.log10(n50_m)))  # susceptibility M=1 or hospitalisation M=2
             f_x = 1 / (1 + np.exp(exp_val))
             return f_x
 
