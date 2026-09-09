@@ -82,7 +82,7 @@ class Timesteps:
                 self.People[p].calc_prob_exposed(force_infection[n])
 
     def calculate_average_susceptibility(self):
-        """Calculate the average of the susceptibility for each person."""
+        """Calculate the average of the susceptibility of the population."""
         susceptibility_sum = 0
         for p in self.People:
             susceptibility_sum += p.susceptibility

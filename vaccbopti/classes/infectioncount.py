@@ -14,7 +14,7 @@ class InfectionCount:
     def __init__(self):
         """Initialise the dataframe.
         Parameters:
-            df_status (list): status that need to be included in the dataframe
+            df_status (list): statuses that need to be included in the dataframe
             count_df (df): the dataframe of counts"""
         self.vaccinated = ['unvaccinated', 'old_vaccine', 'new_vaccine']
         self.df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
