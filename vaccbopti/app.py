@@ -1,7 +1,5 @@
 # Import useful modules
-from fileinput import filename
 import os
-import re
 import pandas as pd
 from run_simulation import Simulation
 from shinywidgets import render_plotly
