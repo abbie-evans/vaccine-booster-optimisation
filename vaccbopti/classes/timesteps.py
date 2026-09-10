@@ -81,10 +81,13 @@ class Timesteps:
                 self.people[p].calc_susceptibility()
                 self.people[p].calc_prob_exposed(force_infection[n])
 
-    def calculate_average_susceptibility(self):
-        """Calculate the average of the susceptibility of the population."""
+    def calculate_average_susceptibility(self, a):
+        """Calculate the average of the susceptibility of the population in age group a.
+        Parameters:
+            a (int): the index of the age group to calculate susceptibility for."""
         susceptibility_sum = 0
-        for p in self.people:
+        susceptibility_pop = [p for p in self.people if p.age_group_index == a]
+        for p in susceptibility_pop:
             susceptibility_sum += p.susceptibility
         average_susceptibility = susceptibility_sum / self.num_people
         return average_susceptibility
@@ -95,7 +98,7 @@ class Timesteps:
         for a in range(len(params.contact_matrix)):
             for b in range(len(params.contact_matrix)):
                 R_a_b[a][b] = ((params.p_v_symp_a[b] + params.infec_asymp * (1 - params.p_v_symp_a[b]))
-                               * (params.mean_infec * self.calculate_average_susceptibility()
+                               * (params.mean_infec * self.calculate_average_susceptibility(a)
                                * params.infec_rate_params[a] * params.contact_matrix[a][b]))
         eigenvalues = np.linalg.eigvals(R_a_b)
         calc_R_e = np.real(max(eigenvalues))

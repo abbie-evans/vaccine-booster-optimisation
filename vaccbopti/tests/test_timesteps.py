@@ -82,8 +82,8 @@ class test_timesteps(TestCase):
         """Tests average susceptibility calculation occurs and gives a value."""
         self.testTimesteps.initialise_people(self.n_infec)
         self.testTimesteps.set_p_exposed(infection_force.lambda_list)
-        self.assertIsNotNone(self.testTimesteps.calculate_average_susceptibility())
-        self.assertIsNot(self.testTimesteps.calculate_average_susceptibility(), 0)
+        self.assertIsNotNone(self.testTimesteps.calculate_average_susceptibility(0))
+        self.assertIsNot(self.testTimesteps.calculate_average_susceptibility(0), 0)
 
     def test_calculate_new_beta(self):
         """Tests that a new beta is outputted once people have updated susceptibility."""

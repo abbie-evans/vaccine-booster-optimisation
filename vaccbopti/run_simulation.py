@@ -56,13 +56,13 @@ class Simulation:
         Parameters:
             progress (optional): a shiny.ui.Progress object which will be used to send progress updates"""
         # Initialise set up
-        random.seed(42)
         if (progress is not None):
             progress.set(0,
                          message="Initialising simulation...",
                          detail="Setting up people, updating susceptibilities...")
         # Start loop for each run
         for r in range(self.number_runs):
+            random.seed(r)  # setting random seed r (for reproducibility) for each stochastic run
             # Initialise people for the simulation
             timesteps = Timesteps(self.num_people, self.sim_length, self.R_e)  # initialise people
             timesteps.initialise_people(self.n_infec, prop_ineligible=self.prop_ineligible)  # set immunity & infections
