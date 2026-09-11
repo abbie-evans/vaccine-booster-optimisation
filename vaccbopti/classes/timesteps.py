@@ -142,20 +142,21 @@ class Timesteps:
         if vacc_strat == 6:
             boosters.vacc_strat_6(self.people, vacc_amount, t, t_newvacc_avail)
 
-    def update_people(self, infection_count):
+    def update_people(self, total_infections, infections_each_day):
         """Increases immunity times by 1 and changes status.
         Parameters:
-            infection_count (pd.DataFrame): the dataframe containing the day's data"""
+            total_infections (pd.DataFrame): keep track of how many people in each status for infection force
+            infections_each_day (pd.DataFrame): identify who enters each status each day for final outputs"""
         for p in self.people:
-            p.change_status(infection_count)
+            p.change_status(total_infections, infections_each_day)
             p.increment_immunity_time()
 
-    def append_daily_nbs_outputdf(self, t, infection_count):
+    def append_daily_nbs_outputdf(self, t, infections_each_day):
         """Adds the daily data to the overall dataframe.
         Parameters:
             t (int): the timestep of the simulation
-            infection_count (pd.DataFrame): the dataframe containing the day's data"""
-        if (self.statusDF.loc[t].index == infection_count.index).all():
-            self.statusDF.loc[t] = infection_count.to_numpy()
+            infections_each_day (pd.DataFrame): the dataframe containing the day's data"""
+        if (self.statusDF.loc[t].index == infections_each_day.index).all():
+            self.statusDF.loc[t] = infections_each_day.to_numpy()
         else:
             raise IndexError("The index of overall table and daily table don't match - values will not line up.")
