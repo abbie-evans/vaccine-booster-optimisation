@@ -2,6 +2,8 @@
 Core
 ****
 
+.. currentmodule:: vaccbopti
+
 Overview:
 
 - :class:`Params`
