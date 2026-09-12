@@ -18,16 +18,24 @@ class Timesteps:
 
     def __init__(self, num_people, sim_length=365, R_e=1.5):
         """Initialise the Timesteps object.
+        
         Inputs:
             num_people (int): the total number of people involved in the simulation
             sim_length (int): the total length of time in the simulation
             R_e (float): effective reproduction number/transmissibility of the novel variant
-        Parameters:
-            indices (list): all the indices for all people
-            people (array): all the people in the simulation
-            IDs (array): all the IDs of each of the people
-            rho_age_groups (list): the indices for the ranges of people in each age group
-            statusDF (pd.DataFrame): will contain the values of each of the statuses for each group at each timepoint
+        
+        Parameters
+        ----------
+        indices : list
+            All the indices for all people
+        people : array
+            All the people in the simulation
+        IDs : array
+            All the IDs of each of the people
+        rho_age_groups : list
+            The indices for the ranges of people in each age group
+        statusDF : pd.DataFrame
+            Will contain the values of each of the statuses for each group at each timepoint
         """
         self.sim_length = sim_length
         self.R_e = R_e
@@ -57,9 +65,13 @@ class Timesteps:
         - Infecting a random subset of people.
         - Making a random subset of people ineligible for vaccination.
         - Updating susceptibility based on previous infection times.
-        Parameters:
-            n_infec (int): number of people to be randomly infected
-            prop_ineligible (float): percent of overall population that will not receive the vaccine
+        
+        Parameters
+        ----------
+        n_infec : int
+            Number of people to be randomly infected
+        prop_ineligible : float
+            Proportion of overall population that will not receive the vaccine
             """
         # Assign age groups
         for n in range(len(self.rho_age_groups) - 1):
@@ -77,17 +89,23 @@ class Timesteps:
 
     def set_p_exposed(self, force_infection):
         """Gets the probability that a person is exposed.
-        Parameters:
-            force_infection (float): the force of infection calcuated"""
+        
+        Parameters
+        ----------
+        force_infection : float
+            The force of infection calcuated"""
         for n in range(len(self.rho_age_groups) - 1):
             for p in range(self.rho_age_groups[n], self.rho_age_groups[n + 1]):
                 self.people[p].calc_susceptibility()
                 self.people[p].calc_prob_exposed(force_infection[n])
 
     def calculate_average_susceptibility(self, a):
-        """Calculate the average of the susceptibility of the population in age group a.
-        Parameters:
-            a (int): the index of the age group to calculate susceptibility for."""
+        """Calculate the average susceptibility of the population in age group a.
+        
+        Parameters
+        ----------
+        a : int
+            The index of the age group to calculate susceptibility for."""
         susceptibility_sum = 0
         susceptibility_pop = [p for p in self.people if p.age_group_index == a]
         for p in susceptibility_pop:
@@ -96,7 +114,7 @@ class Timesteps:
         return average_susceptibility
 
     def calculate_new_beta(self):
-        """Calcuates a new beta, the infection rate parameter based on R_e (changes based on sim time)."""
+        """Calculates a new beta, the infection rate parameter based on R_e (changes based on sim time)."""
         R_a_b = np.zeros(params.contact_matrix.shape)
         for a in range(len(params.contact_matrix)):
             for b in range(len(params.contact_matrix)):
@@ -113,6 +131,7 @@ class Timesteps:
 
     def administer_booster(self, vacc_strat, t_newvacc_avail, t, vacc_amount=2000):
         """Administers the booster based on the strategy inputted by the user.
+        
         - strategy 0: doesn't apply booster vaccines
         - strategy 1: vaccinates everyone starting at the oldest age group and descending,
                       not taking into account the availability of the updated vaccine
@@ -128,8 +147,11 @@ class Timesteps:
                       age groups with the old vaccine.
         - strategy 5: the old vaccine is administered randomly to anyone within the population
         - strategy 6: updated vaccine administered randomly to anyone within the population when it becomes available
-        Parameters:
-            vacc_strat (int): which numbered vaccine strategy is being used"""
+        
+        Parameters
+        ----------
+        vacc_strat : int
+            Which numbered vaccine strategy is being used"""
         if vacc_strat == 0:
             return
         if vacc_strat == 1:
@@ -147,18 +169,26 @@ class Timesteps:
 
     def update_people(self, total_infections, infections_each_day):
         """Increases immunity times by 1 and changes status.
-        Parameters:
-            total_infections (pd.DataFrame): keep track of how many people in each status for infection force
-            infections_each_day (pd.DataFrame): identify who enters each status each day for final outputs"""
+        
+        Parameters
+        ----------
+        total_infections : pd.DataFrame
+            Keep track of how many people in each status for infection force
+        infections_each_day : pd.DataFrame
+            Identify who enters each status each day for final outputs"""
         for p in self.people:
             p.change_status(total_infections, infections_each_day)
             p.increment_immunity_time()
 
     def append_daily_nbs_outputdf(self, t, infections_each_day):
         """Adds the daily data to the overall dataframe.
-        Parameters:
-            t (int): the timestep of the simulation
-            infections_each_day (pd.DataFrame): the dataframe containing the day's data"""
+        
+        Parameters
+        ----------
+        t : int
+            The timestep of the simulation
+        infections_each_day : pd.DataFrame
+            The dataframe containing the day's data"""
         if (self.statusDF.loc[t].index == infections_each_day.index).all():
             self.statusDF.loc[t] = infections_each_day.to_numpy()
         else:
