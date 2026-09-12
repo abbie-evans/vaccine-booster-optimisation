@@ -48,12 +48,15 @@ class Timesteps:
         self.statusDF = pd.DataFrame(0, index=index, columns=df_status)
 
     def initialise_people(self, n_infec, prop_ineligible=0.2):
-        """Ensure people have all information necessary after initialisation:
-           - assigned age groups,
-           - have been infected/vaccinated with a previous variant at some point
-           - random subset are infected
-           - random subset are ineligible for vaccination
-           - updates their susceptibility based on these infection times
+        """Ensure people have all information necessary after initialisation.
+
+        This includes:
+        - Assigning age groups.
+        - Determining when people have previously been infected or
+          vaccinated with a previous variant.
+        - Infecting a random subset of people.
+        - Making a random subset of people ineligible for vaccination.
+        - Updating susceptibility based on previous infection times.
         Parameters:
             n_infec (int): number of people to be randomly infected
             prop_ineligible (float): percent of overall population that will not receive the vaccine
@@ -125,7 +128,7 @@ class Timesteps:
                       age groups with the old vaccine.
         - strategy 5: the old vaccine is administered randomly to anyone within the population
         - strategy 6: updated vaccine administered randomly to anyone within the population when it becomes available
-        Parameteters:
+        Parameters:
             vacc_strat (int): which numbered vaccine strategy is being used"""
         if vacc_strat == 0:
             return
