@@ -2,7 +2,7 @@
 Core
 ****
 
-.. currentmodule:: vaccbopti
+.. currentmodule:: classes
 
 Overview:
 
