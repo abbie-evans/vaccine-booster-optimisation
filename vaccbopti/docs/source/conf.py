@@ -6,15 +6,36 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
+import sys
+import sphinx
+
+# Make the project root importable
+sys.path.insert(0, os.path.abspath('../..'))
+
 project = 'Vaccine Booster Optimisation'
-copyright = '2025, An Mei Daniels, Bente Vissel, Monica Dewi, Kristijonas Raibuzis & Abbie Evans'
-author = 'An Mei Daniels, Bente Vissel, Monica Dewi, Kristijonas Raibuzis & Abbie Evans'
+copyright = '2026, Abbie Evans, An Mei Daniels, Bente Vissel, Monica Dewi & Kristijonas Raibuzis'
+author = 'Abbie Evans, An Mei Daniels, Bente Vissel, Monica Dewi & Kristijonas Raibuzis'
 release = '0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+]
+
+# Autodoc defaults
+autodoc_default_options = {
+    'members': True,
+    'inherited-members': True,
+}
+
+master_doc = 'index'
 
 templates_path = ['_templates']
 exclude_patterns = []

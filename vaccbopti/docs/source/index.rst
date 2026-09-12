@@ -6,12 +6,11 @@
 Vaccine Booster Optimisation documentation
 ==========================================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
+.. include:: ../../README.rst
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    core
 
+Search
+======
+* :ref:`search`

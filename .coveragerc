@@ -1,0 +1,9 @@
+[run]
+source = vaccbopti
+omit =
+    vaccbopti/tests/*
+    vaccbopti/__init__.py  
+    vaccbopti/run_tests.py
+    vaccbopti/version_info.py
+    vaccbopti/app.py
+    vaccbopti/make_plots.py
