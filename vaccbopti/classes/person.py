@@ -6,7 +6,7 @@
 # - function: initialises people with infected status for the start of the simulation
 # - function: decision tree to determine a person's status at each time step
 # - function: determines if the person's status, based on probability
-# - function: determines the number of days a person is in a status, dependent on the probabiltiy distribution
+# - function: determines the number of days a person is in a status, dependent on the probability distribution
 
 # Import useful modules
 import numpy as np
@@ -22,31 +22,47 @@ class Person:
 
     def __init__(self):
         """Initialise the Person object.
-        Parameters:
-            id (int): a unique ID for each person
-            age_group (str): the age group the person belongs to (16 different classes, seen in parameter file)
-            age_group_index (int): the index of the age group in the list of age groups
-            status (str): person's status relative to the infection
-                          susceptible, exposed, symptomatic, asymptomatic, hospitalised, dead
-            vacc_status (str): person's vaccination status
-                               unvacc, ex_vacc, new_vacc, ineligible
-            vacc_status_t_i (str): the person's vaccine status at the time of infection
-            susceptibility (float): susceptibility, v(t), of an individual
-            prob_exposed (float): probability an individual will become infected
-            latent_t_i (int): time left in the latent period once exposed
-                              if -1, then the person is not currently in a latent period
-            infect_t_i (int): time left in infectious period once infectious (symptomatic or asymptomatic)
-                              if -1, then the person is not currently in an infectious period
-            hosp_t_i (int): time spent in hospital
-                            if -1, then the person is not currently in a hospital
-            death_t_i (int): time at death from hospitalisation
-                             if -1, then the person is not currently in the 'dead' status
-            immunity_time_exvacc (int): time since given last vaccination/infection from previous variant
-                                        if -1, then the person has not received a pre-existing vaccine
-            immunity_time_newvacc (int): time since last variant-adapted vaccine
-                                         if -1, then the person has not received a new vaccine
-            immunity_time_infec (int): time since infection with novel variant
-                                       if -1, then the person has not been infected
+        
+        Parameters
+        ----------
+        id : int
+            A unique ID for each person
+        age_group : str
+            The age group the person belongs to (16 different classes, seen in parameter file)
+        age_group_index : int
+            The index of the age group in the list of age groups
+        status : str
+            Person's status relative to the infection (susceptible, exposed, symptomatic, 
+            asymptomatic, hospitalised, dead)
+        vacc_status : str
+            Person's vaccination status (unvacc, ex_vacc, new_vacc, ineligible)
+        vacc_status_t_i : str
+            The person's vaccine status at the time of infection
+        susceptibility : float
+            Susceptibility, v(t), of an individual
+        prob_exposed : float
+            Probability an individual will become infected
+        latent_t_i : int
+            Time left in the latent period once exposed.
+            If -1, then the person is not currently in a latent period
+        infect_t_i : int
+            Time left in infectious period once infectious (symptomatic or asymptomatic).
+            If -1, then the person is not currently in an infectious period
+        hosp_t_i : int
+            Time spent in hospital.
+            If -1, then the person is not currently in a hospital
+        death_t_i : int
+            Time at death from hospitalisation.
+            If -1, then the person is not currently in the 'dead' status
+        immunity_time_exvacc : int
+            Time since given last vaccination/infection from previous variant.
+            If -1, then the person has not received a pre-existing vaccine
+        immunity_time_newvacc : int
+            Time since last variant-adapted vaccine.
+            If -1, then the person has not received a new vaccine
+        immunity_time_infec : int
+            Time since infection with novel variant.
+            If -1, then the person has not been infected
         """
         self.id = next(self.id_iter)
         self.age_group = None
@@ -67,16 +83,22 @@ class Person:
 
     def set_age_group(self, n):
         """Assign individual a specific age-group.
-        Parameters:
-            n (int): index for a specific age group from array of age groups
+        
+        Parameters
+        ----------
+        n : int
+            Index for a specific age group from array of age groups
         """
         self.age_group = str(params.age_groups[n])
         self.age_group_index = n
 
     def calc_susceptibility(self):
         """Calculates the relative susceptibility, v(t), of an individual.
-        Returns:
-            susceptibility (float): level of susceptibility is determined by their immune status
+        
+        Returns
+        -------
+        susceptibility : float
+            Level of susceptibility is determined by their immune status
         """
         if self.immunity_time_exvacc == -1:
             immunity_exvacc = 0
@@ -112,10 +134,16 @@ class Person:
 
     def pick_distr_prob(self, distribution):
         """Determines the number of days a person is in a status, dependent on the probability distribution.
-        Parameters:
-            distribution (array): the probability distribution for different days
-        Returns:
-            days (int): the number of days a person is in a specific status
+        
+        Parameters
+        ----------
+        distribution : array
+            The probability distribution for different days
+        
+        Returns
+        -------
+        days : int
+            The number of days a person is in a specific status
         """
         choices = list(range(1, len(distribution) + 1))
         days = np.random.choice(choices, p=distribution)
@@ -123,9 +151,13 @@ class Person:
 
     def determine_status_change(self, statuses, probability):
         """Determines if the person's status will change, based on probability.
-        Parameters:
-            statuses (list): a list of the two possible statuses
-            probability (float or list): a float of probability or list of probabilities per age group
+        
+        Parameters
+        ----------
+        statuses : list
+            A list of the two possible statuses
+        probability : float or list
+            A float of probability or list of probabilities per age group
         """
         if type(probability) is list:
             status = np.random.choice(statuses, size=1, p=[probability[self.age_group_index],
@@ -151,9 +183,13 @@ class Person:
 
     def change_status(self, total_infections, infections_each_day):
         """Decision tree to determine a person's status at each time step.
-        Parameters:
-            total_infections (pd.DataFrame): keep track of how many people in each status for infection force
-            infections_each_day (pd.DataFrame): identify who enters each status each day for final outputs"""
+        
+        Parameters
+        ----------
+        total_infections : pd.DataFrame
+            Keep track of how many people in each status for infection force
+        infections_each_day : pd.DataFrame
+            Identify who enters each status each day for final outputs"""
         # Check vaccine status and set to add to index
         if self.vacc_status_t_i == 'unvacc' or self.vacc_status_t_i == 'ineligible':
             vacc_status = 'unvaccinated'
