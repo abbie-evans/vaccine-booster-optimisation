@@ -13,9 +13,14 @@ class InfectionCount:
 
     def __init__(self):
         """Initialise the dataframe.
-        Parameters:
-            df_status (list): statuses that need to be included in the dataframe
-            count_df (df): the dataframe of counts"""
+        
+        Parameters
+        ----------
+        df_status : list
+            Statuses that need to be included in the dataframe
+        count_df : pd.DataFrame
+            The dataframe of counts
+        """
         self.vaccinated = ['unvaccinated', 'ex_vaccine', 'new_vaccine']
         self.df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
         self.index = list(itertools.product(*[params.age_groups, self.vaccinated]))
