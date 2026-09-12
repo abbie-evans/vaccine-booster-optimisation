@@ -12,17 +12,22 @@ class BoosterAdmin:
 
     def __init__(self):
         """Initialise the BoosterAdmin class.
-        Params:
-            vacc_list (list): a list of the people to be vaccinated"""
+        Parameters
+        ----------
+        vacc_list : list
+            A list of the people to be vaccinated"""
         self.vacc_list = []
 
     def update_susceptibility(self, vaccine_choice, person):
         """Vaccinates an individual (vacc_status to 'vacc' - old or new) and updates their immunity time (set to 0).
         This implies they will not be included in the list of people eligible for vaccination.
-        Parameters:
-            vaccine_choice: 'ex_vacc' (existing vaccine) or 'new_vacc' (updated vaccine when it becomes available)
-                            this will affect which immunity time variable is updated
-            person: the individual who is receiving the vaccine (and who's immunity should be updated)
+        Parameters
+        ----------
+        vaccine_choice : str
+            'ex_vacc' (existing vaccine) or 'new_vacc' (updated vaccine when it becomes available) 
+            this will affect which immunity time variable is updated
+        person : Person
+            The individual who is receiving the vaccine (and whose immunity should be updated)
         """
         if vaccine_choice == 'ex_vacc':
             person.immunity_time_exvacc = 0
@@ -35,6 +40,7 @@ class BoosterAdmin:
 
     def vaccine_administration(self, people, vacc_amount, vaccine_choice, direction, age_targets):
         """Administers a vaccine to the population.
+        
         - a list is created of all eligible individuals to be vaccinated
             - those who are not symptomatic, hospitalised, dead, vaccinated,
             - and they are 'eligible for vaccination' (person.vacc_status='unvacc')
@@ -50,14 +56,20 @@ class BoosterAdmin:
         - the eligible to-be-vaccinated individuals are randomly selected, from 1000 per day to the remaining
           amount of individuals in the list available
         - finally, the vacc_status is changed using the update_susceptibility function.
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep
-            vaccine_choice: the vaccine type to administer to the population 'ex_vacc' (existing vaccine) or
-                            'new_vacc' (updated vaccine when it becomes available)
-            direction: whether to vaccinate people going oldest to youngest 'descend', youngest to oldest 'ascend'
-                        or randomly regardless of age 'random'
-            age_targets: whether there is a subpopulation of age-groups that should be targeted by the vaccine first
+        Parameters
+        ----------
+        people :
+            The list of all people in the simulation population
+        vacc_amount :
+            The number of vaccines to administer per timestep
+        vaccine_choice :
+            The vaccine type to administer to the population 'ex_vacc' (existing vaccine) or 
+            'new_vacc' (updated vaccine when it becomes available)
+        direction :
+            Whether to vaccinate people going oldest to youngest 'descend', youngest to oldest 'ascend' 
+            or randomly regardless of age 'random'
+        age_targets :
+            Whether there is a subpopulation of age-groups that should be targeted by the vaccine first
         """
         # Step one - randomised list of eligible individuals
         self.vacc_list = [p for p in people
@@ -92,9 +104,12 @@ class BoosterAdmin:
         """This vaccine strategy vaccinates everyone starting at the oldest age group and descending,
         not taking into account the availability of an updated vaccine (this strategy only uses the
         vaccine for the old variant).
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep
+        Parameters
+        ----------
+        people :
+            The list of all people in the simulation population
+        vacc_amount : int
+            The number of vaccines to administer per timestep
         """
         self.vaccine_administration(people, vacc_amount,
                                     vaccine_choice='ex_vacc', direction='descend', age_targets='everyone')
@@ -102,11 +117,16 @@ class BoosterAdmin:
     def vacc_strat_2(self, people, vacc_amount, t, t_newvacc_avail):
         """This vaccine strategy vaccinates everyone starting at the oldest age group and descending,
         when the updated vaccine becomes available.
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep
-            t : time (in days)
-            t_newvacc_avail : time when updated vaccine becomes available
+        Parameters
+        ----------
+        people :
+            The list of all people in the simulation population
+        vacc_amount : int
+            The number of vaccines to administer per timestep
+        t : int
+            Time (in days)
+        t_newvacc_avail : int
+            Time when updated vaccine becomes available
         """
         if t >= t_newvacc_avail:
             self.vaccine_administration(people, vacc_amount,
@@ -118,11 +138,16 @@ class BoosterAdmin:
         vaccine starting at the middle age groups is prioritised in a descending way (from 49 down). When all the
         updated vaccines have been administered, vaccination with the existing vaccine is continued in the
         older age groups.
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep
-            t : time (in days)
-            t_newvacc_avail : time when updated vaccine becomes available
+        Parameters
+        ----------
+        people : 
+            The list of all people in the simulation population
+        vacc_amount : int
+            The number of vaccines to administer per timestep
+        t : int
+            Time (in days)
+        t_newvacc_avail : int
+            Time when updated vaccine becomes available
         """
         if t < t_newvacc_avail:
             self.vaccine_administration(people, vacc_amount,
@@ -143,11 +168,16 @@ class BoosterAdmin:
         and switches to vaccinating from the middle age groups up (50+ and up) until all have been vaccinated with the
         updated vaccine. It then switches back to vaccinating the remaining individuals in the young age groups with the
         existing vaccine.
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep
-            t : time (in days)
-            t_newvacc_avail : time when updated vaccine becomes available
+        Parameters
+        ----------
+        people : 
+            The list of all people in the simulation population
+        vacc_amount : int
+            The number of vaccines to administer per timestep
+        t : int
+            Time (in days)
+        t_newvacc_avail : int
+            Time when updated vaccine becomes available
         """
         if t < t_newvacc_avail:
             self.vaccine_administration(people, vacc_amount,
@@ -165,19 +195,27 @@ class BoosterAdmin:
 
     def vacc_strat_5(self, people, vacc_amount):
         """The existing vaccine is administered randomly to anyone within the population.
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep"""
+        Parameters
+        ----------
+        people : 
+            The list of all people in the simulation population
+        vacc_amount : int
+            The number of vaccines to administer per timestep"""
         self.vaccine_administration(people, vacc_amount,
                                     vaccine_choice='ex_vacc', direction='random', age_targets='everyone')
 
     def vacc_strat_6(self, people, vacc_amount, t, t_newvacc_avail):
         """The updated vaccine is administered randomly to anyone within the population when it becomes available.
-        Parameters:
-            people: the list of all people in the simulation population
-            vacc_amount: the number of vaccines to administer per timestep
-            t : time (in days)
-            t_newvacc_avail : time when updated vaccine becomes available
+        Parameters
+        ----------
+        people : 
+            The list of all people in the simulation population
+        vacc_amount : int
+            The number of vaccines to administer per timestep
+        t : int
+            Time (in days)
+        t_newvacc_avail : int
+            Time when updated vaccine becomes available
         """
         if t >= t_newvacc_avail:
             self.vaccine_administration(people, vacc_amount,
