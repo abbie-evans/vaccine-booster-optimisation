@@ -19,23 +19,14 @@ class Timesteps:
     def __init__(self, num_people, sim_length=365, R_e=1.5):
         """Initialise the Timesteps object.
         
-        Inputs:
-            num_people (int): the total number of people involved in the simulation
-            sim_length (int): the total length of time in the simulation
-            R_e (float): effective reproduction number/transmissibility of the novel variant
-        
         Parameters
         ----------
-        indices : list
-            All the indices for all people
-        people : array
-            All the people in the simulation
-        IDs : array
-            All the IDs of each of the people
-        rho_age_groups : list
-            The indices for the ranges of people in each age group
-        statusDF : pd.DataFrame
-            Will contain the values of each of the statuses for each group at each timepoint
+        num_people : int
+            The total number of people involved in the simulation
+        sim_length : int
+            The total length of time in the simulation
+        R_e : float
+            Effective reproduction number/transmissibility of the novel variant
         """
         self.sim_length = sim_length
         self.R_e = R_e
