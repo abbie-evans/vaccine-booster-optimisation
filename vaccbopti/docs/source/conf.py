@@ -30,16 +30,10 @@ extensions = [
 ]
 
 # Autodoc defaults
-if int(sphinx.__version__.split('.')[1]) < 8:
-    autodoc_default_flags = [
-        'members',
-        'inherited-members',
-    ]
-else:
-    autodoc_default_options = {
-        'members': None,
-        'inherited-members': None,
-    }
+autodoc_default_options = {
+    'members': True,
+    'inherited-members': True,
+}
 
 master_doc = 'index'
 
