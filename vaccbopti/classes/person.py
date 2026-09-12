@@ -67,7 +67,7 @@ class Person:
 
     def set_age_group(self, n):
         """Assign individual a specific age-group.
-        Params:
+        Parameters:
             n (int): index for a specific age group from array of age groups
         """
         self.age_group = str(params.age_groups[n])
@@ -112,7 +112,7 @@ class Person:
 
     def pick_distr_prob(self, distribution):
         """Determines the number of days a person is in a status, dependent on the probability distribution.
-        Params:
+        Parameters:
             distribution (array): the probability distribution for different days
         Returns:
             days (int): the number of days a person is in a specific status
@@ -123,7 +123,7 @@ class Person:
 
     def determine_status_change(self, statuses, probability):
         """Determines if the person's status will change, based on probability.
-        Params:
+        Parameters:
             statuses (list): a list of the two possible statuses
             probability (float or list): a float of probability or list of probabilities per age group
         """
