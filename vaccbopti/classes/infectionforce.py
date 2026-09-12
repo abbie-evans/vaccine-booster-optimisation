@@ -16,20 +16,26 @@ class InfectionForce:
                                                 (p(being asymptomatically infected) * asymptomatic indiv in b)] }
 
     Parameters
-    - infec_rate_params : infection rate parameter, reflecting susceptibility of individuals in age group a
-    - age_groups: age group of individuals
-    - contact_matrix: mean daily number of contacts that an individual in age group b has w/ individuals in age group a
-    - prop_indivs_a: proportion of individuals in age group a
-    - num_people: total number of people in the simulation
-    - count_df: dataframe describing number of asymptomatic and symptomatically infected individuals in age group
-    - infec_asymp: [constant] infectiousness of asymptomatic infected individuals, relative to symptomatic infected
-                    individuals
+    ----------
+    infec_rate_params : 
+        Infection rate parameter, reflecting susceptibility of individuals in age group a
+    age_groups :
+        Age group of individuals
+    contact_matrix :
+        Mean daily number of contacts that an individual in age group b has w/ individuals in age group a
+    prop_indivs_a :
+        Proportion of individuals in age group a
+    num_people :
+        Total number of people in the simulation
+    count_df :
+        Dataframe describing number of asymptomatic and symptomatically infected individuals in age group
+    infec_asymp :
+        [constant] infectiousness of asymptomatic infected individuals, relative to symptomatic infected 
+        individuals
     """
 
     def __init__(self):
         """Initialise InfectionForce class.
-        Parameters:
-            lambda_list (list): the force of infection for each age group 1-16
         """
         self.lambda_list = np.zeros(16)
 
@@ -39,13 +45,22 @@ class InfectionForce:
         have with age group b (from the contact matrix) and the number of people who are currently infected in each.
         z = [contact_matrix_ab/n of indiv in a] * [n of infected indiv in b +
                                                   (p(being asymptomatically infected) * asymptomatic indiv in b)]
-        Parameters:
-            a (int): fixed age group for which lambda will be calculated
-            b (int): the other age group to which contact is compared
-            total_infections (df): the pandas dataframe to read the counts of (a)symptomatic people
-            num_people (int): the total number of people in the simulation
-        Returns:
-            z (float): the calculated z value, strength of transmission from age group b to a
+        
+        Parameters
+        ----------
+        a : int
+            Fixed age group for which lambda will be calculated
+        b : int
+            The other age group to which contact is compared
+        total_infections : pd.DataFrame 
+            The pandas dataframe to read the counts of (a)symptomatic people
+        num_people : int
+            The total number of people in the simulation
+        
+        Returns
+        -------
+        z : float
+            The calculated z value, strength of transmission from age group b to a
         """
         total_infections = total_infections.groupby('ages').sum()
         M_ab = params.contact_matrix[a][b]
@@ -60,13 +75,22 @@ class InfectionForce:
         """Calculates transmission for age group a across all age groups (from the each value of calc_z()),
         weighted by the infection rate parameter for age group a.
         lambda_a = infect_rate_param_a * sum over b age groups 1-16 {z}
-        Parameters:
-            a (int): fixed age group for which lambda will be calculated
-            total_infections (pd.DataFrame): keeps track of all the currently infected individuals
-            infec_rate_params (list): the infection rate parameter, beta
-            num_people (int): the total number of people in the simulation
-        Returns:
-            lambda_a: the overall transmission to age group a
+        
+        Parameters
+        ----------
+        a : int
+            Fixed age group for which lambda will be calculated
+        total_infections : pd.DataFrame
+            Keeps track of all the currently infected individuals
+        infec_rate_params : list
+            The infection rate parameter, beta
+        num_people : int
+            The total number of people in the simulation
+        
+        Returns
+        -------
+        lambda_a : float
+            The overall transmission to age group a
         """
         sum_z = 0  # holds the sum of z
         for b in range(len(params.age_groups)):  # loop to sum z
@@ -77,10 +101,15 @@ class InfectionForce:
 
     def set_lambda_list(self, total_infections, infec_rate_params=params.infec_rate_params, num_people=100000):
         """Calculates lambda for each age group a, and holds them in a list.
-        Parameters:
-            total_infections (pd.DataFrame): keeps track of all the currently infected individuals
-            infec_rate_params (list): the infection rate parameter, beta
-            num_people (int): the total number of people in the simulation"""
+        
+        Parameters
+        ----------
+        total_infections : pd.DataFrame
+            Keeps track of all the currently infected individuals
+        infec_rate_params : list
+            The infection rate parameter, beta
+        num_people : int
+            The total number of people in the simulation"""
         for a in range(len(params.age_groups)):
             lambda_a = self.calc_lambda(a, total_infections, infec_rate_params, num_people)
             self.lambda_list[a] = lambda_a
