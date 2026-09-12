@@ -93,12 +93,21 @@ class Params:
         def integration(self, k, dist, parameters):
             """The integration function to get a discrete probability from a given distribution,
             based on days after the infection.
-            Parameters:
-                k: the days after the infection
-                dist: the distribution to use - either a 'gamma' or a 'weibull' distribution
-                parameters: array of the shape and scale of the distribution
-            Returns:
-                integrate.quad: the discrete probability returned from the distribution function"""
+            
+            Parameters
+            ----------
+            k : int
+                The days after the infection
+            dist : str
+                The distribution to use - either a 'gamma' or a 'weibull' distribution
+            parameters : array
+                Array of the shape and scale of the distribution
+            
+            Returns
+            -------
+            integrate.quad : float
+                The discrete probability returned from the distribution function
+            """
             if dist == "gamma":
                 integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
@@ -109,11 +118,19 @@ class Params:
         def integral_of_density_probability(self, dist, parameters):
             """Run for each day, k, in the total number of days a simulation could last to get a probability
             for each day and add to an array.
-            Parameters:
-                dist: the distribution to use - either a 'gamma' or a 'weibull' distribution
-                parameters: array of the shape and scale of the distribution
-            Returns:
-                prob: an array of the probability drawn from the distribution for each day"""
+            
+            Parameters
+            ----------
+            dist : str
+                The distribution to use - either a 'gamma' or a 'weibull' distribution
+            parameters : array
+                Array of the shape and scale of the distribution
+            
+            Returns
+            -------
+            prob : array
+                An array of the probability drawn from the distribution for each day
+            """
             prob = []
             for k in self.days_samples[1:]:
                 result = self.integration(k, dist, parameters)
@@ -123,11 +140,19 @@ class Params:
         def integral_probabilities_array(self, dist, parameters):
             """Ensure that the probabilities sum to 1, and adds a '0' value to the start of the probability array -
             as at the day of infection, an event is 100% likely to not occur.
-            Parameters:
-                dist: the distribution to use - either a 'gamma' or a 'weibull' distribution
-                parameters:  array of the shape and scale of the distribution
-            Returns:
-                lk: an array of the probability drawn from the distribution for each day, with 0 added to the start"""
+            
+            Parameters
+            ----------
+            dist : str
+                The distribution to use - either a 'gamma' or a 'weibull' distribution
+            parameters : array
+                Array of the shape and scale of the distribution
+            
+            Returns
+            -------
+            lk : array
+                An array of the probability drawn from the distribution for each day, with 0 added to the start
+            """
             lk1 = 1 - sum(self.integral_of_density_probability(dist, parameters))
             # final array for the probabilities of each Lk
             lk = [lk1] + self.integral_of_density_probability(dist, parameters)
@@ -135,11 +160,18 @@ class Params:
 
         def calc_fx(self, n0_x, n50_m):
             """Method to calculate the tau_x curves.
-            Parameters:
-                n0_x (float): which method is conferring resistance
-                n50_m (float): deciding on immunity level conferred by infection or hospitalisation
-            Returns:
-                f_x: tau_x curves to be indexed
+            
+            Parameters
+            ----------
+            n0_x : float
+                Which method is conferring resistance
+            n50_m : float
+                Deciding on immunity level conferred by infection or hospitalisation
+            
+            Returns
+            -------
+            f_x : array
+                tau_x curves to be indexed
             """
             exp_val = (- self.shape_param
                        * (np.log10(self.calc_nx(n0_x))
@@ -149,13 +181,18 @@ class Params:
 
         def calc_nx(self, n0_x):
             """Calculating n_x, the immunity levels modelled using a biphasic exponential decay function.
+            
             Parameters:
-                n0_x (float): which method is conferring resistance
-                                - vaccination with existing vaccine
-                                - vaccination with variant adapted vaccine
-                                - infection with new strain
-            Returns:
-                n_x: immunity levels as the exponential decay
+            n0_x : float 
+                Which method is conferring resistance
+                - vaccination with existing vaccine
+                - vaccination with variant adapted vaccine
+                - infection with new strain
+            
+            Returns
+            -------
+            n_x : array
+                Immunity levels as the exponential decay
             """
             tau_x = np.linspace(0, 5000, 5000 + 1)
             num_exp1 = self.decay_fast * tau_x + self.decay_slow * self.decay_switch
@@ -176,8 +213,11 @@ class Params:
     @staticmethod
     def instance():
         """Creates a singleton instance of __Parameters under _instance to access variables.
-        Returns:
-            __Params._instance: an instance of the __Parameters class to access all variables
+        
+        Returns
+        -------
+        __Params._instance
+            An instance of the __Parameters class to access all variables
         """
         if not Params._instance:
             Params._instance = Params.__Params()
