@@ -12,10 +12,10 @@ project_root = os.path.dirname(os.path.dirname(__file__))
 # Rename and map variables for user interface
 STATUS_COLS = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
 RENAME = {'symptomatic': 'I', 'asymptomatic': 'A', 'hospitalised': 'H', 'dead': 'D'}
-VACC_MAP = {'unvaccinated': 'unvaccinated',
-            'ex_vaccine': 'vaccinated',
-            'old_vaccine': 'vaccinated',
-            'new_vaccine': 'vaccinated'}
+VACC_MAP = {'unvaccinated': 'Unvaccinated',
+            'ex_vaccine': 'Vaccinated',
+            'old_vaccine': 'Vaccinated',
+            'new_vaccine': 'Vaccinated'}
 
 
 def aggregate_status(df_sum, group_cols, pool_vacc=True, VACC_MAP=VACC_MAP):
@@ -82,12 +82,11 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
 
         fig.add_trace(go.Scatter(x=x, y=y,
                                  mode='lines',
-                                 name=f'{status} ({vacc})',
+                                 name=f'{vacc}',
                                  legendgroup=group,
                                  legendgrouptitle_text=status,
-                                 line=dict(color=color, dash='dash' if vacc == 'unvaccinated' else 'solid')))
-    fig.update_layout(title='Status over time',
-                      hovermode="x",
+                                 line=dict(color=color, dash='dash' if vacc == 'Unvaccinated' else 'solid')))
+    fig.update_layout(hovermode="x",
                       xaxis_title='Time',
                       yaxis_title='Count',
                       legend=dict(groupclick='togglegroup'))
