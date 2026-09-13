@@ -57,7 +57,7 @@ def load_data(label):
 VIVID = px.colors.qualitative.Vivid  # colour scheme
 LEGEND_CAPTION = "I = symptomatic · A = asymptomatic · H = hospitalised · D = dead"
 
-# Design of summary boxes
+# Design options
 ui.tags.style("""
 .death-box {
     background: white;
@@ -138,11 +138,16 @@ ui.tags.style("""
     font-size: 13px;
     color: #718096;
 }
+       
+.nav-link {
+    border-radius: 20px !important;
+    }
 """)
 
 # --- THE GUI OF THE PAGE ---
-ui.page_opts(title="Optimising Vaccine Booster Implementation", fillable=True)
-
+ui.page_opts(title=ui.HTML("<h1 style='font-size: 2.5em; font-weight: bold;'>"
+                           "Optimising Vaccine Booster Implementation"
+                           "</h1>"), fillable=True)
 
 # --- SIDEBAR TO HAVE ALL THE USER INPUTS ---
 with ui.sidebar(position="left"):
