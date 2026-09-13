@@ -27,7 +27,10 @@ def aggregate_status(df_sum, group_cols, pool_vacc=True, VACC_MAP=VACC_MAP):
     """
     df = df_sum.copy().reset_index()
     if pool_vacc and 'vacc_status' in df.columns:
-        df['vacc_status'] = df['vacc_status'].map(VACC_MAP)
+        df['vacc_status'] = df['vacc_status'].map({'unvaccinated': 'unvaccinated',
+                                                   'ex_vaccine': 'vaccinated',
+                                                   'old_vaccine': 'vaccinated',
+                                                   'new_vaccine': 'vaccinated'})
     return (df.groupby(list(group_cols))[STATUS_COLS].sum().rename(columns=RENAME))
 
 
@@ -58,6 +61,7 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
         lines_to_plot = [(status, vacc) for status in all_statuses for vacc in all_vacc]
     # Render figure
     fig = go.Figure()
+    fig.update_layout(plot_bgcolor='#eff5fa')
     colors = {'I': VIVID[0], 'A': VIVID[1], 'H': VIVID[2], 'D': VIVID[3]}
     # Add a line to show when the new vaccine is available
     for status, vacc in lines_to_plot:
@@ -107,6 +111,7 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
         ages_to_plot = all_ages
     # Render figure
     fig = go.Figure()
+    fig.update_layout(plot_bgcolor='#eff5fa')
     for age in ages_to_plot:
         if age in df_plot.columns:
             fig.add_trace(go.Scatter(x=df_plot.index,
@@ -133,6 +138,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     labels = strategies_to_plot if strategies_to_plot is not None else list(strategy_agg.keys())
     # Render figure
     fig = go.Figure()
+    fig.update_layout(plot_bgcolor='#eff5fa')
     colors = VIVID
     for i, label in enumerate(labels):
         if label not in strategy_agg:
