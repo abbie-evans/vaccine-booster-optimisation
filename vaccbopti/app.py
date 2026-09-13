@@ -268,11 +268,11 @@ with ui.navset_card_pill(id="main_tabs"):
                         def _():
                             ui.update_selectize('sim_to_download', selected=input.strategy())
                     with ui.card():
-                        @render.download_button(label="Download the mean .csv files", filename="mean.csv")
+                        @render.download(label="Download the mean .csv files", filename="mean.csv")
                         def mean_files():
                             mean, _ = get_file_for_download()
                             yield mean.to_csv()
-                        @render.download_button(label="Download the std .csv files", filename="std.csv")
+                        @render.download(label="Download the std .csv files", filename="std.csv")
                         def std_files():
                             _, std = get_file_for_download()
                             yield std.to_csv()
