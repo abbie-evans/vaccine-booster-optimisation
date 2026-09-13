@@ -93,7 +93,7 @@ class Params:
         def integration(self, k, dist, parameters):
             """The integration function to get a discrete probability from a given distribution,
             based on days after the infection.
-            
+
             Parameters
             ----------
             k : int
@@ -102,7 +102,7 @@ class Params:
                 The distribution to use - either a 'gamma' or a 'weibull' distribution
             parameters : array
                 Array of the shape and scale of the distribution
-            
+
             Returns
             -------
             integrate.quad : float
@@ -118,14 +118,14 @@ class Params:
         def integral_of_density_probability(self, dist, parameters):
             """Run for each day, k, in the total number of days a simulation could last to get a probability
             for each day and add to an array.
-            
+
             Parameters
             ----------
             dist : str
                 The distribution to use - either a 'gamma' or a 'weibull' distribution
             parameters : array
                 Array of the shape and scale of the distribution
-            
+
             Returns
             -------
             prob : array
@@ -140,14 +140,14 @@ class Params:
         def integral_probabilities_array(self, dist, parameters):
             """Ensure that the probabilities sum to 1, and adds a '0' value to the start of the probability array -
             as at the day of infection, an event is 100% likely to not occur.
-            
+
             Parameters
             ----------
             dist : str
                 The distribution to use - either a 'gamma' or a 'weibull' distribution
             parameters : array
                 Array of the shape and scale of the distribution
-            
+
             Returns
             -------
             lk : array
@@ -160,14 +160,14 @@ class Params:
 
         def calc_fx(self, n0_x, n50_m):
             """Method to calculate the tau_x curves.
-            
+
             Parameters
             ----------
             n0_x : float
                 Which method is conferring resistance
             n50_m : float
                 Deciding on immunity level conferred by infection or hospitalisation
-            
+
             Returns
             -------
             f_x : array
@@ -181,14 +181,14 @@ class Params:
 
         def calc_nx(self, n0_x):
             """Calculating n_x, the immunity levels modelled using a biphasic exponential decay function.
-            
+
             Parameters:
-            n0_x : float 
+            n0_x : float
                 Which method is conferring resistance
                 - vaccination with existing vaccine
                 - vaccination with variant adapted vaccine
                 - infection with new strain
-            
+
             Returns
             -------
             n_x : array
@@ -213,7 +213,7 @@ class Params:
     @staticmethod
     def instance():
         """Creates a singleton instance of __Parameters under _instance to access variables.
-        
+
         Returns
         -------
         __Params._instance

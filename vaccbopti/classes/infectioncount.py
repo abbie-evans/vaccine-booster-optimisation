@@ -13,7 +13,7 @@ class InfectionCount:
 
     def __init__(self):
         """Initialise the dataframe.
-        
+
         Parameters
         ----------
         df_status : list

@@ -22,7 +22,7 @@ class Person:
 
     def __init__(self):
         """Initialise the Person object.
-        
+
         Parameters
         ----------
         id : int
@@ -32,7 +32,7 @@ class Person:
         age_group_index : int
             The index of the age group in the list of age groups
         status : str
-            Person's status relative to the infection (susceptible, exposed, symptomatic, 
+            Person's status relative to the infection (susceptible, exposed, symptomatic,
             asymptomatic, hospitalised, dead)
         vacc_status : str
             Person's vaccination status (unvacc, ex_vacc, new_vacc, ineligible)
@@ -83,7 +83,7 @@ class Person:
 
     def set_age_group(self, n):
         """Assign individual a specific age-group.
-        
+
         Parameters
         ----------
         n : int
@@ -94,7 +94,7 @@ class Person:
 
     def calc_susceptibility(self):
         """Calculates the relative susceptibility, v(t), of an individual.
-        
+
         Returns
         -------
         susceptibility : float
@@ -134,12 +134,12 @@ class Person:
 
     def pick_distr_prob(self, distribution):
         """Determines the number of days a person is in a status, dependent on the probability distribution.
-        
+
         Parameters
         ----------
         distribution : array
             The probability distribution for different days
-        
+
         Returns
         -------
         days : int
@@ -151,7 +151,7 @@ class Person:
 
     def determine_status_change(self, statuses, probability):
         """Determines if the person's status will change, based on probability.
-        
+
         Parameters
         ----------
         statuses : list
@@ -183,7 +183,7 @@ class Person:
 
     def change_status(self, total_infections, infections_each_day):
         """Decision tree to determine a person's status at each time step.
-        
+
         Parameters
         ----------
         total_infections : pd.DataFrame
@@ -205,14 +205,14 @@ class Person:
                 self.death_t_i -= 1
                 if self.death_t_i == -1:  # death time over
                     total_infections.loc[(self.age_group, vacc_status), 'hospitalised'] -= 1  # remove from hospital
-                    total_infections.loc[(self.age_group, vacc_status), 'dead'] += 1  # and add to dead at t
-                    infections_each_day.loc[(self.age_group, vacc_status), 'dead'] += 1  # and time over, add to dead at t
+                    total_infections.loc[(self.age_group, vacc_status), 'dead'] += 1  # add to dead at t
+                    infections_each_day.loc[(self.age_group, vacc_status), 'dead'] += 1  # time over, add to dead at t
                     return
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
         if (self.status == 'asymptomatic' or self.status == 'symptomatic' or self.status == 'hospitalised'):
             self.infect_t_i -= 1  # count down infection time
             if self.infect_t_i == -1:  # if infection time is over
-                if self.status == 'asymptomatic': # remove from asymptomatic total counts
+                if self.status == 'asymptomatic':  # remove from asymptomatic total counts
                     total_infections.loc[(self.age_group, vacc_status), 'asymptomatic'] -= 1
                 if self.status == 'symptomatic':  # remove from symptomatic total counts
                     total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] -= 1
@@ -241,7 +241,7 @@ class Person:
                         self.determine_status_change(['dead', 'hospitalised'],  # check if they die
                                                      params.p_nv_HD_list[self.age_group_index])
                         total_infections.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # add to hospitalised
-                        infections_each_day.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # add to hospitalised
+                        infections_each_day.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # add hospitalised
                         if self.status == 'dead':  # if they die, calculate how long it takes
                             self.death_t_i = self.hosp_t_i + self.pick_distr_prob(params.death_t)
             return

@@ -71,7 +71,8 @@ class Simulation:
             total_infections = InfectionCount().count_df  # initialise to keep track of infected individuals
             # Loop through timesteps
             for t in range(1, self.sim_length):
-                infection_force.set_lambda_list(total_infections, infec_rate_params, num_people=self.num_people)  # F_inf
+                infection_force.set_lambda_list(total_infections, infec_rate_params,
+                                                num_people=self.num_people)  # F_inf
                 timesteps.administer_booster(self.vacc_strat, self.t_newvacc_avail, t, self.vacc_amount)  # boosters
                 timesteps.set_p_exposed(infection_force.lambda_list)  # recalculate susceptibilities/prob exposed
                 infections_each_day = InfectionCount().count_df  # reset for number of status changes per t

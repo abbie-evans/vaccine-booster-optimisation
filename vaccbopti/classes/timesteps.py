@@ -18,7 +18,7 @@ class Timesteps:
 
     def __init__(self, num_people, sim_length=365, R_e=1.5):
         """Initialise the Timesteps object.
-        
+
         Parameters
         ----------
         num_people : int
@@ -56,7 +56,7 @@ class Timesteps:
         - Infecting a random subset of people.
         - Making a random subset of people ineligible for vaccination.
         - Updating susceptibility based on previous infection times.
-        
+
         Parameters
         ----------
         n_infec : int
@@ -80,7 +80,7 @@ class Timesteps:
 
     def set_p_exposed(self, force_infection):
         """Gets the probability that a person is exposed.
-        
+
         Parameters
         ----------
         force_infection : float
@@ -92,7 +92,7 @@ class Timesteps:
 
     def calculate_average_susceptibility(self, a):
         """Calculate the average susceptibility of the population in age group a.
-        
+
         Parameters
         ----------
         a : int
@@ -122,7 +122,7 @@ class Timesteps:
 
     def administer_booster(self, vacc_strat, t_newvacc_avail, t, vacc_amount=2000):
         """Administers the booster based on the strategy inputted by the user.
-        
+
         - strategy 0: doesn't apply booster vaccines
         - strategy 1: vaccinates everyone starting at the oldest age group and descending,
                       not taking into account the availability of the updated vaccine
@@ -138,7 +138,7 @@ class Timesteps:
                       age groups with the old vaccine.
         - strategy 5: the old vaccine is administered randomly to anyone within the population
         - strategy 6: updated vaccine administered randomly to anyone within the population when it becomes available
-        
+
         Parameters
         ----------
         vacc_strat : int
@@ -160,7 +160,7 @@ class Timesteps:
 
     def update_people(self, total_infections, infections_each_day):
         """Increases immunity times by 1 and changes status.
-        
+
         Parameters
         ----------
         total_infections : pd.DataFrame
@@ -173,7 +173,7 @@ class Timesteps:
 
     def append_daily_nbs_outputdf(self, t, infections_each_day):
         """Adds the daily data to the overall dataframe.
-        
+
         Parameters
         ----------
         t : int
