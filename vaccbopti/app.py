@@ -57,6 +57,88 @@ def load_data(label):
 VIVID = px.colors.qualitative.Vivid  # colour scheme
 LEGEND_CAPTION = "I = symptomatic · A = asymptomatic · H = hospitalised · D = dead"
 
+# Design of summary boxes
+ui.tags.style("""
+.death-box {
+    background: white;
+    border-left: 4px solid #dc3545;
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.hosp-box {
+    background: white;
+    border-left: 4px solid #ffa500;
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+              
+.yll-box {
+    background: white;
+    border-left: 4px solid #3776ab;
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.death-icon {
+    color: #dc3545;
+    font-size: 32px;
+    width: 55px;
+    flex-shrink: 0;
+    text-align: center;
+}
+              
+.hosp-icon {
+    color: #ffa500;
+    font-size: 32px;
+    width: 55px;
+    flex-shrink: 0;
+    text-align: center;
+}
+              
+.yll-icon {
+    color: #3776ab;
+    font-size: 32px;
+    width: 55px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #26354a;
+}
+
+.number {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #18263a;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #718096;
+}
+""")
 
 # --- THE GUI OF THE PAGE ---
 ui.page_opts(title="Optimising Vaccine Booster Implementation", fillable=True)
@@ -236,29 +318,64 @@ with ui.navset_card_pill(id="main_tabs"):
                         ui.markdown(f"*{LEGEND_CAPTION}*")
                     # Status overview
                     with ui.layout_columns(col_widths=[12, 12]):
-                        with ui.value_box(showcase=icon("skull"), theme="red"):
-                            "Total deaths"
-                            @render.text
-                            def total_deaths_text():
-                                agg = all_strategy_agg()
-                                totals = get_strategy_totals(agg, input.strategy())
-                                return f"{totals['total_deaths']:,.1f}"
-                            "average"
-                        with ui.value_box(showcase=icon("hospital"), theme="orange"):
-                            "Total hospitalisations"
-                            @render.text
-                            def total_hosp_text():
-                                agg = all_strategy_agg()
-                                totals = get_strategy_totals(agg, input.strategy())
-                                return f"{totals['total_hospitalised']:,.1f}"
-                        with ui.value_box(showcase=icon("hourglass-half"), theme="blue"):
-                            " Total years of life lost"
-                            @render.text
-                            def total_yll_text():
-                                agg = all_strategy_agg_by_age()
-                                df_agg = agg[input.strategy()]
-                                yll = get_yll(df_agg)
-                                return f"{yll:,.1f}"
+                        with ui.div(class_="death-box"):
+
+                            ui.div(
+                                icon("skull"),
+                                class_="death-icon"
+                            )
+
+                            with ui.div(class_="content"):
+                                ui.div("Total deaths", class_="title")
+
+                                with ui.div(class_="number"):
+                                    @render.text
+                                    def total_deaths_text():
+                                        agg = all_strategy_agg()
+                                        totals = get_strategy_totals(agg, input.strategy())
+                                        return f"{totals['total_deaths']:,.1f}"
+
+                                ui.div("Averaged over simulations", class_="subtitle")
+
+                        with ui.div(class_="hosp-box"):
+
+                            ui.div(
+                                icon("hospital"),
+                                class_="hosp-icon"
+                            )
+
+                            with ui.div(class_="content"):
+                                ui.div("Total hospitalisations", class_="title")
+
+                                with ui.div(class_="number"):
+                                    @render.text
+                                    def total_hosp_text():
+                                        agg = all_strategy_agg()
+                                        totals = get_strategy_totals(agg, input.strategy())
+                                        return f"{totals['total_hospitalised']:,.1f}"
+
+                                ui.div("Averaged over simulations", class_="subtitle")
+
+                        with ui.div(class_="yll-box"):
+
+                            ui.div(
+                                icon("hourglass-half"),
+                                class_="yll-icon"
+                            )
+
+                            with ui.div(class_="content"):
+                                ui.div("Total years of life lost", class_="title")
+
+                                with ui.div(class_="number"):
+                                    @render.text
+                                    def total_yll_text():
+                                        agg = all_strategy_agg_by_age()
+                                        df_agg = agg[input.strategy()]
+                                        yll = get_yll(df_agg)
+                                        return f"{yll:,.1f}"
+
+                                ui.div("Averaged over simulations", class_="subtitle")
+
                 # Download button
                 ui.markdown("""##### Download a .csv of a run""")
                 with ui.layout_columns():
