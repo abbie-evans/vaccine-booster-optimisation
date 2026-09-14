@@ -101,7 +101,7 @@ class Timesteps:
         susceptibility_pop = [p for p in self.people if p.age_group_index == a]
         for p in susceptibility_pop:
             susceptibility_sum += p.susceptibility
-        average_susceptibility = susceptibility_sum / self.num_people
+        average_susceptibility = susceptibility_sum / len(susceptibility_pop)
         return average_susceptibility
 
     def calculate_new_beta(self):
