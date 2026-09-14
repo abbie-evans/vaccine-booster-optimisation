@@ -107,25 +107,29 @@ class testBoosterAdmin(TestCase):
     def test_vacc_strat_1(self):
         """Test that vaccine strategy 1 works correctly."""
         # Count number of vaccinated people
-        count_original = sum(1 for p in self.people
-                             if p.vacc_status == 'unvacc')
+        count_original = sum(1 for p in self.people if p.vacc_status == 'unvacc')
         self.admin.vacc_strat_1(self.people, self.vacc_amount)
-        count_post = sum(1 for p in self.people
-                         if p.vacc_status == 'unvacc')
+        count_post = sum(1 for p in self.people if p.vacc_status == 'unvacc')
+        self.assertGreater(count_post, 0)
         self.assertNotEqual(count_original, count_post)
+        # Check no one is receiving the new vaccine
+        num_new_vaccine = [p for p in self.people if p.vacc_status == 'new_vacc']
+        self.assertEqual(0, len(num_new_vaccine))
 
     def test_vacc_strat_2(self):
         """Test that vaccine strategy 2 works correctly."""
         # Count number of vaccinated people
-        count_original = sum(1 for p in self.people
-                             if p.vacc_status == 'unvacc')
+        count_original = sum(1 for p in self.people if p.vacc_status == 'unvacc')
         for a in range(5):
             self.admin.vacc_strat_2(self.people, self.vacc_amount, t=a, t_newvacc_avail=3)
             count_postVS = sum(1 for p in self.people if p.vacc_status == 'unvacc')
             if a < 3:  # check vaccination doesn't happen before it's available
                 self.assertEqual(count_original, count_postVS)
-            if a > 3:  # check vaccination does't happen after it's available
+            if a > 3:  # check vaccination does happen after it's available
                 self.assertNotEqual(count_original, count_postVS)
+                # Check no one is receiving the existing vaccine
+                num_ex_vaccine = [p for p in self.people if p.vacc_status == 'ex_vacc']
+                self.assertEqual(0, len(num_ex_vaccine))
 
     def test_vacc_strat_3(self):
         """Test that vaccine strategy 3 on single population:
@@ -135,63 +139,80 @@ class testBoosterAdmin(TestCase):
         """
         t_newvacc_avail = 10
         # Run strategy 3 before vaccine availability (t < t_newvacc_avail)
-        self.admin.vacc_strat_3(self.people, self.vacc_amount, t=5, t_newvacc_avail=t_newvacc_avail)
-        # Store who was vaccinated before availability
+        self.admin.vacc_strat_3(self.people, 10, t=5, t_newvacc_avail=t_newvacc_avail)
         vaccinated_before = [p for p in self.people if p.vacc_status == 'ex_vacc']
-        # Verify vaccinated people before availability are from mid-old age groups
-        for person in vaccinated_before:
+        self.assertGreater(len(vaccinated_before), 0)  # check that people have been vaccinated
+        for person in vaccinated_before:  # verify people vaccinated before availability are mid-old
             self.assertIn(person.age_group, params.old_groups)
-        # Check that there are still eligible people for the new vaccine
-        new_eligible = [p for p in self.people if p.vacc_status == 'unvacc' and p.age_group in params.young_groups]
-        self.assertGreater(len(new_eligible), 0)
         # Run strategy 3 after vaccine availability (t > t_newvacc_avail) on population
-        self.admin.vacc_strat_3(self.people, 80, t=15, t_newvacc_avail=t_newvacc_avail)
-        # Check that all eligible people have been vaccinated
-        new_eligible = [p for p in self.people if p.vacc_status == 'unvacc' and p.age_group in params.young_groups]
-        self.assertEqual(len(new_eligible), 0)
-        # Get people vaccinated after availability (those now vaccinated but not in vaccinated_before)
-        vaccinated_after = [p for p in self.people if p.vacc_status == 'new_vacc' and p not in vaccinated_before]
-        # Verify new vaccinated self.people after availability are from mid-young age groups
-        for person in vaccinated_after:
+        self.admin.vacc_strat_3(self.people, 10, t=15, t_newvacc_avail=t_newvacc_avail)
+        vaccinated_after = [p for p in self.people if p.vacc_status == 'new_vacc']
+        self.assertNotEqual(len(vaccinated_after), 0)  # check that eligible people have been vaccinated
+        for person in vaccinated_after:  # check that all eligible people vaccinated are in young age group
             self.assertIn(person.age_group, params.young_groups)
-        # Check strategy 3 after all of the young has been vaccinated
-        self.admin.vacc_strat_3(self.people, self.vacc_amount, t=20, t_newvacc_avail=t_newvacc_avail)
-        vaccinated_complete = [p for p in self.people if p.vacc_status == 'new_vacc'
-                               and p not in vaccinated_before
-                               and p not in vaccinated_after]
-        for person in vaccinated_complete:
+        # Check strategy 3 to make sure that if run out of eligible people for new vaccine, switch to old one
+        self.admin.vacc_strat_3(self.people, 50, t=20, t_newvacc_avail=t_newvacc_avail)
+        vaccinated_switch = [p for p in self.people if p.vacc_status != 'unvacc'
+                             and p not in vaccinated_before
+                             and p not in vaccinated_after]
+        vaccinated_eligible = [p for p in vaccinated_switch if p.vacc_status == 'new_vacc']
+        self.assertNotEqual(len(vaccinated_eligible), 0)  # check that eligible people have been vaccinated
+        for person in vaccinated_eligible:
+            self.assertIn(person.age_group, params.young_groups)
+        vaccinated_ineligible = [p for p in vaccinated_switch if p.vacc_status == 'ex_vacc']
+        self.assertNotEqual(len(vaccinated_ineligible), 0)  # check that ineligible people have been vaccinated
+        for person in vaccinated_ineligible:
             self.assertIn(person.age_group, params.old_groups)
+        # Check strategy 3 to make sure that after all eligible people are gone, the old vaccine is administered
+        self.admin.vacc_strat_3(self.people, self.vacc_amount, t=20, t_newvacc_avail=t_newvacc_avail)
+        vaccinated_complete = [p for p in self.people if p.vacc_status != 'unvacc'
+                               and p not in vaccinated_before
+                               and p not in vaccinated_after
+                               and p not in vaccinated_switch]
+        for person in vaccinated_complete:  # check remainde and that they receive the old vaccine
+            self.assertIn(person.age_group, params.old_groups)
+            self.assertEqual(person.vacc_status, 'ex_vacc')
 
     def test_vacc_strat_4(self):
         """Test that vaccine strategy 4 works correctly."""
         t_newvacc_avail = 10
         # Run strategy 4 before vaccine availability (t < t_newvacc_avail)
         self.admin.vacc_strat_4(self.people, self.vacc_amount, t=5, t_newvacc_avail=t_newvacc_avail)
-        # Store who was vaccinated before availability
         vaccinated_before = [p for p in self.people if p.vacc_status == 'ex_vacc']
-        # Verify vaccinated people before availability are from yound-mid age groups
-        for person in vaccinated_before:
+        self.assertGreater(len(vaccinated_before), 0)  # check that people have been vaccinated
+        for person in vaccinated_before:  # verify people vaccinated before availability are mid-young
             self.assertIn(person.age_group, params.young_groups)
         # Check that there are still eligible people for the new vaccine
         new_eligible = [p for p in self.people if p.vacc_status == 'unvacc' and p.age_group in params.old_groups]
         self.assertGreater(len(new_eligible), 0)
         # Run strategy 4 after vaccine availability (t > t_newvacc_avail) on population
-        self.admin.vacc_strat_4(self.people, 80, t=15, t_newvacc_avail=t_newvacc_avail)
-        # Check that all eligible people have been vaccinated
-        new_eligible = [p for p in self.people if p.vacc_status == 'unvacc' and p.age_group in params.old_groups]
-        self.assertEqual(len(new_eligible), 0)
-        # Get people vaccinated after availability (those now vaccinated but not in vaccinated_before)
-        vaccinated_after = [p for p in self.people if p.vacc_status == 'new_vacc' and p not in vaccinated_before]
-        # Verify new vaccinated self.people after availability are from mid-young age groups
-        for person in vaccinated_after:
+        self.admin.vacc_strat_4(self.people, 10, t=15, t_newvacc_avail=t_newvacc_avail)
+        vaccinated_after = [p for p in self.people if p.vacc_status == 'new_vacc']
+        self.assertNotEqual(len(vaccinated_after), 0)  # check that eligible people have been vaccinated
+        for person in vaccinated_after:  # check that all eligible people vaccinated are in young age group
             self.assertIn(person.age_group, params.old_groups)
-        # Check strategy 4 after all of the young has been vaccinated
-        self.admin.vacc_strat_4(self.people, self.vacc_amount, t=20, t_newvacc_avail=t_newvacc_avail)
-        vaccinated_complete = [p for p in self.people if p.vacc_status == 'new_vacc'
-                               and p not in vaccinated_before
-                               and p not in vaccinated_after]
-        for person in vaccinated_complete:
+        # Check strategy 4 to make sure that if run out of eligible people for new vaccine, switch to old one
+        self.admin.vacc_strat_4(self.people, 50, t=20, t_newvacc_avail=t_newvacc_avail)
+        vaccinated_switch = [p for p in self.people if p.vacc_status != 'unvacc'
+                             and p not in vaccinated_before
+                             and p not in vaccinated_after]
+        vaccinated_eligible = [p for p in vaccinated_switch if p.vacc_status == 'new_vacc']
+        self.assertNotEqual(len(vaccinated_eligible), 0)  # check that eligible people have been vaccinated
+        for person in vaccinated_eligible:
+            self.assertIn(person.age_group, params.old_groups)
+        vaccinated_ineligible = [p for p in vaccinated_switch if p.vacc_status == 'ex_vacc']
+        self.assertNotEqual(len(vaccinated_ineligible), 0)  # check that ineligible people have been vaccinated
+        for person in vaccinated_ineligible:
             self.assertIn(person.age_group, params.young_groups)
+        # Check strategy 4 to make sure that after all eligible people are gone, the old vaccine is administered
+        self.admin.vacc_strat_4(self.people, self.vacc_amount, t=20, t_newvacc_avail=t_newvacc_avail)
+        vaccinated_complete = [p for p in self.people if p.vacc_status != 'unvacc'
+                               and p not in vaccinated_before
+                               and p not in vaccinated_after
+                               and p not in vaccinated_switch]
+        for person in vaccinated_complete:  # check remainde and that they receive the old vaccine
+            self.assertIn(person.age_group, params.young_groups)
+            self.assertEqual(person.vacc_status, 'ex_vacc')
 
     def test_vacc_strat_5(self):
         """Test that vaccine strategy 5 works correctly."""
