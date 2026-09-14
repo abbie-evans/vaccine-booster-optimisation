@@ -10,6 +10,7 @@ from vaccbopti.classes.infectioncount import InfectionCount
 from vaccbopti.classes.timesteps import Timesteps
 params = Params.instance()
 infection_force = InfectionForce()
+total_infections = InfectionCount().count_df
 infections_each_day = InfectionCount().count_df
 infection_force.set_lambda_list(infections_each_day)
 
@@ -198,7 +199,7 @@ class test_timesteps(TestCase):
         """Tests that the increments occur correctly."""
         self.testTimesteps.initialise_people(self.n_infec)
         exvacc_times_old = [p.immunity_time_exvacc for p in self.testTimesteps.people]
-        self.testTimesteps.update_people(infections_each_day)
+        self.testTimesteps.update_people(total_infections, infections_each_day)
         exvacc_times_new = [p.immunity_time_exvacc for p in self.testTimesteps.people]
         for i in range(len(exvacc_times_new)):
             self.assertEqual(exvacc_times_old[i] + 1, exvacc_times_new[i])
