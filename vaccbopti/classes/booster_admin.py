@@ -162,7 +162,7 @@ class BoosterAdmin:
             new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.young_groups]
-            if len(new_eligible) == vacc_amount:  # if exact numbers, give out new vaccine to eligible people
+            if len(new_eligible) >= vacc_amount:  # if exact numbers, give out new vaccine to eligible people
                 self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
             elif len(new_eligible) == 0:  # if no eligible people, give out the old vaccine
@@ -199,7 +199,7 @@ class BoosterAdmin:
             new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.old_groups]
-            if len(new_eligible) == vacc_amount:  # if exact numbers, give out new vaccine to eligible people
+            if len(new_eligible) >= vacc_amount:  # if exact numbers, give out new vaccine to eligible people
                 self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
             elif len(new_eligible) == 0:  # if no eligible people, give out the old vaccine

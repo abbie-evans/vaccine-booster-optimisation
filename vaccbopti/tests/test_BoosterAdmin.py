@@ -42,17 +42,67 @@ class testBoosterAdmin(TestCase):
         with self.assertRaises(ValueError):
             self.admin.update_susceptibility('weird_vacc', person)
 
-    def test_vaccine_administration(self):
+    def test_vaccine_administration_random(self):
         """Test that after vaccine administration, no eligible self.people remain unvaccinated."""
         # Run vaccine administration
         self.admin.vaccine_administration(self.people, 80, vaccine_choice='ex_vacc',
-                                          direction='descend', age_targets='everyone')
+                                          direction='random', age_targets='everyone')
         # Check that eligible unvaccinated people no longer exist in Population
-        # (Eligible = not symptomatic, hospitalised, or dead)
+        # (eligible = not symptomatic, hospitalised, or dead)
         remaining_unvacc = [p for p in self.people
                             if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc']
         self.assertEqual(len(remaining_unvacc), 0)
+
+    def test_vaccine_administration_descend(self):
+            """Test that vaccine administration, happens descending in order."""
+            # Run and check to make sure the correct people (old people descending order)
+            self.admin.vaccine_administration(self.people, 10, vaccine_choice='ex_vacc',
+                                              direction='descend', age_targets='mid-old')
+            remaining_eligible_unvacc = [p for p in self.people
+                                         if p.age_group in ['70-74', '75+']
+                                         and p.vacc_status == 'unvacc']
+            eligible_vacc = [p for p in self.people
+                             if p.age_group in ['70-74', '75+']
+                             and p.vacc_status == 'ex_vacc']
+            self.assertEqual(len(remaining_eligible_unvacc), 0)
+            self.assertEqual(len(eligible_vacc), 10)
+            # Run and check to make sure the correct people (young people descending order)
+            self.admin.vaccine_administration(self.people, 10, vaccine_choice='new_vacc',
+                                              direction='descend', age_targets='mid-young')
+            remaining_eligible_unvacc = [p for p in self.people
+                                         if p.age_group in ['40-44', '45-49']
+                                         and p.vacc_status == 'unvacc']
+            eligible_vacc = [p for p in self.people
+                             if p.age_group in ['40-44', '45-49']
+                             and p.vacc_status == 'new_vacc']
+            self.assertEqual(len(remaining_eligible_unvacc), 0)
+            self.assertEqual(len(eligible_vacc), 10)
+
+    def test_vaccine_administration_ascend(self):
+        """Test that vaccine administration, happens ascending in order."""
+        # Run and check to make sure the correct people (old people ascending order)
+        self.admin.vaccine_administration(self.people, 10, vaccine_choice='ex_vacc',
+                                          direction='ascend', age_targets='mid-old')
+        remaining_eligible_unvacc = [p for p in self.people
+                                     if p.age_group in ['50-54', '55-59']
+                                     and p.vacc_status == 'unvacc']
+        eligible_vacc = [p for p in self.people
+                         if p.age_group in ['50-54', '55-59']
+                         and p.vacc_status == 'ex_vacc']
+        self.assertEqual(len(remaining_eligible_unvacc), 0)
+        self.assertEqual(len(eligible_vacc), 10)
+        # Run and check to make sure the correct people (young people ascending order)
+        self.admin.vaccine_administration(self.people, 10, vaccine_choice='new_vacc',
+                                          direction='ascend', age_targets='mid-young')
+        remaining_eligible_unvacc = [p for p in self.people
+                                     if p.age_group in ['0-4', '5-9']
+                                     and p.vacc_status == 'unvacc']
+        eligible_vacc = [p for p in self.people
+                         if p.age_group in ['0-4', '5-9']
+                         and p.vacc_status == 'new_vacc']
+        self.assertEqual(len(remaining_eligible_unvacc), 0)
+        self.assertEqual(len(eligible_vacc), 10)
 
     def test_vacc_strat_1(self):
         """Test that vaccine strategy 1 works correctly."""
