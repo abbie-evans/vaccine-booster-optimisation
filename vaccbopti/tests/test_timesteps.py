@@ -4,7 +4,7 @@
 import itertools
 import pandas as pd
 import unittest
-from unittest import TestCase, mock
+from unittest import TestCase
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce
@@ -226,7 +226,7 @@ class test_timesteps(TestCase):
                                                         ['ex_vaccine', 'unvaccinated', 'new_vaccine']]))
             misordered_index = pd.MultiIndex.from_tuples(misordered_index, names=["ages", "vacc_status"])
             misordered_df = pd.DataFrame(0, index=misordered_index, columns=df_status)
-            self.testTimesteps.append_daily_nbs_outputdf(t+1, misordered_df)
+            self.testTimesteps.append_daily_nbs_outputdf(t + 1, misordered_df)
 
 
 if __name__ == "__main__":
