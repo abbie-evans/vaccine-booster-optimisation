@@ -1,6 +1,8 @@
 # FILE FOR TESTING THE TIMESTEPS CLASS
 
 # Import useful modules
+import itertools
+import pandas as pd
 import unittest
 from unittest import TestCase, mock
 from vaccbopti.classes.params import Params
@@ -206,13 +208,25 @@ class test_timesteps(TestCase):
 
     def test_append_daily_nbs_outputdf(self):
         """Test that append_daily_nbs_outputdf correctly adds rows for each timestep."""
-        # Initialize people and set up the output dataframe
-        self.testTimesteps.initialise_people(self.n_infec)
-        for t in range(self.sim_length):
-            self.testTimesteps.append_daily_nbs_outputdf(t, infections_each_day)
-        # Check that the dataframe has the correct number of rows (one per timestep)
-        num_rows = self.testTimesteps.statusDF.shape[0]
-        self.assertEqual(num_rows, self.sim_length * len(params.age_groups) * 3)
+        # Initialize people and set up the filled output dataframe
+        self.testTimesteps.initialise_people(self.num_people)
+        index = list(itertools.product(*[params.age_groups, ['unvaccinated', 'ex_vaccine', 'new_vaccine']]))
+        index = pd.MultiIndex.from_tuples(index, names=["ages", "vacc_status"])
+        df_status = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
+        count_df = pd.DataFrame(2, index=index, columns=df_status)
+        # Add filled dataframe to overall dataframe
+        for t in range(self.sim_length - 1):
+            self.testTimesteps.append_daily_nbs_outputdf(t, count_df)
+        # Check that overall dataframe has the correct number of filled rows (one per timestep - 1)
+        num_rows = self.testTimesteps.statusDF[~self.testTimesteps.statusDF.eq(0).any(axis=1)].shape[0]
+        self.assertEqual(num_rows, (self.sim_length - 1) * len(params.age_groups) * 3)
+        # Check that if the dataframe is misordered it doesn't append the data
+        with self.assertRaises(IndexError):
+            misordered_index = list(itertools.product(*[params.age_groups,
+                                                        ['ex_vaccine', 'unvaccinated', 'new_vaccine']]))
+            misordered_index = pd.MultiIndex.from_tuples(misordered_index, names=["ages", "vacc_status"])
+            misordered_df = pd.DataFrame(0, index=misordered_index, columns=df_status)
+            self.testTimesteps.append_daily_nbs_outputdf(t+1, misordered_df)
 
 
 if __name__ == "__main__":
