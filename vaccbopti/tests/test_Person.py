@@ -244,13 +244,16 @@ class test_person(TestCase):
         self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
                                                   'unvaccinated'), 'hospitalised'], 1)
         self.testPerson.death_t_i = 1
-        # Checking the person stays dead after the dead period is over.
+        # Checking the person behaves as in the dying status
         infections_each_day = InfectionCount().count_df  # new infections for each day
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.death_t_i, 0)
+        self.assertEqual(total_infections.loc[(self.testPerson.age_group,
+                                               'unvaccinated'), 'hospitalised'], 1)
         self.assertEqual(self.testPerson.status, 'dead')
+        # Check the person stays dead after the dying period is over (t_i == -1)
         infections_each_day = InfectionCount().count_df  # new infections for each day
-        self.testPerson.change_status(total_infections, infections_each_day)
+        result = self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.death_t_i, -1)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
                                                'unvaccinated'), 'hospitalised'], 0)
@@ -261,6 +264,7 @@ class test_person(TestCase):
         self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
                                                   'unvaccinated'), 'dead'], 1)
         self.assertEqual(self.testPerson.status, 'dead')
+        self.assertIsNone(result)
 
 
 if __name__ == "__main__":

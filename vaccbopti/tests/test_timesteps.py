@@ -2,7 +2,7 @@
 
 # Import useful modules
 import unittest
-from unittest import TestCase
+from unittest import TestCase, mock
 from vaccbopti.classes.params import Params
 from vaccbopti.classes.person import Person
 from vaccbopti.classes.infectionforce import InfectionForce

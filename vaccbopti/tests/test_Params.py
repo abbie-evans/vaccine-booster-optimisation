@@ -3,9 +3,8 @@
 # Import useful modules
 import unittest
 import numpy as np
-from unittest import TestCase
 from vaccbopti.classes.params import Params
-from unittest import mock
+from unittest import TestCase, mock
 
 
 # Define testing class
