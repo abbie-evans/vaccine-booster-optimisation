@@ -55,29 +55,29 @@ class testBoosterAdmin(TestCase):
         self.assertEqual(len(remaining_unvacc), 0)
 
     def test_vaccine_administration_descend(self):
-            """Test that vaccine administration, happens descending in order."""
-            # Run and check to make sure the correct people (old people descending order)
-            self.admin.vaccine_administration(self.people, 10, vaccine_choice='ex_vacc',
-                                              direction='descend', age_targets='mid-old')
-            remaining_eligible_unvacc = [p for p in self.people
-                                         if p.age_group in ['70-74', '75+']
-                                         and p.vacc_status == 'unvacc']
-            eligible_vacc = [p for p in self.people
-                             if p.age_group in ['70-74', '75+']
-                             and p.vacc_status == 'ex_vacc']
-            self.assertEqual(len(remaining_eligible_unvacc), 0)
-            self.assertEqual(len(eligible_vacc), 10)
-            # Run and check to make sure the correct people (young people descending order)
-            self.admin.vaccine_administration(self.people, 10, vaccine_choice='new_vacc',
-                                              direction='descend', age_targets='mid-young')
-            remaining_eligible_unvacc = [p for p in self.people
-                                         if p.age_group in ['40-44', '45-49']
-                                         and p.vacc_status == 'unvacc']
-            eligible_vacc = [p for p in self.people
-                             if p.age_group in ['40-44', '45-49']
-                             and p.vacc_status == 'new_vacc']
-            self.assertEqual(len(remaining_eligible_unvacc), 0)
-            self.assertEqual(len(eligible_vacc), 10)
+        """Test that vaccine administration, happens descending in order."""
+        # Run and check to make sure the correct people (old people descending order)
+        self.admin.vaccine_administration(self.people, 10, vaccine_choice='ex_vacc',
+                                            direction='descend', age_targets='mid-old')
+        remaining_eligible_unvacc = [p for p in self.people
+                                        if p.age_group in ['70-74', '75+']
+                                        and p.vacc_status == 'unvacc']
+        eligible_vacc = [p for p in self.people
+                            if p.age_group in ['70-74', '75+']
+                            and p.vacc_status == 'ex_vacc']
+        self.assertEqual(len(remaining_eligible_unvacc), 0)
+        self.assertEqual(len(eligible_vacc), 10)
+        # Run and check to make sure the correct people (young people descending order)
+        self.admin.vaccine_administration(self.people, 10, vaccine_choice='new_vacc',
+                                            direction='descend', age_targets='mid-young')
+        remaining_eligible_unvacc = [p for p in self.people
+                                        if p.age_group in ['40-44', '45-49']
+                                        and p.vacc_status == 'unvacc']
+        eligible_vacc = [p for p in self.people
+                            if p.age_group in ['40-44', '45-49']
+                            and p.vacc_status == 'new_vacc']
+        self.assertEqual(len(remaining_eligible_unvacc), 0)
+        self.assertEqual(len(eligible_vacc), 10)
 
     def test_vaccine_administration_ascend(self):
         """Test that vaccine administration, happens ascending in order."""
