@@ -162,11 +162,17 @@ class BoosterAdmin:
             new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.young_groups]
-            if len(new_eligible) != 0:
+            if len(new_eligible) == vacc_amount:  # if exact numbers, give out new vaccine to eligible people
                 self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
-            elif len(new_eligible) == 0:
+            elif len(new_eligible) == 0:  # if no eligible people, give out the old vaccine
                 self.vaccine_administration(people, vacc_amount,
+                                            vaccine_choice='ex_vacc', direction='descend', age_targets='mid-old')
+            elif len(new_eligible) < vacc_amount:  # if can give out some new vaccine and then needs to switch
+                self.vaccine_administration(people, len(new_eligible),  # new vaccine to those eligible
+                                            vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
+                remaining_vacc = vacc_amount - len(new_eligible)
+                self.vaccine_administration(people, remaining_vacc,  # old vaccine up to vacc_amount for timepoint
                                             vaccine_choice='ex_vacc', direction='descend', age_targets='mid-old')
 
     def vacc_strat_4(self, people, vacc_amount, t, t_newvacc_avail):
@@ -193,11 +199,17 @@ class BoosterAdmin:
             new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
                             and p.vacc_status == 'unvacc'
                             and p.age_group in params.old_groups]
-            if len(new_eligible) != 0:
+            if len(new_eligible) == vacc_amount:  # if exact numbers, give out new vaccine to eligible people
                 self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
-            elif len(new_eligible) == 0:
+            elif len(new_eligible) == 0:  # if no eligible people, give out the old vaccine
                 self.vaccine_administration(people, vacc_amount,
+                                            vaccine_choice='ex_vacc', direction='ascend', age_targets='mid-young')
+            elif len(new_eligible) < vacc_amount:  # if can give out some new vaccine and then needs to switch
+                self.vaccine_administration(people, len(new_eligible),  # new vaccine to those eligible
+                                            vaccine_choice='new_vacc', direction='ascend', age_targets='mid-old')
+                remaining_vacc = vacc_amount - len(new_eligible)
+                self.vaccine_administration(people, remaining_vacc,  # old vaccine up to vacc_amount for timepoint
                                             vaccine_choice='ex_vacc', direction='ascend', age_targets='mid-young')
 
     def vacc_strat_5(self, people, vacc_amount):
