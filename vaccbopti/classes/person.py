@@ -64,6 +64,8 @@ class Person:
         immunity_time_infec : int
             Time since infection with novel variant.
             If -1, then the person has not been infected
+        hosp : str
+            Whether the person will become hospitalised when infected (hospitalised, not_hospitalised).
         """
         self.id = next(self.id_iter)
         self.age_group = None
@@ -81,6 +83,7 @@ class Person:
         self.immunity_time_exvacc = -1
         self.immunity_time_newvacc = -1
         self.immunity_time_infec = -1
+        self.hosp = 'not_hospitalised'
 
     def set_age_group(self, n):
         """Assign individual a specific age-group.
@@ -238,9 +241,9 @@ class Person:
                 if self.status == 'symptomatic':  # if symptomatic
                     total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # count for force_i
                     infections_each_day.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # note for plots
-                    # Check if will become hospitalised
-                    self.determine_status_change(['hospitalised', 'symptomatic'],
-                                                 params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H)
+                    # Check if they will become hospitalised (determined earlier)
+                    if self.hosp == 'hospitalised':  # if they will become hospitalised
+                        self.status = 'hospitalised'  # change status to hospitalised for now
                     if self.status == 'hospitalised':  # if will become hospitalised
                         self.status = 'symptomatic'  # change status back to symptomatic for now
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)  # determine when they enter the hospital
@@ -256,4 +259,8 @@ class Person:
                 self.vacc_status_t_i = self.vacc_status  # set vaccine status for the dataframe
                 self.immunity_time_infec = 0  # give immunity time
                 self.latent_t_i = self.pick_distr_prob(params.latent_t)
+                # If going to be hospitalised when infected
+                self.hosp = np.random.choice(['hospitalised', 'not_hospitalised'], size=1,
+                                 p=[params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H,
+                                    1 - (params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H)])
             return
