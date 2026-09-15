@@ -165,7 +165,7 @@ with ui.sidebar(position="left"):
                 "The number of times you want to run a simulation."
             # Simulation Length
             with ui.tooltip(id="sim_length_tooltip", placement="right"):
-                ui.input_numeric("sim_length", "Simulation Timesteps", 365, min=5, step=1)
+                ui.input_numeric("sim_length", "Simulation Timesteps", 365, min=5, max=5000, step=1)
                 "The number of timesteps (days) each simulation will run for."
             # Number of people
             with ui.tooltip(id="num_people_tooltip", placement="right"):
@@ -453,7 +453,7 @@ def calc_simulation():
                         t_newvacc_avail=input.t_newvacc_avail())
     with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
         sim.run(progress=p)
-        #sim.save_csv()
+        sim.save_csv()
     return sim
 
 # Upload csv

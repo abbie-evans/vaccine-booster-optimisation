@@ -89,7 +89,7 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
                                  name=f'{vacc}',
                                  legendgroup=group,
                                  legendgrouptitle_text=status,
-                                 line=dict(color=color, dash='dash' if vacc == 'Unvaccinated' else 'solid')))
+                                 line=dict(color=color, dash='dash' if vacc == 'unvaccinated' else 'solid')))
     fig.update_layout(hovermode="x",
                       xaxis_title='Time',
                       yaxis_title='Count',
