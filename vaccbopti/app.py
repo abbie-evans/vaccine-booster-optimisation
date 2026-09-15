@@ -182,10 +182,10 @@ with ui.sidebar(position="left"):
                     if n_infec > input.num_people():
                         n_infec = input.num_people()
                     ui.update_numeric("n_infec", value=n_infec, max=input.num_people())
-            # Percentage of people that will not recieve the vaccine
+            # Proportion of people that will not receive the vaccine
             with ui.tooltip(id="n_ineligible_tooltip", placement="right"):
                 ui.input_numeric("prop_ineligible", "% of Population Ineligable for Vaccine", 0.2, min=0, max=1, step=0.01)
-                "The percentage of people that will not be vaccinated, due to being immunocompromised or vaccine-hesitant."
+                "The proportion of people that will not be vaccinated, due to being immunocompromised or vaccine-hesitant."
             # Vaccine Strategy
             with ui.tooltip(id="vacc_strat_tooltip", placement="right"):
                 ui.input_selectize("vacc_strat", "Vaccine Administration Strategy",
@@ -211,7 +211,7 @@ with ui.sidebar(position="left"):
             # New Vaccine Availability
             with ui.tooltip(id="t_newvacc_avail_tooltip", placement="right"):
                 ui.input_numeric("t_newvacc_avail", "Variant-adapted Vaccine Availability", 40, min=1)
-                "Which day the variant-adapted booster vaccine (for the novel variant) is available to be administered. Only a vaccine for an existing variant (which is less effective) is available before this."
+                "Which day the variant-adapted booster vaccine (for the novel variant) is available to be deployed. Only a vaccine for an existing variant (which is less effective) is available before this."
             @reactive.effect  # dynamically changes the max limit to be limited by total number of days
             def _():
                 t_newvacc_avail = input.t_newvacc_avail()
@@ -453,7 +453,7 @@ def calc_simulation():
                         t_newvacc_avail=input.t_newvacc_avail())
     with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
         sim.run(progress=p)
-        sim.save_csv()
+        # sim.save_csv()
     return sim
 
 # Upload csv
