@@ -106,12 +106,12 @@ class testBoosterAdmin(TestCase):
 
     def test_vacc_strat_1(self):
         """Test that vaccine strategy 1 works correctly."""
-        # Count number of vaccinated people
-        count_original = sum(1 for p in self.people if p.vacc_status == 'unvacc')
+        # Count number of vaccinated people (received old vaccine)
+        count_original = sum(1 for p in self.people if p.vacc_status == 'ex_vacc')
         self.admin.vacc_strat_1(self.people, self.vacc_amount)
-        count_post = sum(1 for p in self.people if p.vacc_status == 'unvacc')
+        count_post = sum(1 for p in self.people if p.vacc_status == 'ex_vacc')
         self.assertGreater(count_post, 0)
-        self.assertNotEqual(count_original, count_post)
+        self.assertGreater(count_post, count_original)
         # Check no one is receiving the new vaccine
         num_new_vaccine = [p for p in self.people if p.vacc_status == 'new_vacc']
         self.assertEqual(0, len(num_new_vaccine))
@@ -119,14 +119,14 @@ class testBoosterAdmin(TestCase):
     def test_vacc_strat_2(self):
         """Test that vaccine strategy 2 works correctly."""
         # Count number of vaccinated people
-        count_original = sum(1 for p in self.people if p.vacc_status == 'unvacc')
+        count_original = sum(1 for p in self.people if p.vacc_status == 'new_vacc')
         for a in range(5):
             self.admin.vacc_strat_2(self.people, self.vacc_amount, t=a, t_newvacc_avail=3)
-            count_postVS = sum(1 for p in self.people if p.vacc_status == 'unvacc')
+            count_postVS = sum(1 for p in self.people if p.vacc_status == 'new_vacc')
             if a < 3:  # check vaccination doesn't happen before it's available
                 self.assertEqual(count_original, count_postVS)
             if a > 3:  # check vaccination does happen after it's available
-                self.assertNotEqual(count_original, count_postVS)
+                self.assertGreater(count_postVS, count_original)
                 # Check no one is receiving the existing vaccine
                 num_ex_vaccine = [p for p in self.people if p.vacc_status == 'ex_vacc']
                 self.assertEqual(0, len(num_ex_vaccine))
@@ -219,21 +219,29 @@ class testBoosterAdmin(TestCase):
         # Count number of vaccinated people
         count_original = sum(1 for p in self.people
                              if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                             and p.vacc_status == 'unvacc')
+                             and p.vacc_status == 'ex_vacc')
         self.admin.vacc_strat_5(self.people, self.vacc_amount)
-        count_postVS = sum(1 for p in self.people if p.vacc_status == 'unvacc')
-        self.assertNotEqual(count_original, count_postVS)
+        count_post = sum(1 for p in self.people if p.vacc_status == 'ex_vacc')
+        self.assertGreater(count_post, 0)
+        self.assertGreater(count_post, count_original)
+        # Check no one is receiving the new vaccine
+        num_new_vaccine = [p for p in self.people if p.vacc_status == 'new_vacc']
+        self.assertEqual(0, len(num_new_vaccine))
 
     def test_vacc_strat_6(self):
         """Test that vaccine strategy 6 works correctly."""
         # Count number of vaccinated people
         count_original = sum(1 for p in self.people
                              if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                             and p.vacc_status == 'unvacc')
+                             and p.vacc_status == 'new_vacc')
         for a in range(20):
             self.admin.vacc_strat_6(self.people, self.vacc_amount, t=a, t_newvacc_avail=15)
-        count_postVS = sum(1 for p in self.people if p.vacc_status == 'unvacc')
-        self.assertNotEqual(count_original, count_postVS)
+        count_post = sum(1 for p in self.people if p.vacc_status == 'new_vacc')
+        self.assertGreater(count_post, 0)
+        self.assertGreater(count_post, count_original)
+        # Check no one is receiving the new vaccine
+        num_old_vaccine = [p for p in self.people if p.vacc_status == 'ex_vacc']
+        self.assertEqual(0, len(num_old_vaccine))
 
 
 if __name__ == "__main__":
