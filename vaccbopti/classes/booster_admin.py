@@ -76,8 +76,9 @@ class BoosterAdmin:
         """
         # Step one - randomised list of eligible individuals
         self.vacc_list = [p for p in people
-                          if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                          and p.vacc_status == 'unvacc']
+                          if p.status not in ['symptomatic', 'dead']  # not visibly infected
+                          and p.hosp_t_i == -2  # not hospitalised
+                          and p.vacc_status == 'unvacc']  # not already vaccinated
         random.shuffle(self.vacc_list)  # shuffle the list
         # Step 2 - resort into age groups but still with the people shuffled
         if direction == 'descend':  # descend goes from old to young people
@@ -159,9 +160,10 @@ class BoosterAdmin:
             self.vaccine_administration(people, vacc_amount,
                                         vaccine_choice='ex_vacc', direction='descend', age_targets='mid-old')
         elif t >= t_newvacc_avail:
-            new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                            and p.vacc_status == 'unvacc'
-                            and p.age_group in params.young_groups]
+            new_eligible = [p for p in people if p.status not in ['symptomatic', 'dead']  # not visibly infected
+                            and p.hosp_t_i == -2  # not hospitalised
+                            and p.vacc_status == 'unvacc'  # not already vaccinated
+                            and p.age_group in params.young_groups]  # young
             if len(new_eligible) >= vacc_amount:  # if exact numbers, give out new vaccine to eligible people
                 self.vaccine_administration(people, vacc_amount,
                                             vaccine_choice='new_vacc', direction='descend', age_targets='mid-young')
@@ -196,8 +198,9 @@ class BoosterAdmin:
             self.vaccine_administration(people, vacc_amount,
                                         vaccine_choice='ex_vacc', direction='ascend', age_targets='mid-young')
         elif t >= t_newvacc_avail:
-            new_eligible = [p for p in people if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                            and p.vacc_status == 'unvacc'
+            new_eligible = [p for p in people if p.status not in ['symptomatic', 'dead']  # not visibly infected
+                            and p.hosp_t_i == -2  # not hospitalised
+                            and p.vacc_status == 'unvacc'  # not already vaccinated
                             and p.age_group in params.old_groups]
             if len(new_eligible) >= vacc_amount:  # if exact numbers, give out new vaccine to eligible people
                 self.vaccine_administration(people, vacc_amount,

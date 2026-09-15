@@ -49,8 +49,9 @@ class Person:
             Time left in infectious period once infectious (symptomatic or asymptomatic).
             If -1, then the person is not currently in an infectious period
         hosp_t_i : int
-            Time spent in hospital.
-            If -1, then the person is not currently in a hospital
+            Time until a person becomes hospitalised.
+            If -1, then the person has just entered the hospital
+            If -2, then the person is no longer needs to become hospitalised
         death_t_i : int
             Time at death from hospitalisation.
             If -1, then the person is not currently in the 'dead' status
@@ -75,7 +76,7 @@ class Person:
         self.prob_exposed = 0.01
         self.latent_t_i = -1
         self.infect_t_i = -1
-        self.hosp_t_i = -1
+        self.hosp_t_i = -2
         self.death_t_i = -1
         self.immunity_time_exvacc = -1
         self.immunity_time_newvacc = -1
@@ -204,20 +205,24 @@ class Person:
             else:
                 self.death_t_i -= 1
                 if self.death_t_i == -1:  # death time over
-                    total_infections.loc[(self.age_group, vacc_status), 'hospitalised'] -= 1  # remove from hospital
-                    total_infections.loc[(self.age_group, vacc_status), 'dead'] += 1  # add to dead at t
-                    infections_each_day.loc[(self.age_group, vacc_status), 'dead'] += 1  # time over, add to dead at t
+                    total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] -= 1  # not in population
+                    total_infections.loc[(self.age_group, vacc_status), 'dead'] += 1  # instead add to dead
+                    infections_each_day.loc[(self.age_group, vacc_status), 'dead'] += 1  # note death at t for plots
                     return
+        # If they will become hospitalised (have hosp_t_i), but not going to die from visit, count down until hospitalised
+        if self.hosp_t_i > -1:  # if having a hospitalisation time
+            self.hosp_t_i -= 1  # count down
+            if self.hosp_t_i == -1:  # if they have just become hospitalised
+                infections_each_day.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # note this for plots
+                self.hosp_t_i = -2  # now ignore the hospitalisation time
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
-        if (self.status == 'asymptomatic' or self.status == 'symptomatic' or self.status == 'hospitalised'):
+        if (self.status == 'asymptomatic' or self.status == 'symptomatic'):
             self.infect_t_i -= 1  # count down infection time
             if self.infect_t_i == -1:  # if infection time is over
-                if self.status == 'asymptomatic':  # remove from asymptomatic total counts
+                if self.status == 'asymptomatic':  # remove from asymptomatic total counts for infection force
                     total_infections.loc[(self.age_group, vacc_status), 'asymptomatic'] -= 1
                 if self.status == 'symptomatic':  # remove from symptomatic total counts
                     total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] -= 1
-                if self.status == 'hospitalised':  # remove from hospitalised total counts
-                    total_infections.loc[(self.age_group, vacc_status), 'hospitalised'] -= 1
                 self.status = 'susceptible'  # back to susceptible
             return
         # If exposed, count down until latent period is finished and then determine response to infection
@@ -227,21 +232,20 @@ class Person:
                 self.determine_status_change(['symptomatic', 'asymptomatic'],   # (a)symptomatic or not
                                              params.p_v_symp_a)
                 self.infect_t_i = self.pick_distr_prob(params.infec_t)  # determine infectious period time
-                if self.status == 'asymptomatic':
-                    total_infections.loc[(self.age_group, vacc_status), 'asymptomatic'] += 1
-                    infections_each_day.loc[(self.age_group, vacc_status), 'asymptomatic'] += 1
+                if self.status == 'asymptomatic':  # if asymptomatic
+                    total_infections.loc[(self.age_group, vacc_status), 'asymptomatic'] += 1  # count for force_i
+                    infections_each_day.loc[(self.age_group, vacc_status), 'asymptomatic'] += 1  # note for plots
                 if self.status == 'symptomatic':  # if symptomatic
-                    self.determine_status_change(['hospitalised', 'symptomatic'],  # check if hospitalised
+                    total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # count for force_i
+                    infections_each_day.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # note for plots
+                    # Check if will become hospitalised
+                    self.determine_status_change(['hospitalised', 'symptomatic'],
                                                  params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H)
-                    if self.status != 'hospitalised':  # if not hospitalised
-                        total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # add to symptomatic
-                        infections_each_day.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # add to symptomatic
-                    if self.status == 'hospitalised':  # if hospitalised, calculate how long in hospital
-                        self.hosp_t_i = self.pick_distr_prob(params.hosp_t)
-                        self.determine_status_change(['dead', 'hospitalised'],  # check if they die
+                    if self.status == 'hospitalised':  # if will become hospitalised
+                        self.status = 'symptomatic'  # change status back to symptomatic for now
+                        self.hosp_t_i = self.pick_distr_prob(params.hosp_t)  # determine when they enter the hospital
+                        self.determine_status_change(['dead', 'symptomatic'],  # check if they die
                                                      params.p_nv_HD_list[self.age_group_index])
-                        total_infections.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # add to hospitalised
-                        infections_each_day.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # add hospitalised
                         if self.status == 'dead':  # if they die, calculate how long it takes
                             self.death_t_i = self.hosp_t_i + self.pick_distr_prob(params.death_t)
             return

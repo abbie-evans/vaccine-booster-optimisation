@@ -200,25 +200,38 @@ class test_person(TestCase):
         self.testPerson.latent_t_i = 0
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.latent_t_i, -1)
-        self.assertEqual(self.testPerson.status, 'hospitalised')
+        self.assertEqual(self.testPerson.status, 'symptomatic')
         self.assertNotEqual(self.testPerson.infect_t_i, -1)
         self.assertNotEqual(self.testPerson.hosp_t_i, -1)
+        self.assertNotEqual(self.testPerson.hosp_t_i, -2)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
-                                               'unvaccinated'), 'hospitalised'], 1)
+                                               'unvaccinated'), 'symptomatic'], 1)
+        self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
+                                                  'unvaccinated'), 'symptomatic'], 1)
+        # Check the switch when someone becomes hospitalised
+        self.testPerson.infect_t_i = 3
+        self.testPerson.hosp_t_i = 1
+        infections_each_day = InfectionCount().count_df  # new infections for each day
+        self.testPerson.change_status(total_infections, infections_each_day)
+        self.assertEqual(self.testPerson.hosp_t_i, 0)
+        self.assertEqual(self.testPerson.status, 'symptomatic')
+        self.testPerson.change_status(total_infections, infections_each_day)
+        self.assertEqual(self.testPerson.hosp_t_i, -2)
+        self.assertEqual(total_infections.loc[(self.testPerson.age_group,
+                                               'unvaccinated'), 'symptomatic'], 1)
         self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
                                                   'unvaccinated'), 'hospitalised'], 1)
-        self.testPerson.infect_t_i = 1
-        # Checking the switch back from hospitalised to susceptible.
+        # Checking the switch back from symptomatic to susceptible.
         infections_each_day = InfectionCount().count_df  # new infections for each day
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.infect_t_i, 0)
-        self.assertEqual(self.testPerson.status, 'hospitalised')
+        self.assertEqual(self.testPerson.status, 'symptomatic')
+        self.assertEqual(total_infections.loc[(self.testPerson.age_group,
+                                               'unvaccinated'), 'symptomatic'], 1)
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.infect_t_i, -1)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
-                                               'unvaccinated'), 'hospitalised'], 0)
-        self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
-                                                  'unvaccinated'), 'hospitalised'], 0)
+                                               'unvaccinated'), 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -240,25 +253,25 @@ class test_person(TestCase):
         self.assertNotEqual(self.testPerson.hosp_t_i, -1)
         self.assertNotEqual(self.testPerson.death_t_i, -1)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
-                                               'unvaccinated'), 'hospitalised'], 1)
+                                               'unvaccinated'), 'symptomatic'], 1)
         self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
-                                                  'unvaccinated'), 'hospitalised'], 1)
+                                                  'unvaccinated'), 'symptomatic'], 1)
         self.testPerson.death_t_i = 1
         # Checking the person behaves as in the dying status
         infections_each_day = InfectionCount().count_df  # new infections for each day
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.death_t_i, 0)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
-                                               'unvaccinated'), 'hospitalised'], 1)
+                                               'unvaccinated'), 'symptomatic'], 1)
         self.assertEqual(self.testPerson.status, 'dead')
         # Check the person stays dead after the dying period is over (t_i == -1)
         infections_each_day = InfectionCount().count_df  # new infections for each day
         result = self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.death_t_i, -1)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
-                                               'unvaccinated'), 'hospitalised'], 0)
+                                               'unvaccinated'), 'symptomatic'], 0)
         self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,
-                                                  'unvaccinated'), 'hospitalised'], 0)
+                                                  'unvaccinated'), 'symptomatic'], 0)
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
                                                'unvaccinated'), 'dead'], 1)
         self.assertEqual(infections_each_day.loc[(self.testPerson.age_group,

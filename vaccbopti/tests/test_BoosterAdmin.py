@@ -50,8 +50,9 @@ class testBoosterAdmin(TestCase):
         # Check that eligible unvaccinated people no longer exist in Population
         # (eligible = not symptomatic, hospitalised, or dead)
         remaining_unvacc = [p for p in self.people
-                            if p.status not in ['symptomatic', 'hospitalised', 'dead']
-                            and p.vacc_status == 'unvacc']
+                            if p.status not in ['symptomatic', 'dead']  # not visibly infected
+                            and p.hosp_t_i == -2  # not hospitalised
+                            and p.vacc_status == 'unvacc']  # not already vaccinated
         self.assertEqual(len(remaining_unvacc), 0)
 
     def test_vaccine_administration_descend(self):
@@ -218,7 +219,8 @@ class testBoosterAdmin(TestCase):
         """Test that vaccine strategy 5 works correctly."""
         # Count number of vaccinated people
         count_original = sum(1 for p in self.people
-                             if p.status not in ['symptomatic', 'hospitalised', 'dead']
+                             if p.status not in ['symptomatic', 'dead']  # not visibly infected
+                             and p.hosp_t_i == -2  # not hospitalised
                              and p.vacc_status == 'ex_vacc')
         self.admin.vacc_strat_5(self.people, self.vacc_amount)
         count_post = sum(1 for p in self.people if p.vacc_status == 'ex_vacc')
@@ -232,7 +234,8 @@ class testBoosterAdmin(TestCase):
         """Test that vaccine strategy 6 works correctly."""
         # Count number of vaccinated people
         count_original = sum(1 for p in self.people
-                             if p.status not in ['symptomatic', 'hospitalised', 'dead']
+                             if p.status not in ['symptomatic', 'dead']  # not visibly infected
+                             and p.hosp_t_i == -2  # not hospitalised
                              and p.vacc_status == 'new_vacc')
         for a in range(20):
             self.admin.vacc_strat_6(self.people, self.vacc_amount, t=a, t_newvacc_avail=15)
