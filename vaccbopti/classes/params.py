@@ -71,7 +71,7 @@ class Params:
             self.k = 1.4
             self.lam = 8.4
             # Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled
-            self.latent_t =self.integral_probabilities_array("gamma", [self.shape, self.scale_latent_t])
+            self.latent_t = self.integral_probabilities_array("gamma", [self.shape, self.scale_latent_t])
             self.infec_t = self.integral_probabilities_array("gamma", [self.shape, self.scale_infec_t])
             self.hosp_t = self.integral_probabilities_array("weibull", [self.k, self.lam])
             self.death_t = self.integral_probabilities_array("gamma", [self.shape_death_t, self.scale_death_t])
@@ -108,7 +108,8 @@ class Params:
                 integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, a=parameters[0], scale=parameters[1])
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
             else:
-                integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, c=parameters[0], scale=parameters[1])
+                integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, c=parameters[0],
+                                                                                 scale=parameters[1])
                 return integrate.quad(integrand_weibull, k - 1, k + 1)
 
         def integral_of_density_probability(self, dist, parameters):
