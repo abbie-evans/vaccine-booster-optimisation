@@ -260,8 +260,7 @@ class Person:
                 self.immunity_time_infec = 0  # give immunity time
                 self.latent_t_i = self.pick_distr_prob(params.latent_t)
                 # If going to be hospitalised when infected
+                prob_hospitalised = params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H
                 self.hosp = np.random.choice(['hospitalised', 'not_hospitalised'], size=1,
-                                             p=[params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H,
-                                                1 - (params.p_nv_IH_list[self.age_group_index] *
-                                                     self.susceptibility_H)])
+                                             p=[prob_hospitalised, 1 - prob_hospitalised])
             return
