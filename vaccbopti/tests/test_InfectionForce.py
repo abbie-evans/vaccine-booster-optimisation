@@ -16,7 +16,7 @@ class TestInfectionForce(TestCase):
     def setUp(self):
         """Create a test InfectionForce object."""
         self.testInfectionForce = InfectionForce()
-        self.infections_each_day = InfectionCount()
+        self.total_infections = InfectionCount()
 
     def test_correct_init(self):
         """Test that the empty array is correctly setup."""
@@ -33,7 +33,7 @@ class TestInfectionForce(TestCase):
             test_sum_Na += test_N_a
         self.assertEqual(test_sum_Na, test_num_people)
         # Define the test values and compute manually
-        self.infections_each_day.count_df = self.infections_each_day.count_df.replace(0, 2)
+        self.total_infections.count_df = self.total_infections.count_df.replace(0, 2)
         test_I_b = 12
         test_A_b = 6
         test_p = 0.255
@@ -41,23 +41,29 @@ class TestInfectionForce(TestCase):
         test_N_a = 6112
         test_manual = test_M_12 / test_N_a * (test_I_b + test_p * test_A_b)
         # Execute the function in the class InfectionForce
-        test_function = self.testInfectionForce.calc_z(1, 2, self.infections_each_day.count_df)
+        test_function = self.testInfectionForce.calc_z(1, 2, self.total_infections.count_df)
         self.assertEqual(test_function, test_manual)
 
     def test_calc_lambda(self):
         """Tests that the calculation for overall lambda is correct."""
         self.test_nb = float(1.1)
         with mock.patch.object(self.testInfectionForce, "calc_z", wraps=self.testInfectionForce.calc_z) as mock_calc_z:
-            test_function = self.testInfectionForce.calc_lambda(1, self.infections_each_day.count_df)
+            test_function = self.testInfectionForce.calc_lambda(1, self.total_infections.count_df)
             self.assertEqual(mock_calc_z.call_count, 16)  # checks calc_z called 16 times
             self.assertEqual(type(test_function), type(self.test_nb))  # output value should be correct
 
     def test_set_lambda_list(self):
         """Tests that the function to add all lambda to the list is correct."""
-        self.testInfectionForce.set_lambda_list(self.infections_each_day.count_df)
+        self.testInfectionForce.set_lambda_list(self.total_infections.count_df)
         self.assertEqual(len(self.testInfectionForce.lambda_list), 16)
         for i in self.testInfectionForce.lambda_list:
             self.assertIsInstance(i, float)
+        # Update counts and check lambda list is updated
+        old_lambda_list = self.testInfectionForce.lambda_list.copy()
+        self.total_infections.count_df = self.total_infections.count_df.replace(0, 5)
+        self.testInfectionForce.set_lambda_list(self.total_infections.count_df)
+        for i in range(len(old_lambda_list)):
+            self.assertNotEqual(old_lambda_list[i], self.testInfectionForce.lambda_list[i])
 
 
 if __name__ == '__main__':
