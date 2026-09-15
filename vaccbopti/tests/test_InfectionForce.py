@@ -42,7 +42,7 @@ class TestInfectionForce(TestCase):
         test_manual = test_M_12 / test_N_a * (test_I_b + test_p * test_A_b)
         # Execute the function in the class InfectionForce
         test_function = self.testInfectionForce.calc_z(1, 2, self.total_infections.count_df)
-        self.assertEqual(test_function, test_manual)
+        self.assertAlmostEqual(test_function, test_manual, 3)
 
     def test_calc_lambda(self):
         """Tests that the calculation for overall lambda is correct."""

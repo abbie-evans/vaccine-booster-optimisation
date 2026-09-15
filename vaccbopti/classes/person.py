@@ -209,7 +209,7 @@ class Person:
                     total_infections.loc[(self.age_group, vacc_status), 'dead'] += 1  # instead add to dead
                     infections_each_day.loc[(self.age_group, vacc_status), 'dead'] += 1  # note death at t for plots
                     return
-        # If they will become hospitalised (have hosp_t_i), but not going to die from visit, count down until hospitalised
+        # If they will become hospitalised (have hosp_t_i), but not going to die, count down until hospitalised
         if self.hosp_t_i > -1:  # if having a hospitalisation time
             self.hosp_t_i -= 1  # count down
             if self.hosp_t_i == -1:  # if they have just become hospitalised
