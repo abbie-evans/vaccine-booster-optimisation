@@ -25,10 +25,10 @@ class Params:
                                '60-64', '65-69', '70-74', '75+']
             self.old_groups = self.age_groups[10:]
             self.young_groups = self.age_groups[:10]
-            self.prop_indivs_a = [0.05758, 0.06112, 0.05849, 0.05413,  # proportion of individual in age groups
-                                  0.06011, 0.06698, 0.06828, 0.06691,
-                                  0.06424, 0.06311, 0.06889, 0.06696,
-                                  0.05769, 0.05015, 0.05021, 0.08515]
+            self.prop_indivs_a = [0.05781, 0.06068, 0.05828, 0.05430,  # proportion of individual in age groups
+                                  0.06002, 0.06605, 0.06933, 0.06759,
+                                  0.06346, 0.06328, 0.06827, 0.06686,
+                                  0.05752, 0.04982, 0.04991, 0.08680]
             self.p_v_symp_a = [0.068, 0.015, 0.021, 0.026,  # probability of developing symptoms d(a)
                                0.067, 0.098, 0.104, 0.094,
                                0.101, 0.125, 0.193, 0.261,
@@ -61,7 +61,7 @@ class Params:
                                  0.146, 0.137, 0.246, 0.445]
             self.mean_death = 10  # mean death time (days)
             self.sd_death = 12.1  # s.d. of death time (days)
-            self.days_samples = np.array(range(1, 1001))  # number of samples for days of periods
+            self.days_samples = np.array(range(1, 41))  # number of samples for days of periods
             # Shape and scale parameters for gamma and weibull distribution for periods
             self.shape = 3.0
             self.scale_latent_t = self.mean_latent / self.shape
@@ -71,14 +71,10 @@ class Params:
             self.k = 1.4
             self.lam = 8.4
             # Producing arrays from which the latent, infectious, hospitalisation, and time to deaths are sampled
-            self.latent_t = self.integral_probabilities_array("gamma",
-                                                              [self.shape, self.scale_latent_t])
-            self.infec_t = self.integral_probabilities_array("gamma",
-                                                             [self.shape, self.scale_infec_t])
-            self.hosp_t = self.integral_probabilities_array("weibull",
-                                                            [self.k, self.lam])
-            self.death_t = self.integral_probabilities_array("gamma",
-                                                             [self.shape_death_t, self.scale_death_t])
+            self.latent_t =self.integral_probabilities_array("gamma", [self.shape, self.scale_latent_t])
+            self.infec_t = self.integral_probabilities_array("gamma", [self.shape, self.scale_infec_t])
+            self.hosp_t = self.integral_probabilities_array("weibull", [self.k, self.lam])
+            self.death_t = self.integral_probabilities_array("gamma", [self.shape_death_t, self.scale_death_t])
             # Tau curves for immunity to access under each vaccine type - discretised function for the decrease in
             # immunity as time passes (conferred by each vaccine type)
             self.f_exvacc = self.calc_fx(self.n0_exvacc, self.n50_ag_infec)
@@ -109,10 +105,10 @@ class Params:
                 The discrete probability returned from the distribution function
             """
             if dist == "gamma":
-                integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, parameters[0], parameters[1])
+                integrand_gamma = lambda u: (1 - abs(u - k)) * stats.gamma.pdf(u, a=parameters[0], scale=parameters[1])
                 return integrate.quad(integrand_gamma, k - 1, k + 1)
             else:
-                integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, parameters[0], scale=parameters[1])
+                integrand_weibull = lambda u: (1 - abs(u - k)) * weibull_min.pdf(u, c=parameters[0], scale=parameters[1])
                 return integrate.quad(integrand_weibull, k - 1, k + 1)
 
         def integral_of_density_probability(self, dist, parameters):
