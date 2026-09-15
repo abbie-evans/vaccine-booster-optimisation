@@ -262,6 +262,6 @@ class Person:
                 # If going to be hospitalised when infected
                 self.hosp = np.random.choice(['hospitalised', 'not_hospitalised'], size=1,
                                              p=[params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H,
-                                                1 - (params.p_nv_IH_list[self.age_group_index] *\
+                                                1 - (params.p_nv_IH_list[self.age_group_index] *
                                                      self.susceptibility_H)])
             return
