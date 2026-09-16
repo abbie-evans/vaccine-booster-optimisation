@@ -15,8 +15,7 @@ setup(name='vaccbopti',
       url='https://github.com/abbie-evans/vaccine-booster-optimisation',
       # Packages to include
       packages=find_packages(include=('vaccbopti', 'vaccbopti.*')),
-      package_data={
-        'vaccbopti.classes': ['*.csv',]},
+      package_data={'vaccbopti.classes': ['*.csv',]},
       install_requires=['numpy',
                         'pandas',
                         'matplotlib',
