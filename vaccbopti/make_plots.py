@@ -7,7 +7,8 @@ from natsort import natsorted
 
 # Global variables to manage settings for plots
 VIVID = px.colors.qualitative.Vivid
-project_root = os.path.dirname(os.path.dirname(__file__))
+# project_root = os.path.dirname(os.path.dirname(__file__))
+project_root = os.path.dirname(__file__)
 
 # Rename and map variables for user interface
 STATUS_COLS = ['symptomatic', 'asymptomatic', 'hospitalised', 'dead']
@@ -143,7 +144,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     # Render figure
     fig = go.Figure()
     fig.update_layout(plot_bgcolor='#eff5fa')
-    colours = ['black', 'red', 'darkorange', 'gold', 'forestgreen', 'dodgerblue', 'mediumorchid']
+    colours = px.colors.sequential.Rainbow
     for i, label in enumerate(labels):
         if label not in strategy_agg:
             continue
@@ -153,7 +154,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
                                  mode='lines',
                                  name=f'Strategy {label}',
                                  legendgroup=f'Strategy {label}',
-                                 line=dict(color=colours[i])))
+                                 line=dict(color=colours[int(i / len(labels) * len(colours))])))
     fig.update_layout(title=f'Number of {status} individuals across strategies',
                       xaxis_title='Time',
                       hovermode="x",
@@ -182,7 +183,7 @@ def get_yll(df_agg):
         df_agg: the aggregated dataframe (vaccination statuses) with all the plotting values
         yll: accessed from Life_expectancy.csv, a local constants file
     """
-    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/classes/Life_expectancy.csv')
+    yll_csv = pd.read_csv(f'{project_root}/classes/Life_expectancy.csv')
     death_by_age = df_agg['D'].groupby('ages').sum()
     yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'yll'].values * death_by_age.values
     return yll_nb.sum()
