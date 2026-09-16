@@ -92,7 +92,7 @@ def plot_track_status_plotly(df_agg, df_sd_agg=None, lines_to_plot=None):
                                  line=dict(color=color, dash='dash' if vacc == 'unvaccinated' else 'solid')))
     fig.update_layout(hovermode="x",
                       xaxis_title='Time',
-                      yaxis_title='Count',
+                      yaxis_title='Number of Individuals in Each Status',
                       legend=dict(groupclick='togglegroup'))
     return fig
 
@@ -109,20 +109,24 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     all_ages = natsorted(df_plot.columns)
     if ages_to_plot is None:
         ages_to_plot = all_ages
+    colours = ['black', 'brown', 'red', 'darkorange', 'gold', 'papayawhip', 'yellowgreen',
+               'forestgreen', 'powderblue', 'deepskyblue', 'royalblue', 'mediumslateblue',
+               'purple', 'mediumorchid', 'deeppink', 'lightpink']
     # Render figure
     fig = go.Figure()
     fig.update_layout(plot_bgcolor='#eff5fa')
-    for age in ages_to_plot:
+    for i, age in enumerate(ages_to_plot):
         if age in df_plot.columns:
             fig.add_trace(go.Scatter(x=df_plot.index,
                                      y=df_plot[age],
                                      mode='lines',
                                      name=age,
-                                     legendgroup=age))
-    fig.update_layout(title=f'{status} by age group',
+                                     legendgroup=age,
+                                     line=dict(color=colours[i])))
+    fig.update_layout(title=f'Number of {status} individuals by age group',
                       xaxis_title='Time',
                       hovermode="x",
-                      yaxis_title=status,
+                      yaxis_title=f'Number of {status} Individuals',
                       legend=dict(title='Age group', groupclick='togglegroup'))
     return fig
 
@@ -139,24 +143,22 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     # Render figure
     fig = go.Figure()
     fig.update_layout(plot_bgcolor='#eff5fa')
-    colors = VIVID
+    colours = ['black', 'red', 'darkorange', 'gold', 'forestgreen', 'dodgerblue', 'mediumorchid']
     for i, label in enumerate(labels):
         if label not in strategy_agg:
             continue
         df = strategy_agg[label]
-        color = colors[i % len(colors)]
         fig.add_trace(go.Scatter(x=df.index,
                                  y=df[status],
                                  mode='lines',
                                  name=f'Strategy {label}',
-                                 legendgroup=f'strategy_{label}',
-                                 legendgrouptitle_text=f'Strategy {label}',
-                                 line=dict(color=color)))
-    fig.update_layout(title=f'{status} across strategies',
+                                 legendgroup=f'Strategy {label}',
+                                 line=dict(color=colours[i])))
+    fig.update_layout(title=f'Number of {status} individuals across strategies',
                       xaxis_title='Time',
                       hovermode="x",
-                      yaxis_title=status,
-                      legend=dict(title='Strategy', groupclick='togglegroup'))
+                      yaxis_title=f'Number of {status} Individuals',
+                      legend=dict(title='Booster Strategy', groupclick='togglegroup'))
     return fig
 
 
@@ -178,9 +180,9 @@ def get_yll(df_agg):
     (expected average lifespan - actual age of death).
     Parameters:
         df_agg: the aggregated dataframe (vaccination statuses) with all the plotting values
-        yll: accessed from life_expectancy.csv, a local constants file
+        yll: accessed from Life_expectancy.csv, a local constants file
     """
-    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/classes/life_expectancy.csv')
+    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/classes/Life_expectancy.csv')
     death_by_age = df_agg['D'].groupby('ages').sum()
-    yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'YLL'].values * death_by_age.values
+    yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'yll'].values * death_by_age.values
     return yll_nb.sum()
