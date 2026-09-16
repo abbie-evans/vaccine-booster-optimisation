@@ -143,7 +143,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     # Render figure
     fig = go.Figure()
     fig.update_layout(plot_bgcolor='#eff5fa')
-    colours = ['black', 'red', 'darkorange', 'gold', 'forestgreen', 'dodgerblue', 'mediumorchid']
+    colours = px.colors.sequential.Rainbow
     for i, label in enumerate(labels):
         if label not in strategy_agg:
             continue
@@ -153,7 +153,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
                                  mode='lines',
                                  name=f'Strategy {label}',
                                  legendgroup=f'Strategy {label}',
-                                 line=dict(color=colours[i])))
+                                 line=dict(color=colours[int(i / len(labels) * len(colours))])))
     fig.update_layout(title=f'Number of {status} individuals across strategies',
                       xaxis_title='Time',
                       hovermode="x",
