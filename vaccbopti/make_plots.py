@@ -109,7 +109,9 @@ def plot_age_dynamics_plotly(df_agg, status, ages_to_plot=None):
     all_ages = natsorted(df_plot.columns)
     if ages_to_plot is None:
         ages_to_plot = all_ages
-    colours = ['black', 'brown', 'red', 'darkorange', 'gold', 'papayawhip', 'yellowgreen', 'forestgreen', 'powderblue', 'deepskyblue', 'royalblue', 'mediumslateblue', 'purple', 'mediumorchid', 'deeppink', 'lightpink']
+    colours = ['black', 'brown', 'red', 'darkorange', 'gold', 'papayawhip', 'yellowgreen',
+               'forestgreen', 'powderblue', 'deepskyblue', 'royalblue', 'mediumslateblue',
+               'purple', 'mediumorchid', 'deeppink', 'lightpink']
     # Render figure
     fig = go.Figure()
     fig.update_layout(plot_bgcolor='#eff5fa')
