@@ -2,8 +2,7 @@ name: Deploy Shiny app to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main", "dev" ]
   workflow_dispatch:
 
 permissions:
@@ -33,9 +32,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install shinylive==0.8.12
 
+      - name: Create Shinylive app directory
+        run: |
+          mkdir -p shinylive_app
+
+          # The Express app must be at the top level
+          cp vaccbopti/app.py shinylive_app/app.py
+
+          # Keep the Python package available for imports
+          cp -r vaccbopti shinylive_app/vaccbopti
+
+          # Files accessed directly by app.py
+          cp -r vaccbopti/classes shinylive_app/classes
+          cp -r vaccbopti/outputs shinylive_app/outputs
+
+          # Shinylive dependencies
+          cp vaccbopti/requirements.txt shinylive_app/requirements.txt
+
       - name: Export Shinylive app
         run: |
-          shinylive export vaccbopti site
+          shinylive export shinylive_app site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -46,12 +62,12 @@ jobs:
           path: site
 
   deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
-    needs: build
 
     steps:
       - name: Deploy to GitHub Pages
