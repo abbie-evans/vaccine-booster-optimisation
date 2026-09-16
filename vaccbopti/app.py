@@ -12,8 +12,10 @@ from faicons import icon_svg as icon
 
 
 # File paths
-project_root = os.path.dirname(os.path.dirname(__file__))
-strategy_dir = f'{project_root}/outputs'
+# project_root = os.path.dirname(os.path.dirname(__file__))
+# strategy_dir = f'{project_root}/outputs'
+project_root = os.path.dirname(__file__)
+strategy_dir = os.path.join(project_root, "outputs")
 files = [f for f in os.listdir(strategy_dir) if f.endswith('.csv')]
 examples = [f for f in files if 'mean' in f]
 examples = [f.split('_mean')[0] for f in examples]

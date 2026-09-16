@@ -4,10 +4,10 @@ import itertools
 import numpy as np
 import pandas as pd
 import random
-from vaccbopti.classes import Params
-from vaccbopti.classes import InfectionCount
-from vaccbopti.classes import InfectionForce
-from vaccbopti.classes import Timesteps
+from classes import Params
+from classes import InfectionCount
+from classes import InfectionForce
+from classes import Timesteps
 params = Params.instance()
 infection_force = InfectionForce()
 project_root = os.path.dirname(os.path.dirname(__file__))
