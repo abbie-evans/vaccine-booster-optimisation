@@ -178,9 +178,9 @@ def get_yll(df_agg):
     (expected average lifespan - actual age of death).
     Parameters:
         df_agg: the aggregated dataframe (vaccination statuses) with all the plotting values
-        yll: accessed from life_expectancy.csv, a local constants file
+        yll: accessed from Life_expectancy.csv, a local constants file
     """
-    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/classes/life_expectancy.csv')
+    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/classes/Life_expectancy.csv')
     death_by_age = df_agg['D'].groupby('ages').sum()
-    yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'YLL'].values * death_by_age.values
+    yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'yll'].values * death_by_age.values
     return yll_nb.sum()
