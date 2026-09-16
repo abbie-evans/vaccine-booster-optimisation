@@ -101,8 +101,3 @@ class Simulation:
         # Now convert from SD into variance for pooling
         var_combined = std_combined ** 2
         self.statusDF_std = np.sqrt(var_combined.groupby(['t', 'vacc_status']).sum())
-
-    def save_csv(self):
-        """Saves the csvs"""
-        self.statusDF_mean.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_mean.csv')  # mean
-        self.statusDF_std.to_csv(f'{project_root}/outputs/model_example_strategy_{self.vacc_strat}_std.csv')  # std

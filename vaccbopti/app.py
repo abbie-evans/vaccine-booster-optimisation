@@ -453,7 +453,6 @@ def calc_simulation():
                         t_newvacc_avail=input.t_newvacc_avail())
     with ui.Progress(min=0, max=input.number_runs()*input.sim_length()) as p:
         sim.run(progress=p)
-        # sim.save_csv()
     return sim
 
 # Upload csv
