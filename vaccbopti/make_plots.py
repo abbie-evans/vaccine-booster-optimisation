@@ -180,7 +180,7 @@ def get_yll(df_agg):
         df_agg: the aggregated dataframe (vaccination statuses) with all the plotting values
         yll: accessed from life_expectancy.csv, a local constants file
     """
-    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/life_expectancy.csv')
+    yll_csv = pd.read_csv(f'{project_root}/vaccbopti/classes/life_expectancy.csv')
     death_by_age = df_agg['D'].groupby('ages').sum()
     yll_nb = yll_csv.set_index('age_group').loc[death_by_age.index, 'YLL'].values * death_by_age.values
     return yll_nb.sum()
