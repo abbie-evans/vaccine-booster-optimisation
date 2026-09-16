@@ -111,11 +111,11 @@ class test_person(TestCase):
         self.assertEqual(self.testPerson.immunity_time_newvacc, 6)
         self.assertEqual(self.testPerson.immunity_time_infec, 11)
 
-    @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    def test_change_status_asymptomatic(self):
-        """Test that the status change decision tree works correctly on the asymptomatic branch."""
+    @patch.object(person.params, 'p_nv_IH_list', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    def test_exposed_hospitalised(self):
+        """Ensure that the hospitalised status is turned on correctly."""
+        # Checking the switch from susceptible to exposed.
         self.testPerson.set_age_group(4)
-        # Checking the switch from susceptible to exposed and ensure that latent time is added.
         self.testPerson.status = 'susceptible'
         self.testPerson.vacc_status = 'new_vacc'
         total_infections = InfectionCount().count_df  # total infections
@@ -123,10 +123,26 @@ class test_person(TestCase):
         self.testPerson.prob_exposed = 0
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.status, 'susceptible')
+        self.assertEqual(self.testPerson.hosp, 'not_hospitalised')
         self.testPerson.prob_exposed = 1
+        self.testPerson.susceptibility_H = 1
+        # Ensure that latent time is added and they gain a hospitalised status if that is likely
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.status, 'exposed')
+        self.assertEqual(self.testPerson.vacc_status_t_i, 'new_vacc')
         self.assertIsNot(self.testPerson.latent_t_i, -1)
+        self.assertEqual(self.testPerson.hosp, 'hospitalised')
+
+    @patch.object(person.params, 'p_v_symp_a', new=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    def test_change_status_asymptomatic(self):
+        """Test that the status change decision tree works correctly on the asymptomatic branch."""
+        # Set up
+        self.testPerson.set_age_group(4)
+        self.testPerson.status = 'exposed'
+        self.testPerson.vacc_status = 'new_vacc'
+        self.testPerson.vacc_status_t_i = 'new_vacc'
+        total_infections = InfectionCount().count_df  # total infections
+        infections_each_day = InfectionCount().count_df  # new infections for each day
         self.testPerson.latent_t_i = 0
         # Checking the switch from exposed to asymptomatic.
         infections_each_day = InfectionCount().count_df  # new infections for each day
@@ -197,6 +213,7 @@ class test_person(TestCase):
         infections_each_day = InfectionCount().count_df  # new infections for each day
         self.testPerson.susceptibility_H = 1
         self.testPerson.status = 'exposed'
+        self.testPerson.hosp = 'hospitalised'
         self.testPerson.latent_t_i = 0
         self.testPerson.change_status(total_infections, infections_each_day)
         self.assertEqual(self.testPerson.latent_t_i, -1)
@@ -233,6 +250,7 @@ class test_person(TestCase):
         self.assertEqual(total_infections.loc[(self.testPerson.age_group,
                                                'unvaccinated'), 'symptomatic'], 0)
         self.assertEqual(self.testPerson.status, 'susceptible')
+        self.assertEqual(self.testPerson.hosp, 'not_hospitalised')
 
     @patch.object(person.params, 'p_v_symp_a', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     @patch.object(person.params, 'p_nv_IH_list', new=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -243,6 +261,7 @@ class test_person(TestCase):
         self.testPerson.susceptibility_H = 1
         # Checking the switch from exposed to symptomatic/dead.
         self.testPerson.status = 'exposed'
+        self.testPerson.hosp = 'hospitalised'
         self.testPerson.latent_t_i = 0
         total_infections = InfectionCount().count_df  # total infections
         infections_each_day = InfectionCount().count_df  # new infections for each day

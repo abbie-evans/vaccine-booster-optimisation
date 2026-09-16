@@ -217,6 +217,7 @@ class Person:
             self.hosp_t_i -= 1  # count down
             if self.hosp_t_i == -1:  # if they have just become hospitalised
                 infections_each_day.loc[(self.age_group, vacc_status), 'hospitalised'] += 1  # note this for plots
+                self.hosp = 'not_hospitalised'  # now reset hospitalisation status
                 self.hosp_t_i = -2  # now ignore the hospitalisation time
         # If infected in any condition, then count down until recovered and back to susceptible population or removed
         if (self.status == 'asymptomatic' or self.status == 'symptomatic'):
@@ -241,11 +242,8 @@ class Person:
                 if self.status == 'symptomatic':  # if symptomatic
                     total_infections.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # count for force_i
                     infections_each_day.loc[(self.age_group, vacc_status), 'symptomatic'] += 1  # note for plots
-                    # Check if they will become hospitalised (determined earlier)
+                    # Check if they will become hospitalised (determined when first infected)
                     if self.hosp == 'hospitalised':  # if they will become hospitalised
-                        self.status = 'hospitalised'  # change status to hospitalised for now
-                    if self.status == 'hospitalised':  # if will become hospitalised
-                        self.status = 'symptomatic'  # change status back to symptomatic for now
                         self.hosp_t_i = self.pick_distr_prob(params.hosp_t)  # determine when they enter the hospital
                         self.determine_status_change(['dead', 'symptomatic'],  # check if they die
                                                      params.p_nv_HD_list[self.age_group_index])
@@ -263,4 +261,5 @@ class Person:
                 prob_hospitalised = params.p_nv_IH_list[self.age_group_index] * self.susceptibility_H
                 self.hosp = np.random.choice(['hospitalised', 'not_hospitalised'], size=1,
                                              p=[prob_hospitalised, 1 - prob_hospitalised])
+                self.hosp = str(self.hosp[0])
             return
