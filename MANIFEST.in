@@ -1,2 +1,0 @@
-recursive-include vaccbopti *.csv
-recursive-include vaccbopti/classes *.csv
