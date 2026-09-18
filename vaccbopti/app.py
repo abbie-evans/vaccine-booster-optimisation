@@ -6,7 +6,7 @@ from shinywidgets import render_plotly
 from shiny import reactive
 from shiny.express import expressify, input, render, ui
 from shiny.types import FileInfo
-from make_plots import get_yll, aggregate_status, format_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals
+from make_plots import get_yll, aggregate_status, format_combined_sd, plot_track_status_plotly, plot_age_dynamics_plotly, plot_strategy_comparison_plotly, get_strategy_totals, plot_ve_comparison_plotly
 import plotly.express as px
 from faicons import icon_svg as icon
 
@@ -21,6 +21,8 @@ else:
 files = [f for f in os.listdir(strategy_dir) if f.endswith('.csv')]
 examples = [f for f in files if 'mean' in f]
 examples = [f.split('_mean')[0] for f in examples]
+vacc_examples = [f for f in files if 'death' in f]
+vacc_examples = [f.split('.csv')[0] for f in vacc_examples]
 
 # Create a dictionary of each of the mean outputs of runs (example and subsequent)
 sim_runs_means = {}
@@ -33,8 +35,15 @@ for f in examples:
     if os.path.isfile(f'{strategy_dir}/{f}_std.csv'):
         sim_runs_stds.update({f: pd.read_csv(f'{strategy_dir}/{f}_std.csv')})
 
+# Create a dictionary of each of the full outputs (example)
+sim_runs_vacc = {}
+for f in vacc_examples:
+    sim_runs_vacc.update({f: pd.read_csv(f'{strategy_dir}/{f}.csv', header=None, index_col=None)})
+
 # Create a reactive value to update simulation choice
 run_names = reactive.value(list(sim_runs_means.keys()))
+vacc_names = reactive.value(list(sim_runs_vacc.keys()))
+
 @expressify
 def choose_simulation_run(id):
     global sim_runs_means
@@ -49,6 +58,13 @@ def choose_multiple_simulations(id):
     @reactive.effect  # dynamically changes the list for each of the runs or uploads
     def _():
         ui.update_selectize(id, choices=dict(zip(run_names(), run_names())), selected=run_names())
+@expressify
+def choose_multiple_vaccines(id):
+    global sim_runs_vacc
+    ui.input_selectize(id, "Select vaccine efficacies", dict(zip(sim_runs_vacc.keys(), sim_runs_vacc.keys())), multiple=True)
+    @reactive.effect  # dynamically changes the list for each of the runs or uploads
+    def _():
+        ui.update_selectize(id, choices=dict(zip(vacc_names(), vacc_names())), selected=vacc_names())
 
 # Load data
 def load_data(label):
@@ -57,6 +73,11 @@ def load_data(label):
     df_sd = sim_runs_stds[label]
     return df_sum, df_sd
 
+def load_ve_data(label):
+    global sim_runs_vacc
+    df = sim_runs_vacc[label]
+    return df
+
 # Plot layouts
 VIVID = px.colors.qualitative.Vivid  # colour scheme
 LEGEND_CAPTION = "I = symptomatic · A = asymptomatic · H = hospitalised · D = dead"
@@ -64,7 +85,6 @@ LEGEND_CAPTION = "I = symptomatic · A = asymptomatic · H = hospitalised · D =
 # Design options
 ui.tags.style("""
 .death-box {
-    background: white;
     border-left: 4px solid #dc3545;
     border-radius: 8px;
     padding: 18px 20px;
@@ -75,7 +95,6 @@ ui.tags.style("""
 }
 
 .hosp-box {
-    background: white;
     border-left: 4px solid #ffa500;
     border-radius: 8px;
     padding: 18px 20px;
@@ -84,9 +103,8 @@ ui.tags.style("""
     gap: 20px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
-              
+
 .yll-box {
-    background: white;
     border-left: 4px solid #3776ab;
     border-radius: 8px;
     padding: 18px 20px;
@@ -103,7 +121,7 @@ ui.tags.style("""
     flex-shrink: 0;
     text-align: center;
 }
-              
+ 
 .hosp-icon {
     color: #ffa500;
     font-size: 32px;
@@ -111,7 +129,7 @@ ui.tags.style("""
     flex-shrink: 0;
     text-align: center;
 }
-              
+  
 .yll-icon {
     color: #3776ab;
     font-size: 32px;
@@ -120,38 +138,36 @@ ui.tags.style("""
     text-align: center;
 }
 
-.content {
-    display: flex;
-    flex-direction: column;
-}
-
 .title {
     font-size: 14px;
     font-weight: 600;
-    color: #26354a;
 }
 
 .number {
     font-size: 36px;
     font-weight: 700;
     line-height: 1.1;
-    color: #18263a;
 }
 
 .subtitle {
     font-size: 13px;
-    color: #718096;
 }
-       
+
 .nav-link {
     border-radius: 20px !important;
-    }
+}
+    
+.nav-tabs {
+    flex-wrap: wrap;
+}
+        
+.tab-content {
+    padding-top: 10px !important;
+}
 """)
 
 # --- THE GUI OF THE PAGE ---
-ui.page_opts(title=ui.HTML("<h1 style='font-size: 2.5em; font-weight: bold;'>"
-                           "Optimising Vaccine Booster Implementation"
-                           "</h1>"), fillable=True)
+ui.page_opts(title="Optimising Vaccine Booster Implementation", fillable=True)
 
 # --- SIDEBAR TO HAVE ALL THE USER INPUTS ---
 with ui.sidebar(position="left"):
@@ -313,9 +329,6 @@ with ui.navset_card_pill(id="main_tabs"):
                 # Choice
                 with ui.card():
                     choose_simulation_run('strategy')
-                    @reactive.effect  # dynamically changes the selected choice if the age choice is changed
-                    def _():
-                        ui.update_selectize('strategy', selected=input.strategy_age())
                 with ui.layout_columns(col_widths=[8, 4]):
                     # Graph
                     with ui.card():
@@ -328,13 +341,11 @@ with ui.navset_card_pill(id="main_tabs"):
                     # Status overview
                     with ui.layout_columns(col_widths=[12, 12]):
                         with ui.div(class_="death-box"):
-
                             ui.div(
                                 icon("skull"),
                                 class_="death-icon"
                             )
-
-                            with ui.div(class_="content"):
+                            with ui.div():
                                 ui.div("Total deaths", class_="title")
 
                                 with ui.div(class_="number"):
@@ -343,38 +354,24 @@ with ui.navset_card_pill(id="main_tabs"):
                                         agg = all_strategy_agg()
                                         totals = get_strategy_totals(agg, input.strategy())
                                         return f"{totals['total_deaths']:,.1f}"
-
                                 ui.div("Averaged over simulations", class_="subtitle")
-
                         with ui.div(class_="hosp-box"):
-
-                            ui.div(
-                                icon("hospital"),
-                                class_="hosp-icon"
-                            )
-
-                            with ui.div(class_="content"):
+                            ui.div(icon("hospital"),
+                                   class_="hosp-icon")
+                            with ui.div():
                                 ui.div("Total hospitalisations", class_="title")
-
                                 with ui.div(class_="number"):
                                     @render.text
                                     def total_hosp_text():
                                         agg = all_strategy_agg()
                                         totals = get_strategy_totals(agg, input.strategy())
                                         return f"{totals['total_hospitalised']:,.1f}"
-
                                 ui.div("Averaged over simulations", class_="subtitle")
-
                         with ui.div(class_="yll-box"):
-
-                            ui.div(
-                                icon("hourglass-half"),
-                                class_="yll-icon"
-                            )
-
-                            with ui.div(class_="content"):
+                            ui.div(icon("hourglass-half"),
+                                   class_="yll-icon")
+                            with ui.div():
                                 ui.div("Total years of life lost", class_="title")
-
                                 with ui.div(class_="number"):
                                     @render.text
                                     def total_yll_text():
@@ -382,7 +379,6 @@ with ui.navset_card_pill(id="main_tabs"):
                                         df_agg = agg[input.strategy()]
                                         yll = get_yll(df_agg)
                                         return f"{yll:,.1f}"
-
                                 ui.div("Averaged over simulations", class_="subtitle")
 
                 # Download button
@@ -408,9 +404,6 @@ with ui.navset_card_pill(id="main_tabs"):
             with ui.nav_panel("Simulation Age Dynamics"):
                 with ui.card():
                     choose_simulation_run('strategy_age')
-                    @reactive.effect  # dynamically changes the selected choice if the age choice is changed
-                    def _():
-                        ui.update_selectize('strategy_age', selected=input.strategy())
                 with ui.card():
                     ui.card_header("Number of People Changing Status Per Day Within Each Age Group")
                     ui.input_select("age_status", "Select status",
@@ -427,18 +420,53 @@ with ui.navset_card_pill(id="main_tabs"):
             # Comparing different Simulations
             with ui.nav_panel("Comparing Different Simulations"):
                 with ui.card():
-                    ui.input_select("strategy_status", "Select status",
+                    ui.card_header("Strategy selection")
+                    ui.input_select("strategy_status", "Select which status to compare across strategies",
                                     choices={'A': "asymptomatic",
-                                             'I': "symptomatic",
-                                             'H': "hospitalised",
-                                             'D': "dead"})
+                                                'I': "symptomatic",
+                                                'H': "hospitalised",
+                                                'D': "dead"})
                     choose_multiple_simulations("strategies_to_compare")
+                with ui.card(full_screen=True):
                     @render_plotly
                     def strategy_plot():
                         agg = all_strategy_agg()
                         selected = list(input.strategies_to_compare())
                         return plot_strategy_comparison_plotly(agg, input.strategy_status(), strategies_to_plot=selected)
                     ui.markdown(f"*{LEGEND_CAPTION}*")
+                with ui.card(fill=False):
+                    with ui.card_header():
+                        "Strategy totals"
+                    @render.data_frame
+                    def strategy_totals_table():
+                        agg = all_strategy_agg()
+                        selected = list(input.strategies_to_compare())
+                        totals = {
+                            label: get_strategy_totals(agg, label)
+                            for label in selected
+                        }
+                        df = pd.DataFrame(totals).T.reset_index()
+                        df = df.rename(columns={"index": "Strategy"})
+                        return render.DataTable(df,
+                                                width="100%",
+                                                height="auto")
+
+    with ui.nav_panel("Comparing timing of vaccinations"):
+        # add text to explain what this panel is about
+        ui.markdown("""
+            This page allows you to compare the total number of deaths across different vaccination efficacies. You can select multiple vaccination efficacies to compare.
+            <br/><br/>
+        """)
+        with ui.div(class_="d-flex flex-column", style="gap: 2.5px;"):
+            with ui.card():
+                choose_multiple_vaccines("vaccs_to_compare")
+            with ui.card():
+                ui.card_header("Total deaths across different vaccination efficacies")
+                @render_plotly
+                def timing_plot():
+                    data = all_ve()
+                    selected = list(input.vaccs_to_compare())
+                    return plot_ve_comparison_plotly(data, ve_to_plot=selected)
 
 
 # --- FUNCTIONS TO RUN THE GUI ---
@@ -512,4 +540,17 @@ def all_strategy_agg_by_age():
     for label in run_names():
         df_sum, _ = load_data(label)
         result[label] = aggregate_status(df_sum, group_cols=['t', 'ages'])
+    return result
+
+# Compare deaths for different VEs
+@reactive.calc
+def all_ve():
+    result = {}
+    for label in vacc_names():
+        df = load_ve_data(label).copy()
+        # sum the values in column for each row
+        df['total_deaths'] = df.iloc[:, 1:].sum(axis=1)
+        result[label] = df['total_deaths']
+    # convert the result dictionary to a dataframe
+    result = pd.DataFrame(result)
     return result
