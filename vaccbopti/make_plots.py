@@ -163,6 +163,36 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
     return fig
 
 
+def plot_ve_comparison_plotly(df, ve_to_plot=None):
+    """Makes the plot that shows the number of deaths for different vaccine efficacies
+    and timings of deployment.
+
+    Parameters
+    ----------
+    df:
+        The dataframe with the number of deaths for each vaccine efficacy and timing of deployment
+    strategies_to_plot:
+        List of strategy labels to include; None = all
+    """
+    fig = go.Figure()
+    # reorder names
+    ve_to_plot = natsorted(ve_to_plot, key=lambda x: float(x.split('_')[-1]))
+    # reorder df to match ve_to_plot
+    df = df[ve_to_plot]
+    labels = [x.split('_')[-1] for x in ve_to_plot]
+    # plot heatmap
+    fig.add_trace(go.Heatmap(z=df.values,
+                             x=labels,
+                             y=df.index,
+                             colorscale='Viridis',
+                             colorbar=dict(title='Number of deaths')
+                             ))
+    fig.update_layout(xaxis_title='Vaccine efficacy',
+                      yaxis_title='Start of booster vaccination (days)',
+                      hovermode="x")
+    return fig
+
+
 def get_strategy_totals(strategy_agg, label):
     """Get the overall deaths and hospitalisations for a given strategy
     Parameters:
