@@ -162,6 +162,7 @@ def plot_strategy_comparison_plotly(strategy_agg, status, strategies_to_plot=Non
                       legend=dict(title='Booster Strategy', groupclick='togglegroup'))
     return fig
 
+
 def plot_ve_comparison_plotly(df, ve_to_plot=None):
     """Makes the plot that shows the number of deaths for different vaccine efficacies
     and timings of deployment.
@@ -185,11 +186,12 @@ def plot_ve_comparison_plotly(df, ve_to_plot=None):
                              y=df.index,
                              colorscale='Viridis',
                              colorbar=dict(title='Number of deaths')
-                            ))
+                             ))
     fig.update_layout(xaxis_title='Vaccine efficacy',
                       yaxis_title='Start of booster vaccination (days)',
                       hovermode="x")
     return fig
+
 
 def get_strategy_totals(strategy_agg, label):
     """Get the overall deaths and hospitalisations for a given strategy
